@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Compro_publi" pageWidth="612" pageHeight="792" columnWidth="612" leftMargin="0" rightMargin="0" topMargin="155" bottomMargin="0" uuid="7e598c53-6280-42f7-be3a-3c6d7f3991e4">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="cm"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="bd urkupina"/>
+	<parameter name="id_pago" class="java.lang.Integer"/>
+	<parameter name="monto_literal" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT pago_id, grad_id, usua_id, contri_id, tip_arm_id, 
+lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion , 
+pago_nro_comprobante,
+       pago_longitud_modificada,  pago_descuento_porcentaje, 
+       pago_descuento_monto, pago_importe_patente, 
+       pago_aseo, pago_reposicion, 
+       pago_importe_total,  
+       pago_id_user_preliquidacion, 
+       pago_preliquidacion, 
+       pago_fecha_hora_preliquidacion, 
+       pago_fecha_hora_cobro,
+       pago_con_exencion,
+       contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit, 
+       liquidador, grad_codigo, grad_direccion, grad_longitud, grad_acera, 
+       grad_tipo_armado, grad_tipo_sitio, grad_vendido, grad_reservado, 
+       grad_estado, 
+       tip_arm_descricpion, tip_arm_patente, tip_arm_tasa_aseo, 
+       tip_arm_unidad_medida,  zona_nombre, zona_color, zona_descripcion
+  FROM view_graderias_sillas
+  WHERE pago_id = $P{id_pago}]]>
+	</queryString>
+	<field name="pago_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="pago_id"/>
+	</field>
+	<field name="grad_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="grad_id"/>
+	</field>
+	<field name="usua_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="usua_id"/>
+	</field>
+	<field name="contri_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="contri_id"/>
+	</field>
+	<field name="tip_arm_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="tip_arm_id"/>
+	</field>
+	<field name="pago_nro_liquidacion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="pago_nro_liquidacion"/>
+	</field>
+	<field name="pago_nro_comprobante" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="pago_nro_comprobante"/>
+	</field>
+	<field name="pago_longitud_modificada" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pago_longitud_modificada"/>
+	</field>
+	<field name="pago_descuento_porcentaje" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pago_descuento_porcentaje"/>
+	</field>
+	<field name="pago_descuento_monto" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pago_descuento_monto"/>
+	</field>
+	<field name="pago_importe_patente" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pago_importe_patente"/>
+	</field>
+	<field name="pago_aseo" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pago_aseo"/>
+	</field>
+	<field name="pago_reposicion" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pago_reposicion"/>
+	</field>
+	<field name="pago_importe_total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pago_importe_total"/>
+	</field>
+	<field name="pago_id_user_preliquidacion" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="pago_id_user_preliquidacion"/>
+	</field>
+	<field name="pago_preliquidacion" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="pago_preliquidacion"/>
+	</field>
+	<field name="pago_fecha_hora_preliquidacion" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="pago_fecha_hora_preliquidacion"/>
+	</field>
+	<field name="pago_fecha_hora_cobro" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="pago_fecha_hora_cobro"/>
+	</field>
+	<field name="pago_con_exencion" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.label" value="pago_con_exencion"/>
+	</field>
+	<field name="contri_nombres" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="contri_nombres"/>
+	</field>
+	<field name="contri_paterno" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="contri_paterno"/>
+	</field>
+	<field name="contri_materno" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="contri_materno"/>
+	</field>
+	<field name="contri_ci" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="contri_ci"/>
+	</field>
+	<field name="contri_nit" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="contri_nit"/>
+	</field>
+	<field name="liquidador" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="liquidador"/>
+	</field>
+	<field name="grad_codigo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grad_codigo"/>
+	</field>
+	<field name="grad_direccion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grad_direccion"/>
+	</field>
+	<field name="grad_longitud" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="grad_longitud"/>
+	</field>
+	<field name="grad_acera" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grad_acera"/>
+	</field>
+	<field name="grad_tipo_armado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grad_tipo_armado"/>
+	</field>
+	<field name="grad_tipo_sitio" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grad_tipo_sitio"/>
+	</field>
+	<field name="grad_vendido" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="grad_vendido"/>
+	</field>
+	<field name="grad_reservado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="grad_reservado"/>
+	</field>
+	<field name="grad_estado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="grad_estado"/>
+	</field>
+	<field name="tip_arm_descricpion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="tip_arm_descricpion"/>
+	</field>
+	<field name="tip_arm_patente" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="tip_arm_patente"/>
+	</field>
+	<field name="tip_arm_tasa_aseo" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="tip_arm_tasa_aseo"/>
+	</field>
+	<field name="tip_arm_unidad_medida" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="tip_arm_unidad_medida"/>
+	</field>
+	<field name="zona_nombre" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="zona_nombre"/>
+	</field>
+	<field name="zona_color" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="zona_color"/>
+	</field>
+	<field name="zona_descripcion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="zona_descripcion"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="302">
+			<textField>
+				<reportElement x="56" y="-2" width="380" height="20" uuid="950810d6-38e9-4864-a4ae-fd539df08d95">
+					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{contri_nombres} + " "+$F{contri_paterno} + " "+$F{contri_materno} + " CI:"+$F{contri_ci}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="91" y="121" width="108" height="20" uuid="b0207a5a-e66b-4510-9c04-949d5dc8193b">
+					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
+					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+					<property name="com.jaspersoft.studio.unit.x" value="cm"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["DIRECCION:"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="91" width="80" height="30" uuid="042064bb-9dda-4448-81d5-c753d1d0880d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box rightPadding="8"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<text><![CDATA[15990]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="91" y="91" width="270" height="30" uuid="ba3c329a-9c75-49a5-8927-7e59b93fc945">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Justified">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tip_arm_descricpion}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#0.00#" isBlankWhenNull="true">
+				<reportElement x="365" y="91" width="65" height="15" uuid="f0deb6e7-acf4-4518-b61b-e68a34782d56">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_importe_patente}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="260" width="80" height="15" uuid="54744496-e18f-45b0-b973-6706a682482b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+				</reportElement>
+				<box rightPadding="8"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[15100]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="89" y="260" width="237" height="15" uuid="4ca0c7fb-c713-4e73-82d3-8748388a4419">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="cm"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<text><![CDATA[TASA DE ASEO]]></text>
+			</staticText>
+			<textField pattern="#0.00#">
+				<reportElement x="365" y="260" width="65" height="15" uuid="4fc69f19-1cb1-4d5a-8728-1d24f76a41fc">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_aseo}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="336" y="29" width="80" height="15" uuid="c6bdcce7-4553-457f-a877-4ccadf2d805c">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{contri_nit}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="129" y="142" width="232" height="15" uuid="90ed887c-4b18-41c4-a3b6-cc60af3ac3f1">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{zona_nombre} + " - "+ $F{zona_color}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="90" y="142" width="70" height="15" uuid="39834834-65ca-4f21-a345-b70be104b35c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ZONA:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="90" y="158" width="52" height="15" uuid="7620299f-120e-4bec-a79b-01cad2e16f3d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[CODIGO :]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="145" y="158" width="216" height="15" uuid="288679b4-8801-47c2-93b1-6e21a2e21a70">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grad_codigo}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="90" y="174" width="56" height="15" uuid="b2d3ccc5-a433-4e47-a5cd-73d869c1cd19">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ACERA:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="145" y="174" width="216" height="15" uuid="8a2f0329-a4fc-404b-97b3-9ac37223ef34"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grad_acera}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="90" y="190" width="60" height="15" uuid="637c6e35-a8db-4383-b768-2904c60c77f7">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[LONGITUD:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="145" y="190" width="216" height="15" uuid="63155bee-75be-4f59-800a-ca255d67811a">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_longitud_modificada} + "METROS LINEALES"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="" x="1" y="277" width="80" height="15" isRemoveLineWhenBlank="true" uuid="71f81f4d-3268-4eab-bf45-218a367ea967">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+				</reportElement>
+				<box rightPadding="8"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[12200]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="89" y="277" width="237" height="15" uuid="661262b7-c3db-46ad-88c9-dcc0684a2f3e">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="cm"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<text><![CDATA[REPOSICIÓN DE COMPROBANTE ]]></text>
+			</staticText>
+			<textField pattern="#0.00#">
+				<reportElement x="365" y="277" width="65" height="15" uuid="fa5c28c3-394b-43b9-8306-366b419f0953">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_reposicion}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="FixRelativeToBottom" x="149" y="121" width="212" height="20" uuid="f27685b4-e197-4475-b705-4d40b88d9c0e">
+					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
+					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+					<property name="com.jaspersoft.studio.unit.x" value="cm"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grad_direccion}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="100" y="29" width="100" height="15" uuid="ddf311f0-5260-4cf3-9480-c13e49ed6c67"/>
+				<textElement textAlignment="Left">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[URKUPIÑA2018]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="92" y="206" width="250" height="15" uuid="89f36765-97ac-415b-adee-ed0841117074"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF($F{pago_con_exencion},"El sitio tiene exencion","")]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<summary>
+		<band height="144" splitType="Stretch">
+			<textField pattern="dd">
+				<reportElement x="182" y="78" width="30" height="15" uuid="a6ae7dee-0c04-47fe-88c3-d02c8024ccfe">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_fecha_hora_cobro}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="52" width="340" height="15" uuid="6afe51ca-caae-4098-af08-852e1f21df7c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{monto_literal}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#.00#">
+				<reportElement x="365" y="8" width="65" height="15" uuid="a6c5cbdf-363d-4340-9c27-2efb3e845ba8">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_importe_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MMMM">
+				<reportElement x="251" y="78" width="30" height="15" uuid="674f5218-7a85-436b-a7a4-a6b430ab8237">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_fecha_hora_cobro}]]></textFieldExpression>
+			</textField>
+			<textField pattern="yy">
+				<reportElement x="334" y="78" width="30" height="15" uuid="eb18cca3-4c5f-44a0-b81f-2fd09f98481c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_fecha_hora_cobro}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="8" y="100" width="172" height="15" uuid="3d2bdc74-5368-4e0e-8cc1-7a5181ce5f5a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grad_id}+ " - "+$F{pago_nro_liquidacion} + " - "+$F{pago_nro_comprobante}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

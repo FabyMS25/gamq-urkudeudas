@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_eventuales_pagos" printOrder="Horizontal" pageWidth="612" pageHeight="792" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="087fe845-347f-48b5-b66e-69b79672acd4">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="74"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="926"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="GAMQ Urkupina"/>
+	<parameter name="del" class="java.util.Date"/>
+	<parameter name="al" class="java.util.Date"/>
+	<queryString language="plsql">
+		<![CDATA[SELECT 
+  pe.eventual_preliquidacion, 
+  pe.eventual_fecha_hora_liquidacion, 
+  liq.usua_nombres || ' ' || liq.usua_apellidos AS liquidador, 
+  con.contri_nombres|| ' ' || con.contri_paterno || ' ' || con.contri_materno AS contribuyente,
+  con.contri_ci, 
+  se.sitios_codigo, 
+  se.sitios_descripcion, 
+  se.sitios_numero_sitio, 
+  pe.eventual_importe_total
+FROM 
+  public.pagos_eventuales pe 
+  INNER JOIN public.sitios_eventuales se ON se.sitios_id = pe.sitios_id
+   INNER JOIN public.contribuyentes con ON pe.contri_id = con.contri_id
+  INNER JOIN public.usuario liq ON liq.usua_id = pe.eventual_user_id_preliquidacion
+WHERE 
+  TRUE AND pe.eventual_fecha_hora_pago is null
+  AND se.sitios_codigo LIKE 'PUENTE%'
+ ORDER BY se.sitios_codigo, se.sitios_descripcion, se.sitios_numero_sitio]]>
+	</queryString>
+	<field name="eventual_preliquidacion" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_preliquidacion"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_preliquidacion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="eventual_fecha_hora_liquidacion" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_fecha_hora_liquidacion"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_fecha_hora_liquidacion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="liquidador" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="liquidador"/>
+		<property name="com.jaspersoft.studio.field.label" value="liquidador"/>
+	</field>
+	<field name="contribuyente" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="contribuyente"/>
+		<property name="com.jaspersoft.studio.field.label" value="contribuyente"/>
+	</field>
+	<field name="contri_ci" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="contri_ci"/>
+		<property name="com.jaspersoft.studio.field.label" value="contri_ci"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="contribuyentes"/>
+	</field>
+	<field name="sitios_codigo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sitios_codigo"/>
+		<property name="com.jaspersoft.studio.field.label" value="sitios_codigo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="sitios_eventuales"/>
+	</field>
+	<field name="sitios_descripcion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sitios_descripcion"/>
+		<property name="com.jaspersoft.studio.field.label" value="sitios_descripcion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="sitios_eventuales"/>
+	</field>
+	<field name="sitios_numero_sitio" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="sitios_numero_sitio"/>
+		<property name="com.jaspersoft.studio.field.label" value="sitios_numero_sitio"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="sitios_eventuales"/>
+	</field>
+	<field name="eventual_importe_total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_importe_total"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_importe_total"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<variable name="eventual_importe_total1" class="java.math.BigDecimal" resetType="Group" resetGroup="Grupo por codigo" calculation="Sum">
+		<variableExpression><![CDATA[$F{eventual_importe_total}]]></variableExpression>
+	</variable>
+	<variable name="sitios_codigo1" class="java.lang.Integer" resetType="Group" resetGroup="Grupo por codigo" calculation="Count">
+		<variableExpression><![CDATA[$F{sitios_codigo}]]></variableExpression>
+	</variable>
+	<group name="Grupo por codigo" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{sitios_codigo}]]></groupExpression>
+		<groupHeader>
+			<band height="16">
+				<staticText>
+					<reportElement x="0" y="0" width="68" height="14" uuid="1ad1ac48-497e-4bc2-b2a9-dfc198e37826"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[CODIGO SITIO]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="68" y="0" width="82" height="14" uuid="b49dbe47-63a0-4a50-bda4-800e0dc3a548"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{sitios_codigo}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="16">
+				<textField>
+					<reportElement x="222" y="0" width="100" height="14" uuid="21900993-30e2-4dc6-8536-1c1bf4d2b366"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Dialog" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{sitios_codigo}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="472" y="0" width="100" height="14" uuid="66eebd32-179a-4644-a8b0-cdd0b9873ad1"/>
+					<textElement textAlignment="Center">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{sitios_codigo1}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="75" splitType="Stretch">
+			<staticText>
+				<reportElement x="324" y="57" width="100" height="15" uuid="7afa4076-ec57-48e4-9579-7a33813fd685"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[A la Fecha y hora:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy h:mm a">
+				<reportElement x="423" y="57" width="100" height="15" uuid="6dd687ba-51cc-4265-8bd0-8976d98a88ec"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="28" y="1" width="480" height="15" uuid="243e1340-28c9-4234-a72a-cf01cdd2b7fa"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[FESTIVIDAD DE LA VIRGEN DE URKUPIÑA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="28" y="16" width="480" height="15" uuid="415585a6-aeec-4d66-aec0-67c27849b5aa"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[GOBIERNO AUTONOMO MUNICIPAL DE QUILLACOLLO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="28" y="31" width="480" height="15" uuid="b0004be6-210b-4cfc-83e4-40bd6a5679a9"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[DIRECCION DE RECAUDACIONES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="28" y="46" width="480" height="15" uuid="f6b98dbb-86bc-418e-a424-ba146fe17086"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[	REPORTE DE SITIOS PRE LIQUIDADOS NO VENDIDOS]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="35" splitType="Stretch">
+			<staticText>
+				<reportElement x="41" y="0" width="69" height="30" uuid="44713341-7a3e-451e-92d0-7de654bc6930"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FECHA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="112" y="0" width="68" height="30" uuid="aa0d4958-e63d-4bd9-bcc5-048d4a3eeaaf"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LIQUIDADOR]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="542" y="2" width="29" height="30" uuid="ed9bc842-447f-4b8a-a4ec-5fd8b8d83574"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NUM. SITIO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="0" width="40" height="30" uuid="12dd8295-dfbd-4991-9d0e-f0b798203233">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NRO.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="181" y="2" width="97" height="30" uuid="ba9ac934-02a0-4c1d-8698-899eb5e8a93e"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CONTRIBUYENTE]]></text>
+			</staticText>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="32" width="569" height="1" uuid="fceaac7e-87b0-4664-8a38-5a95bd595178"/>
+			</line>
+			<staticText>
+				<reportElement x="280" y="2" width="263" height="28" uuid="83acfcf7-0dbe-45d4-bc61-d696710bb39c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DESCRIPCION SITIO]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="1" width="40" height="11" uuid="7a94d227-5c8a-4687-8434-3cf2942d2216">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Narrow" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="41" y="0" width="69" height="12" uuid="bd41e5a0-6c69-4cf9-8132-16a1f9a25244">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="72fe6b9d-3b13-4e92-ba3b-e32b050239f8"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial Narrow" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_fecha_hora_liquidacion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="112" y="0" width="68" height="12" uuid="9429cd26-dc70-48e8-8c62-2e5ecb62c2c5">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="bea801ba-a705-4ead-90e7-19dbe954bbb7"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial Narrow" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{liquidador}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="543" y="1" width="29" height="11" uuid="2258c510-30a5-4586-bb18-b31e0ec5ea59">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c8e5ac4b-66a0-4a56-a4ee-a904ff2502c4"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Arial Narrow" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sitios_numero_sitio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="181" y="0" width="97" height="12" uuid="af55cdfe-b56c-422b-a1a3-151ac6039978">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="208cc2df-9ee4-4402-9147-4f28bef0ac07"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial Narrow" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{contribuyente}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="278" y="0" width="265" height="12" uuid="faea1a09-12fb-49fb-bde3-c55c01769102"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial Narrow" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sitios_descripcion}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="17" splitType="Stretch">
+			<textField>
+				<reportElement x="322" y="0" width="100" height="15" uuid="394b8f67-a008-4e9d-80f9-b2b71cdb3f81"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="422" y="0" width="100" height="15" uuid="a3a23c9c-4871-4dd4-8812-3fbc0a781744">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="18" splitType="Stretch"/>
+	</summary>
+</jasperReport>

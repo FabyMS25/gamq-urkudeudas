@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_eventuales_pagos" printOrder="Horizontal" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="087fe845-347f-48b5-b66e-69b79672acd4">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="74"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="926"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="GAMQ Urkupina"/>
+	<parameter name="del" class="java.util.Date"/>
+	<parameter name="al" class="java.util.Date"/>
+	<queryString language="plsql">
+		<![CDATA[-- solo pagados, sin anulados
+
+SELECT 
+  pe.eventual_fecha_hora_pago, 
+  pe.eventual_nro_comprobante, 
+  pe.eventual_nro_liquidacion, 
+  con.contri_nombres|| ' ' || con.contri_paterno || ' ' || con.contri_materno AS contribuyente,
+  con.contri_ci, 
+  ae.activi_descripcion, 
+  se.sitios_codigo, 
+  se.sitios_descripcion, 
+  se.sitios_numero_sitio, 
+  liq.usua_ci AS ci_liquidador,
+  liq.usua_nombres || ' ' || liq.usua_apellidos AS liquidador, 
+  caj.usua_ci AS ci_cajero, 
+  caj.usua_nombres || ' ' || caj.usua_apellidos AS cajero,
+  pe.eventual_cantidad_dia,
+  pe.eventual_importe_patente, 
+  pe.eventual_costo_comprobante, 
+  pe.eventual_costo_sentaje, 
+  pe.eventual_costo_aseo, 
+  pe.eventual_importe_total
+FROM 
+  public.pagos_eventuales pe 
+  INNER JOIN public.usuario caj ON caj.usua_id = pe.usua_id
+  INNER JOIN public.contribuyentes con ON pe.contri_id = con.contri_id
+  INNER JOIN public.sitios_eventuales se ON se.sitios_id = pe.sitios_id
+  INNER JOIN public.actividades_economicas ae ON pe.activi_id = ae.activi_id
+  INNER JOIN public.usuario liq ON liq.usua_id = pe.eventual_user_id_preliquidacion
+WHERE 
+   eventual_estado = 1 AND
+   pe.eventual_fecha_hora_pago::DATE BETWEEN $P{del} AND $P{al} 
+  -- AND caj.usua_id = 29
+  --AND se.sitios_codigo LIKE 'PUENTE-%'
+  --AND pe.eventual_nro_comprobante = 24755
+ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]>
+	</queryString>
+	<field name="eventual_fecha_hora_pago" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_fecha_hora_pago"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_fecha_hora_pago"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="eventual_nro_comprobante" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_nro_comprobante"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_nro_comprobante"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="eventual_nro_liquidacion" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_nro_liquidacion"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_nro_liquidacion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="contribuyente" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="contribuyente"/>
+		<property name="com.jaspersoft.studio.field.label" value="contribuyente"/>
+	</field>
+	<field name="contri_ci" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="contri_ci"/>
+		<property name="com.jaspersoft.studio.field.label" value="contri_ci"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="contribuyentes"/>
+	</field>
+	<field name="activi_descripcion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="activi_descripcion"/>
+		<property name="com.jaspersoft.studio.field.label" value="activi_descripcion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="actividades_economicas"/>
+	</field>
+	<field name="sitios_codigo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sitios_codigo"/>
+		<property name="com.jaspersoft.studio.field.label" value="sitios_codigo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="sitios_eventuales"/>
+	</field>
+	<field name="sitios_descripcion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sitios_descripcion"/>
+		<property name="com.jaspersoft.studio.field.label" value="sitios_descripcion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="sitios_eventuales"/>
+	</field>
+	<field name="sitios_numero_sitio" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="sitios_numero_sitio"/>
+		<property name="com.jaspersoft.studio.field.label" value="sitios_numero_sitio"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="sitios_eventuales"/>
+	</field>
+	<field name="ci_liquidador" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="ci_liquidador"/>
+		<property name="com.jaspersoft.studio.field.label" value="ci_liquidador"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="usuario"/>
+	</field>
+	<field name="liquidador" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="liquidador"/>
+		<property name="com.jaspersoft.studio.field.label" value="liquidador"/>
+	</field>
+	<field name="ci_cajero" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="ci_cajero"/>
+		<property name="com.jaspersoft.studio.field.label" value="ci_cajero"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="usuario"/>
+	</field>
+	<field name="cajero" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="cajero"/>
+		<property name="com.jaspersoft.studio.field.label" value="cajero"/>
+	</field>
+	<field name="eventual_cantidad_dia" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_cantidad_dia"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_cantidad_dia"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="eventual_importe_patente" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_importe_patente"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_importe_patente"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="eventual_costo_comprobante" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_costo_comprobante"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_costo_comprobante"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="eventual_costo_sentaje" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_costo_sentaje"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_costo_sentaje"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="eventual_costo_aseo" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_costo_aseo"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_costo_aseo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<field name="eventual_importe_total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="eventual_importe_total"/>
+		<property name="com.jaspersoft.studio.field.label" value="eventual_importe_total"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pagos_eventuales"/>
+	</field>
+	<variable name="eventual_importe_patente1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{eventual_importe_patente}]]></variableExpression>
+	</variable>
+	<variable name="eventual_costo_sentaje1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{eventual_costo_sentaje}]]></variableExpression>
+	</variable>
+	<variable name="eventual_costo_aseo1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{eventual_costo_aseo}]]></variableExpression>
+	</variable>
+	<variable name="eventual_costo_comprobante1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{eventual_costo_comprobante}]]></variableExpression>
+	</variable>
+	<variable name="eventual_importe_total1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{eventual_importe_total}]]></variableExpression>
+	</variable>
+	<variable name="eventual_importe_total2" class="java.math.BigDecimal" resetType="Group" resetGroup="Cajero" calculation="Sum">
+		<variableExpression><![CDATA[$F{eventual_importe_total}]]></variableExpression>
+	</variable>
+	<group name="Cajero">
+		<groupExpression><![CDATA[$F{ci_cajero}]]></groupExpression>
+		<groupHeader>
+			<band height="14">
+				<textField>
+					<reportElement x="41" y="0" width="224" height="12" uuid="f1232f00-dee9-4d16-aac4-e47c7c454fe4">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cajero}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="0" y="0" width="40" height="12" uuid="2d42a714-7c49-433d-97a1-f5e0f02ce952">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[CAJERA]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="16">
+				<textField pattern="#,#00.00#;(#,#00.00#-)">
+					<reportElement x="650" y="2" width="60" height="13" uuid="fd4856c1-f2f9-4ad9-91a8-6899ead476b0"/>
+					<textElement textAlignment="Right">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{eventual_importe_total2}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="420" y="3" width="164" height="12" uuid="b94a0af5-8758-44d2-864d-e59dbf8bf986">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cajero}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement positionType="FixRelativeToBottom" x="1" y="1" width="750" height="1" uuid="e43b01c4-f581-492e-b6e2-22067cd9dea7"/>
+				</line>
+				<staticText>
+					<reportElement x="584" y="3" width="69" height="12" uuid="570e274b-21ba-433f-9109-a2220c035ebc"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[SUBTOTAL:]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="75" splitType="Stretch">
+			<staticText>
+				<reportElement x="551" y="57" width="100" height="15" uuid="7afa4076-ec57-48e4-9579-7a33813fd685"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Fecha y hora impresion:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy h:mm a">
+				<reportElement x="650" y="57" width="100" height="15" uuid="6dd687ba-51cc-4265-8bd0-8976d98a88ec"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="120" y="1" width="480" height="15" uuid="243e1340-28c9-4234-a72a-cf01cdd2b7fa"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[FESTIVIDAD DE LA VIRGEN DE URKUPIÑA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="16" width="480" height="15" uuid="415585a6-aeec-4d66-aec0-67c27849b5aa"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[GOBIERNO AUTONOMO MUNICIPAL DE QUILLACOLLO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="31" width="480" height="15" uuid="b0004be6-210b-4cfc-83e4-40bd6a5679a9"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[DIRECCION DE RECAUDACIONES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="46" width="480" height="15" uuid="f6b98dbb-86bc-418e-a424-ba146fe17086"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[	REPORTE DE PAGOS]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="34" splitType="Stretch">
+			<staticText>
+				<reportElement x="41" y="0" width="65" height="30" uuid="44713341-7a3e-451e-92d0-7de654bc6930"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[COMPROBANTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="107" y="0" width="135" height="30" uuid="aa0d4958-e63d-4bd9-bcc5-048d4a3eeaaf"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CONTRIBUYENTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="242" y="0" width="146" height="30" uuid="1ad1ac48-497e-4bc2-b2a9-dfc198e37826"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ACTIVIDAD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="390" y="0" width="24" height="30" uuid="83acfcf7-0dbe-45d4-bc61-d696710bb39c"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DIAS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="415" y="0" width="45" height="30" uuid="1f1a2c97-97bb-4c52-b591-ab5e8ac58207"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PATENTE BS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="462" y="0" width="50" height="30" uuid="4f4c2176-a327-40bc-9031-190d194e61a9">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SENTAJE BS.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="513" y="0" width="50" height="30" uuid="14aa6872-d8fc-43b7-af24-3df5f9177ed2">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TASA DE ASEO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="564" y="0" width="49" height="30" uuid="6985514c-6612-4372-ab3a-7839dac03729">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPO. COMPR. BS.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="617" y="0" width="54" height="30" uuid="ed9bc842-447f-4b8a-a4ec-5fd8b8d83574"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL IMPORTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="685" y="0" width="67" height="30" uuid="910d0d83-173e-46fd-a495-f8ffc601378f"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FECHA PAGO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="0" width="40" height="30" uuid="12dd8295-dfbd-4991-9d0e-f0b798203233">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NRO.]]></text>
+			</staticText>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="31" width="750" height="1" uuid="08ab89ae-a9c2-4017-84b8-d3e9e8a75f4a"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<textField>
+				<reportElement x="41" y="1" width="65" height="11" uuid="ca7a5035-6cf1-4caf-9452-ce61640350d1"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Dialog" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_nro_comprobante}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="107" y="0" width="135" height="12" uuid="63bb274e-11f0-407c-9955-6945807c4152"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Dialog" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{contribuyente}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="242" y="1" width="146" height="11" uuid="0f973f0a-7df7-49c2-9a69-eadce932b8b2"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Dialog" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{activi_descripcion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="390" y="1" width="24" height="11" uuid="05791d15-fb76-4ba2-92b7-40e02c2cdc18"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_cantidad_dia}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="414" y="1" width="46" height="12" uuid="4be26891-b8f6-4c2a-ac1d-edf10c58111a">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_importe_patente}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="462" y="1" width="50" height="12" uuid="dc7f2b31-acb8-48af-894d-df3b221f494c"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_costo_sentaje}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="513" y="1" width="50" height="12" uuid="8b261b2b-8399-4387-8cfb-6c52b7738ad1"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_costo_aseo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,#00.###;(#,#00.###-)">
+				<reportElement x="564" y="1" width="49" height="12" uuid="20a6a78f-87cd-478a-9b51-a31b1c46e5ef"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_costo_comprobante}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="616" y="1" width="54" height="12" uuid="c7f2b625-32ea-40d6-9712-521acdf94620"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_importe_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy h:mm a">
+				<reportElement x="685" y="1" width="67" height="12" uuid="51578c8a-785e-43b1-92ca-7bf71514e367"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Dialog" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_fecha_hora_pago}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="1" width="40" height="11" uuid="7a94d227-5c8a-4687-8434-3cf2942d2216">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Dialog" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="19" splitType="Stretch">
+			<textField>
+				<reportElement x="550" y="0" width="100" height="15" uuid="394b8f67-a008-4e9d-80f9-b2b71cdb3f81"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="650" y="0" width="100" height="15" uuid="a3a23c9c-4871-4dd4-8812-3fbc0a781744">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="43" splitType="Stretch">
+			<textField pattern="#,#00.00#;#,#00.00#-">
+				<reportElement x="414" y="0" width="46" height="20" uuid="9ad42f51-d031-4c07-9651-f4b94523f6a8">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{eventual_importe_patente1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,#00.00#;#,#00.00#-">
+				<reportElement x="560" y="0" width="50" height="20" uuid="e5376320-a7a9-4d4d-8505-30f25a9acef1"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{eventual_costo_comprobante1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,#00.00#;#,#00.00#-">
+				<reportElement x="510" y="0" width="50" height="20" uuid="53c6481d-ec9a-4d0b-9f98-62e807bc7974"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{eventual_costo_aseo1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,#00.00#;#,#00.00#-">
+				<reportElement x="460" y="0" width="50" height="20" uuid="7c8413b2-adc2-4b3f-8d02-13d419b6df8f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{eventual_costo_sentaje1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,#00.00#;#,#00.00#-">
+				<reportElement x="608" y="1" width="62" height="20" uuid="16c78e1e-ac2e-4766-949e-be9a9c4b7b12">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{eventual_importe_total1}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>
