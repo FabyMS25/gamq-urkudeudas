@@ -36,6 +36,8 @@ class Gestiones extends \yii\db\ActiveRecord
             [['gest_nombre', 'gest_vigente', 'gest_estado'], 'required'],
             [['gest_nombre', 'gest_vigente', 'gest_estado'], 'integer'],
             [['gest_ordenanza'], 'string', 'max' => 30],
+            [['gest_nombre'], 'unique', 'targetAttribute' => ['gest_nombre'], 'message'=>'Nombre gestion ya existe. Por favor ingrese otra gestion.'],
+
         ];
     }
 

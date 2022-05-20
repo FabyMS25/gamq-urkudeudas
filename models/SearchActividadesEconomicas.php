@@ -21,6 +21,7 @@ class SearchActividadesEconomicas extends ActividadesEconomicas
             [['activi_id', 'categ_id'], 'integer'],
             [['activi_descripcion'], 'safe'],
             [['activi_largo_mts', 'activi_ancho_mts', 'activi_superficie', 'activi_costo_patente', 'activi_costo_sentaje_dia', 'activi_costo_aseo_por_dia', 'activi_costo_aseo_por_sitio'], 'number'],
+            [['activi_descripcion'], 'unique', 'targetAttribute' => ['activi_descripcion'], 'message'=>'La descripcion de la actividad ya existe. Por favor ingrese otro.'],
         ];
     }
 
