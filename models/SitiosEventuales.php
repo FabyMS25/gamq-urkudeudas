@@ -34,7 +34,8 @@ class SitiosEventuales extends \yii\db\ActiveRecord {
                 [['sitios_numero_sitio', 'sitios_vendido', 'sitios_estado'], 'integer'],
                 [['sitios_codigo'], 'string', 'max' => 10],
                 [['sitios_descripcion'], 'string', 'max' => 350],
-            [['sitios_es_alasita'], 'boolean'],
+                [['sitios_es_alasita'], 'boolean'],
+                [['sitios_codigo', 'sitios_descripcion', 'sitios_numero_sitio'], 'unique', 'targetAttribute' => ['sitios_codigo', 'sitios_descripcion', 'sitios_numero_sitio'], 'message' => 'Esta combinacion de Codigo, Descripcion y Numero de Sitio ya esta registrado.']
         ];
     }
 

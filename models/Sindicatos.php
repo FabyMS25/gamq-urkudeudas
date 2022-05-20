@@ -33,6 +33,8 @@ class Sindicatos extends \yii\db\ActiveRecord
             [['sindi_nombre', 'sindi_descripcion', 'sindi_estado'], 'required'],
             [['sindi_estado'], 'integer'],
             [['sindi_nombre', 'sindi_descripcion'], 'string', 'max' => 250],
+            [['sindi_nombre'], 'unique', 'targetAttribute' => ['sindi_nombre'], 'message'=>'Nombre del sindicato ya existe. Por favor ingrese otro.'],
+
         ];
     }
 
