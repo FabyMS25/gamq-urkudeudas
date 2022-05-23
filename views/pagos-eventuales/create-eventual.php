@@ -168,26 +168,13 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         <div class="col-md-3 col-sm-3">
             <?=
             $form->field($model, 'eventual_cantidad_sitio')->textInput([
-                'onkeyup' => '
-                    dias(); 
-                    var cantidad = $(this).val();  
-                    var patente = $("#' . Html::getInputId($model, 'patente') . '").val();
-                    var totalImporte = 0;
-                    if( cantidad > 0 && patente >= 0){                        
-                        importeTotalPatente = cantidad * patente;
-                         $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
-                        
-                        sentajeTotal =  $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(); 
-                        aseoTotal =  $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(); 
-                        comprobante =  $("#' . Html::getInputId($model, 'eventual_costo_comprobante') . '").val(); 
-                            
-                        totalImporte = parseFloat(importeTotalPatente) + parseFloat(sentajeTotal) + parseFloat(aseoTotal) + parseFloat(comprobante);
-                        totalImporte = totalImporte.toFixed(2);
-                        $("#' . Html::getInputId($model, 'eventual_importe_total') . '").val(totalImporte);  
-                             
-                    }else{
-                        $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val();                                
-                    }'
+                'type'    =>'number', 
+                'min'     =>1, 
+                'max'     =>10, 
+                'step'    =>1,
+                'onchange'=>'calcPuestos();',
+                'onkeydown'=> 'anular(event)',
+                'onkeyup'=> 'angular()'
             ])
             ?>
         </div>
@@ -219,16 +206,46 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 </div>
 
 <script type="text/javascript">
-   
-   function dias(){
-        console.log('la cadena es: ');
-        var utp=3;
-            
-        $("#<?= Html::getInputId($model, 'eventual_cantidad_dia') ?> ").val(utp);
+   var c=1;
+   function anular(e)
+   { e.keycode=0;
 
+     c=$("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?>").val();
+     console.log('cant=> ', c);
+    if (c>10) c=10;
+    if (c<1) c=1;
+
+     $("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?> ").val(c);
+     calcPuestos();
+   }
+   function angular()
+   {
+    $("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?> ").val(c);
+   }
+   
+   function calcPuestos(){
+                    var cantidad =$("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?>").val();
+                    var patente = $("#<?= Html::getInputId($model, 'patente') ?>").val();
+                    console.log('Cantidad: ',cantidad, 'Patente',patente);
+                    var totalImporte = 0;
+                    if( cantidad > 0 && patente >= 0){                        
+                        importeTotalPatente = cantidad * patente;
+                        $("#<?= Html::getInputId($model, 'eventual_importe_patente') ?> ").val(importeTotalPatente);
+                        sentajeTotal = $("#<?= Html::getInputId($model, 'eventual_costo_sentaje') ?>").val();
+                        aseoTotal =    $("#<?= Html::getInputId($model, 'eventual_costo_aseo') ?>").val();
+                        comprobante =  $("#<?= Html::getInputId($model, 'eventual_costo_comprobante') ?>").val();
+                            
+                        totalImporte = parseFloat(importeTotalPatente) + parseFloat(sentajeTotal) + parseFloat(aseoTotal) + parseFloat(comprobante);
+                        totalImporte = totalImporte.toFixed(2);
+                          
+                        $("#<?= Html::getInputId($model, 'eventual_importe_total') ?> ").val(totalImporte);     
+                    }else{
+                        $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val();                                
+                    }
+    
     
     }
-
+    
     
     function calcDia() {
         var cad = $("#<?= Html::getInputId($model, 'rango_fechas') ?>").val();
