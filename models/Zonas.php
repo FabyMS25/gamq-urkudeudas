@@ -39,7 +39,9 @@ class Zonas extends \yii\db\ActiveRecord
             [['gest_id', 'zona_estado'], 'integer'],
             [['zona_nombre', 'zona_color', 'zona_color_hexadecimal'], 'string', 'max' => 10],
             [['zona_descripcion'], 'string', 'max' => 350],
-            [['zona_nombre'], 'unique', ],
+            [['zona_nombre', 'zona_color', 'zona_color_hexadecimal'], 'trim'],
+            [['zona_nombre', 'zona_color', 'zona_color_hexadecimal'], 'filter','filter' => 'strtoupper'],
+            [['zona_nombre'], 'unique','targetAttribute' => ['zona_nombre'], 'message' => 'El nombre de la zona, ya esta registrado.' ],
             [['gest_id'], 'exist', 'skipOnError' => true, 'targetClass' => Gestiones::className(), 'targetAttribute' => ['gest_id' => 'gest_id']],
         ];
     }

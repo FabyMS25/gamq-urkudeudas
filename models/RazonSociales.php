@@ -32,6 +32,8 @@ class RazonSociales extends \yii\db\ActiveRecord
             [['razon_nombre', 'razon_estado'], 'required'],
             [['razon_estado'], 'integer'],
             [['razon_nombre'], 'string', 'max' => 300],
+            [['razon_nombre'], 'trim'],
+            [['razon_nombre'], 'filter', 'filter' => 'strtoupper'],
             [['razon_nombre'], 'unique', 'targetAttribute' => ['razon_nombre'], 'message'=>'Nombre de razon ya existe. Por favor ingrese otro.'],
         ];
     }

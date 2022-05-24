@@ -41,12 +41,13 @@ class ActividadesEconomicas extends \yii\db\ActiveRecord
             [['categ_id', 'activi_descripcion', 'activi_costo_patente'], 'required'],
             [['categ_id', 'activi_estado'], 'integer'],
             [['activi_largo_mts', 'activi_ancho_mts', 'activi_superficie', 'activi_costo_patente',   
-                'activi_costo_aseo_por_sitio'], 'number'],
+              'activi_costo_aseo_por_sitio'], 'number'],
             [['activi_descripcion'], 'string', 'max' => 500],
+            [['activi_descripcion'], 'trim'],
+            [['activi_descripcion'], 'filter','filter' => 'strtoupper'],
             //tasa de aseo diario
             [['activi_costo_aseo_por_dia', 'activi_costo_sentaje_dia'], 'number', 'min'=>0],
             [['activi_costo_aseo_por_dia', 'activi_costo_sentaje_dia'], 'required'],
-            
             [['categ_id'], 'exist', 'skipOnError' => true, 'targetClass' => Categorias::className(), 'targetAttribute' => ['categ_id' => 'categ_id']],
         ];
     }

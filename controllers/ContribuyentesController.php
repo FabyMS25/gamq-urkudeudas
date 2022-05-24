@@ -106,7 +106,7 @@ class ContribuyentesController extends Controller
             }else if($model->load($request->post()) && $model->save()){
                 return [
                     'forceReload'=>'#crud-datatable-pjax',
-                    'title'=> "Registro nuevo cntribuyente",
+                    'title'=> "Registro nuevo contribuyente",
                     'content'=>'<span class="text-success">Contribuyente registrado con exito</span>',
                     'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
                             Html::a('Registar mas contribuyentes',['create'],['class'=>'btn btn-primary','role'=>'modal-remote'])
@@ -173,7 +173,7 @@ class ContribuyentesController extends Controller
                         'model' => $model,
                     ]),
                     'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                            Html::a('Edit',['Actualizar','id'=>$id],['class'=>'btn btn-primary','role'=>'modal-remote'])
+                            Html::a('Actualizar',['update','id'=>$id],['class'=>'btn btn-primary','role'=>'modal-remote'])
                 ];    
             }else{
                  return [
