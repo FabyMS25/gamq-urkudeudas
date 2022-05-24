@@ -63,7 +63,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
     
      <?=  $form->field($model, 'activi_id')->widget(Widget::className(), [
         'options' => [
-            'placeholder' => 'Elija el una opcion ...',
+            'placeholder' => 'Elija una opcion ...',
             'multiple' => false,
             'allowClear' => true,
             'prompt' => "",
@@ -76,17 +76,8 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 
     
     <div class="row">            
-         <div class="col-md-3 col-sm-3">
-            <?=
-            $form->field($model, 'eventual_cantidad_dia')->textInput([
-                'readonly' => true
-                
-            ])
-            ?>
-        </div>
-        <div  class="col-md-7 col-sm-7">            
-            <?php
-            echo $form->field($model, 'rango_fechas', ['addon' => ['prepend' => ['content' => '<i class="glyphicon glyphicon-calendar"></i>']],
+            <div  class="col-md-7 col-sm-7">            
+            <?php  echo $form->field($model, 'rango_fechas', ['addon' => ['prepend' => ['content' => '<i class="glyphicon glyphicon-calendar"></i>']],
                 'options' => ['class' => 'drp-container form-group']
             ])->widget(DateRangePicker::classname(), [
                 'readonly' => true,
@@ -98,10 +89,20 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                         'separator' => ' a ',
                     ]
                     ],
-                'options' => [ 'onchange' => 'calcDia();' ]   
+                'options' => [  'class'=>'form-control',
+                                'onchange' => 'calcDia();' ]   
             ]);
             ?>
         </div> 
+        <div class="col-md-3 col-sm-3">
+            <?=
+            $form->field($model, 'eventual_cantidad_dia')->textInput([
+                'readonly' => true
+                
+            ])
+            ?>
+        </div>
+         
     </div>
     <div class="row">
 
@@ -141,7 +142,21 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         }      
         
     }
-    
+    function calcDia()
+    {
+        var cad = $("#<?= Html::getInputId($model, 'rango_fechas') ?>").val();
+        console.log('cad=> ',cad);
+        let arre=cad.split(' a ');
+        f1= new Date(arre[0].trim());
+        f2= new Date(arre[1].trim());
+        dif=f2-f1;
+        var dias = (dif/86400).toFixed()/1000;
+        dias++;
+        $("#<?= Html::getInputId($model, 'eventual_cantidad_dia') ?> ").val(dias);
+        console.log('dias es : ', dias);
+        preciosActividadesEconomicasEspectaculos();  
+    }    
+
     function preciosActividadesEconomicasEspectaculos(){
         // funcion para mostrar precios de actividades economicas
         var id = $("#<?= Html::getInputId($model, 'activi_id')?>").val();               
@@ -168,8 +183,8 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                         totalImporte = parseFloat(totalPatente) + parseFloat(totalAseo) + parseFloat(comprobante);
                         totalImporte = totalImporte.toFixed(2);   
                         
-                        $("#<?=Html::getInputId($model, 'eventual_importe_patente') ?>").val(importeTotalPatente);  
-                        $("#<?= Html::getInputId($model, 'eventual_costo_aseo') ?>").val(importeTotalAseo); 
+                        $("#<?=Html::getInputId($model, 'eventual_importe_patente') ?>").val(totalPatente);  
+                        $("#<?= Html::getInputId($model, 'eventual_costo_aseo') ?>").val(totalAseo); 
                         $("#<?= Html::getInputId($model, 'eventual_importe_total') ?> ").val(totalImporte);   
                     }
                 }
@@ -182,43 +197,6 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         
         
     }
-    
-    
-    function calcDia(){
-        
-        var cad = $("#<?= Html::getInputId($model, 'rango_fechas') ?>").val();
-        console.log('cad=> ',cad);
-        let arre=cad.split(' a ');
-        f1= new Date(arre[0].trim());
-        f2= new Date(arre[1].trim());
-        dif=f2-f1;
-        var dias = (dif/86400).toFixed()/1000;
-        dias++;
-          console.log('dias es : ', dias);
-          $("#<?= Html::getInputId($model, 'eventual_cantidad_dias') ?>").val(dias);
-        var cantidadDia = dias;
-        var patente = $("#precio_patente").val();
-        var aseo = $("#precio_aseo").val();
-        var comprobante =  $("#<?= Html::getInputId($model, 'eventual_costo_comprobante')?>").val(); 
-                    
-        if(cantidadDia > 0 && patente > 0){                     
-            importeTotalPatente = cantidadDia * patente;
-            importeTotalAseo = cantidadDia * aseo;
-            
-            totalImporte = parseFloat(importeTotalPatente) + parseFloat(importeTotalAseo) + parseFloat(comprobante);
-            totalImporte = totalImporte.toFixed(2);
-            $("#<?= Html::getInputId($model, 'eventual_importe_patente')?>").val(importeTotalPatente);  
-            $("#<?= Html::getInputId($model, 'eventual_costo_aseo')?>").val(importeTotalAseo);               
-            $("#<?= Html::getInputId($model, 'eventual_importe_total')?>").val(totalImporte);                               
-        }else{
-             $("#<?= Html::getInputId($model, 'eventual_importe_patente')?>").val(null);  
-            $("#<?= Html::getInputId($model, 'eventual_costo_aseo')?>").val(null);               
-            $("#<?= Html::getInputId($model, 'eventual_importe_total')?>").val(null); 
-        }
-        
-    }
-    
-    
    
 $(document).ready(function() {
     $("form").keypress(function(e) {

@@ -168,14 +168,14 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         <div class="col-md-3 col-sm-3">
             <?=
             $form->field($model, 'eventual_cantidad_sitio')->textInput([
+                'readonly' => true,
                 'type'    =>'number', 
                 'min'     =>1, 
                 'max'     =>10, 
                 'step'    =>1,
                 'onchange'=>'calcPuestos();',
-               //'onkeydown'=> 'anular(event)',
                 'onkeypress'=> 'return isNumber(event)',
-                //'onkeyup'   => 'isNumber(event)'
+               
             ])
             ?>
         </div>
@@ -272,7 +272,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                           
                         $("#<?= Html::getInputId($model, 'eventual_importe_total') ?> ").val(totalImporte);     
                     }else{
-                        $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val();                                
+                        $("#'<?= . Html::getInputId($model, 'eventual_importe_patente') ?> '").val();                                
                     }
     
     

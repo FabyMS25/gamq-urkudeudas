@@ -84,9 +84,11 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         'onchange' => '
             var id = $(this).val();    
             var importeTotalPatente = 0;
-            if( id > 0){            
-                 var cantidadSitio = $("#'.Html::getInputId($model, 'eventual_cantidad_sitio').'").val();  
-                $.post("index.php?r=actividades-economicas/ajax-actividad-precios&id="+id,
+            if( id > 0)
+                    {            
+                        var cantidadSitio = $("#'.Html::getInputId($model, 'eventual_cantidad_sitio').'").val();  
+                        var comprobante =  $("#'.Html::getInputId($model, 'eventual_costo_comprobante').'").val();      
+                        $.post("index.php?r=actividades-economicas/ajax-actividad-precios&id="+id,
                             function(data){ 
                                 lista = data.split(" - ");
                                 patente = lista[0];
@@ -96,13 +98,15 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                                  
                                 $("#'.Html::getInputId($model, 'patente').'").val(patente);                               
                                $("#'.Html::getInputId($model, 'aseo') . '").val(aseo);  
-                               $("#'.Html::getInputId($model, 'eventual_cantidad_sitio') . '").val(1); 
+                               
                                 if(cantidadSitio > 0){
                                     importeTotalPatente = cantidadSitio * patente;
                                     importeTotalAseo = cantidadSitio * aseo;
                                     $("#'.Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
                                     $("#'.Html::getInputId($model, 'eventual_costo_aseo') . '").val(importeTotalAseo); 
-                                    
+                                    var impTotal= parseFloat(importeTotalPatente) + parseFloat(importeTotalAseo) + parseFloat(comprobante);
+                                    impTotal=impTotal.toFixed(2);
+                                    $("#'.Html::getInputId($model, 'eventual_importe_total') . '").val(impTotal); 
                                 }
                             }
                         );
@@ -112,38 +116,8 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 
 
     <div class="row">    
-        
-            
-         <div class="col-md-3 col-sm-3">
-            <?=
-            $form->field($model, 'eventual_cantidad_sitio')->textInput([
-                'type'    =>'number', 
-                'min'     =>1, 
-                'max'     =>10, 
-                'step'    =>1,
-                'onkeypress'=> 'return isNumber(event)',
-                'onchange' => '
-                    var cantidad = $(this).val();  
-                    var patente = $("#'.Html::getInputId($model, 'patente').'").val();
-                    var aseo = $("#'.Html::getInputId($model, 'aseo').'").val();
-                    var comprobante =  $("#'.Html::getInputId($model, 'eventual_costo_comprobante').'").val(); 
-                    var totalImporte = 0;
-                    if( cantidad > 0 && patente > 0){ 
-                    
-                        importeTotalPatente = cantidad * patente;
-                        importeTotalAseo = cantidad * aseo;
-                        totalImporte = parseFloat(importeTotalPatente) + parseFloat(importeTotalAseo) + parseFloat(comprobante);
-                        totalImporte = totalImporte.toFixed(0);
-
-                        $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
-                        $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(importeTotalAseo); 
-              
-                        $("#' . Html::getInputId($model, 'eventual_importe_total') . '").val(totalImporte);                               
-                    }'
-            ])
-            ?>
-        </div>
-        <div  class="col-md-7 col-sm-7">            
+                  
+         <div  class="col-md-7 col-sm-7">            
             <?php
             echo $form->field($model, 'rango_fechas', ['addon' => ['prepend' => ['content' => '<i class="glyphicon glyphicon-calendar"></i>']],
                 'options' => ['class' => 'drp-container form-group']
@@ -157,10 +131,26 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                         'separator' => ' a ',
                     ]
                     ],
-                //'options' => [ 'onchange' => 'calcDia();' ]   
+                    'options' => [  'class'=>'form-control',
+                    'onchange' => 'calcDia();' ]   
             ]);
             ?>
         </div> 
+        <div class="col-md-3 col-sm-3">
+            <?=
+            $form->field($model, 'eventual_cantidad_sitio')->textInput([
+                'value'   => 1,
+                'readonly' => true,
+                'type'    =>'number', 
+                'min'     =>1, 
+                'max'     =>10, 
+                'step'    =>1,
+                'onkeypress'=> 'return isNumber(event)',
+                'onchange' => 'preciosAlasitas()'
+            ])
+            ?>
+        </div>
+
     </div>
     <div class="row">
 
@@ -190,17 +180,40 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 
 <script type="text/javascript">
 
-function isNumber(evt) {
-    evt = (evt) ? evt : window.event;
-    var charCode = (evt.which) ? evt.which : evt.keyCode;
+function calcDia()
+    {
+        var cad = $("#<?= Html::getInputId($model, 'rango_fechas') ?>").val();
+        console.log('cad=> ',cad);
+        let arre=cad.split(' a ');
+        f1= new Date(arre[0].trim());
+        f2= new Date(arre[1].trim());
+        dif=f2-f1;
+        var dias = (dif/86400).toFixed()/1000;
+        dias++;
+        
+        console.log('dias es : ', dias);
+        preciosAlasitas();
+    }    
 
-        if (charCode==38 || charCode ==40) {
-
-        return true;
-
-        }
-
-        return false;
+function preciosAlasitas()
+{  
+                  var cantidad =  $("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?> ").val();
+                    var patente = $("#<?= Html::getInputId($model, 'patente') ?> ").val();
+                    var aseo = $("#<?= Html::getInputId($model, 'aseo') ?> ").val();
+                    var comprobante =  $("#<?= Html::getInputId($model, 'eventual_costo_comprobante') ?> ").val();
+                    var totalImporte = 0;
+                   
+                    if( cantidad > 0 && patente > 0){ 
+                    
+                        importeTotalPatente = cantidad * patente;
+                        importeTotalAseo = cantidad * aseo;
+                        totalImporte = parseFloat(importeTotalPatente) + parseFloat(importeTotalAseo) + parseFloat(comprobante);
+                        totalImporte = totalImporte.toFixed(2);
+                        $("#<?= Html::getInputId($model, 'eventual_importe_patente') ?> ").val(importeTotalPatente);
+                        $("#<?= Html::getInputId($model, 'eventual_costo_aseo') ?> ").val(importeTotalAseo);
+                        $("#<?= Html::getInputId($model, 'eventual_importe_total') ?> ").val(totalImporte);
+                                                       
+                    }
 
 }
     
