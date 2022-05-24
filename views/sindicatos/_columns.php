@@ -25,6 +25,9 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'sindi_estado',
+        'value'=> function ($model) {
+            return ($model->sindi_estado === 1)? "ACTIVO": "INACTIVO";
+        },
     ],
     [
         'class' => 'kartik\grid\ActionColumn',

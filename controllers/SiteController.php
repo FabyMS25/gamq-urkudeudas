@@ -12,8 +12,7 @@ use \yii\web\Response;
 use app\models\CambioContrasenia;
 use yii\helpers\Html;
 
-
-class SiteController extends Controller
+class SiteController extends Controller 
 {
     /**
      * @inheritdoc
@@ -166,9 +165,6 @@ class SiteController extends Controller
         
     }
 
-
-
-
     public function actionIndex()
     {
            
@@ -183,8 +179,27 @@ class SiteController extends Controller
            }
            */
         
-
-           return $this->render('index');
+          //$mensaje = 'hola mundo';
+          //$num = [1,2,3];
+          //return $this->render('index', ['mensaje' => $mensaje, 'arr' => $num]);
+          //$model = (new \yii\db\Query())
+            //->select(['totales', 'reservados', 'vendidos'])
+            //->select(['*'])
+            //->from(['usuario'])
+            //->all();
+            //var_dump($model);
+            
+        $sql = "SELECT * FROM view_totales_graderias_sillas";
+        $command = Yii::$app->db->createCommand($sql);
+        $graderias = $command->queryAll();
+        $sql1 = "SELECT * FROM view_totales_alasitas";
+        $command1 = Yii::$app->db->createCommand($sql1);
+        $alasitas = $command1->queryAll();
+        $sql2 = "SELECT * FROM view_totales_eventuales";
+        $command2 = Yii::$app->db->createCommand($sql2);
+        $eventuales = $command2->queryAll();
+        
+        return $this->render('index', ['graderias'=> $graderias, 'alasitas'=> $alasitas, 'eventuales'=> $eventuales ] );
     }
 
     /**
@@ -194,14 +209,12 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) 
-        {
+        if (!Yii::$app->user->isGuest) {
             return ($this->redirect(['site/login']));
         }
 
         $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) 
-        {
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
         return $this->render('login', [

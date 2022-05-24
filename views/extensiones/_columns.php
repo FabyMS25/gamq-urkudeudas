@@ -19,6 +19,9 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'ext_estado',
+        'value'=> function ($model) {
+            return ($model->ext_estado === 1)? "ACTIVO": "INACTIVO";
+         },
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
@@ -34,8 +37,8 @@ return [
                           'data-confirm'=>false, 'data-method'=>false,// for overide yii data api
                           'data-request-method'=>'post',
                           'data-toggle'=>'tooltip',
-                          'data-confirm-title'=>'Are you sure?',
-                          'data-confirm-message'=>'Are you sure want to delete this item'], 
+                          'data-confirm-title'=>'Esta seguro?',
+                          'data-confirm-message'=>'Esta seguro de eliminar este item'], 
     ],
 
 ];   
