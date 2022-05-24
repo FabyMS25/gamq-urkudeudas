@@ -25,10 +25,16 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'gest_vigente',
+        'value'=> function ($model) {
+            return ($model->gest_vigente === 1 )? "Si": "No";
+        }
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'gest_estado',
+        'value'=> function ($model) {
+            return ($model->gest_estado === 1)? "ACTIVO": "INACTIVO";
+         },
     ],
     [
         'class' => 'kartik\grid\ActionColumn',

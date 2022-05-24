@@ -11,20 +11,70 @@ CrudAsset::register($this);
 $this->title = 'sisUrku18';
 
 ?>
-<div class="site-index">
+<style>
+body {
+    background-image: url("https://quillacollo.gob.bo/images/gallery-masonry-5-original.jpg");
+    width: 100%;
+    height: auto;
+}
+.panel {
+    border: 1px solid;
+    box-shadow: 5px 10px 18px red;
+}
+.panel-body {
+  padding: 0 0 0 15px;
+}
+</style>
 
-    <div class="jumbotron">
-                  <br>
-                  <br>
-                  <br>
-                  <br>
-                  <br>
-                  <br>
-         <?php //echo Html::img('@web/img/sisim608big.png',['width'=>'400']) ?>
-    </div>
+<div class="img-fluid cards">
+<div class="container">
+    <!-- <div class="row"> -->
+        <div class="panel panel-default" style="max-width: 24rem; height:16rem">
+            <div class="panel-heading"> <strong>Graderias y Sillas</strong> </div>
+            <?php  foreach ($graderias as $row ): ?>
+            <div class="panel-body">
+                <h5> Totales: <?=$row['totales'] ?> </h5>
+                <h5> Reservados: <?=$row['reservados'] ?> </h5>
+                <h5> Vendidos: <?=$row['vendidos'] ?> </h5>
+                <h5> Disponibles: <?=$row['disponibles'] ?> </h5>
+            </div>
+            <?php endforeach ?>
+        </div>
+    <!-- </div> -->
+     
+    <!-- <div class="col-md-4"> -->    
+        <div class="panel panel-default" style="max-width: 24rem; height:14rem">
+            <div class="panel-heading"><strong>Alasitas</strong> </div>
+            <?php  foreach ($alasitas as $row ): ?>
+            <div class="panel-body">
+                <h5> Totales: <?=$row['totales'] ?> </h5>
+                <h5> Vendidos: <?=$row['vendidos'] ?> </h5>
+                <h5> Disponibles: <?=$row['disponibles'] ?> </h5>
+                <!-- <h5>-</h5> -->
+            </div>
+            <?php endforeach ?>
+        </div>
+    <!-- </div> -->
 
+    <!-- <div class="col-md-4"> -->    
+        <div class="panel panel-default" style="max-width: 24rem; height:14rem">
+            <div class="panel-heading"> <strong>Eventuales</strong> </div>
+            <?php  foreach ($eventuales as $row ): ?>
+            <div class="panel-body">
+                <h5> Totales: <?=$row['totales'] ?> </h5>
+                <h5> Vendidos: <?=$row['vendidos'] ?> </h5>
+                <h5> Disponibles: <?=$row['disponibles'] ?> </h5>
+                <!-- <h5>-</h5> -->
+            </div>
+            <?php endforeach ?>
+        </div>
+    <!-- </div> -->
 
 </div>
+</div>
+
+
+
 <?php Modal::begin([
     "id"=>"ajaxCrudModal",
     "footer"=>"",// always need it for jquery plugin
