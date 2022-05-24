@@ -19,15 +19,17 @@ body {
 }
 .panel {
     border: 1px solid;
-    /* //padding: 10px; */
     box-shadow: 5px 10px 18px red;
+}
+.panel-body {
+  padding: 0 0 0 15px;
 }
 </style>
 
 <div class="img-fluid cards">
 <div class="container">
-    <!-- <div class="col-md-4"> -->
-        <div class="panel panel-default" style="max-width: 20rem;">
+    <!-- <div class="row"> -->
+        <div class="panel panel-default" style="max-width: 24rem; height:16rem">
             <div class="panel-heading"> <strong>Graderias y Sillas</strong> </div>
             <?php  foreach ($graderias as $row ): ?>
             <div class="panel-body">
@@ -41,7 +43,7 @@ body {
     <!-- </div> -->
      
     <!-- <div class="col-md-4"> -->    
-        <div class="panel panel-default" style="max-width: 20rem;">
+        <div class="panel panel-default" style="max-width: 24rem; height:14rem">
             <div class="panel-heading"><strong>Alasitas</strong> </div>
             <?php  foreach ($alasitas as $row ): ?>
             <div class="panel-body">
@@ -55,7 +57,7 @@ body {
     <!-- </div> -->
 
     <!-- <div class="col-md-4"> -->    
-        <div class="panel panel-default" style="max-width: 20rem;">
+        <div class="panel panel-default" style="max-width: 24rem; height:14rem">
             <div class="panel-heading"> <strong>Eventuales</strong> </div>
             <?php  foreach ($eventuales as $row ): ?>
             <div class="panel-body">
