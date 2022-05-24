@@ -96,11 +96,13 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                                  
                                 $("#'.Html::getInputId($model, 'patente').'").val(patente);                               
                                $("#'.Html::getInputId($model, 'aseo') . '").val(aseo);  
+                               $("#'.Html::getInputId($model, 'eventual_cantidad_sitio') . '").val(1); 
                                 if(cantidadSitio > 0){
                                     importeTotalPatente = cantidadSitio * patente;
                                     importeTotalAseo = cantidadSitio * aseo;
                                     $("#'.Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
                                     $("#'.Html::getInputId($model, 'eventual_costo_aseo') . '").val(importeTotalAseo); 
+                                    
                                 }
                             }
                         );
@@ -115,7 +117,12 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
          <div class="col-md-3 col-sm-3">
             <?=
             $form->field($model, 'eventual_cantidad_sitio')->textInput([
-                'onkeyup' => '
+                'type'    =>'number', 
+                'min'     =>1, 
+                'max'     =>10, 
+                'step'    =>1,
+                'onkeypress'=> 'return isNumber(event)',
+                'onchange' => '
                     var cantidad = $(this).val();  
                     var patente = $("#'.Html::getInputId($model, 'patente').'").val();
                     var aseo = $("#'.Html::getInputId($model, 'aseo').'").val();
@@ -182,12 +189,22 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 </div>
 
 <script type="text/javascript">
-    function calcDia()
-    {
 
-    }
+function isNumber(evt) {
+    evt = (evt) ? evt : window.event;
+    var charCode = (evt.which) ? evt.which : evt.keyCode;
+
+        if (charCode==38 || charCode ==40) {
+
+        return true;
+
+        }
+
+        return false;
+
+}
     
-    function sindicatoComprador(idContribuyente){                         
+function sindicatoComprador(idContribuyente){                         
         if( idContribuyente> 0){ 
             $.post("index.php?r=sindicatos/ajax-sindicato&id="+idContribuyente,
                 function(data){ 

@@ -74,6 +74,11 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
             <?=
             $form->field($model, 'pago_longitud_modificada')->textInput([
                 'value' => $model->graderiaSilla->grad_longitud,
+                'type'    =>'number', 
+                'min'     =>1, 
+                'max'     =>10, 
+                'step'    =>0.1,
+                'onkeypress'=> 'return isNumber(event)',               
                 'onkeyup' => 'precioGraderiasSilla()'
             ])
             ?>
@@ -111,6 +116,24 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
 
 
 <script type="text/javascript">
+
+function isNumber(evt) {
+
+  evt = (evt) ? evt : window.event;
+
+   var getNumCd = (evt.which) ? evt.which : evt.keyCode;
+
+    if ((getNumCd==44)||(getNumCd==38)||(getNumCd==40) 
+        || (getNumCd <=57 && getNumCd >= 48)){
+
+      return true;
+
+   }
+   else
+   {
+    return false;
+   } 
+}
 
     function sindicatoComprador(idContribuyente) {
         if (idContribuyente > 0) {
