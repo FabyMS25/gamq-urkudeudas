@@ -173,8 +173,9 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                 'max'     =>10, 
                 'step'    =>1,
                 'onchange'=>'calcPuestos();',
-                'onkeydown'=> 'anular(event)',
-                'onkeyup'=> 'angular()'
+               //'onkeydown'=> 'anular(event)',
+                'onkeypress'=> 'return isNumber(event)',
+                //'onkeyup'   => 'isNumber(event)'
             ])
             ?>
         </div>
@@ -206,22 +207,53 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 </div>
 
 <script type="text/javascript">
-   var c=1;
+   var key=0;
    function anular(e)
-   { e.keycode=0;
-
-     c=$("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?>").val();
-     console.log('cant=> ', c);
-    if (c>10) c=10;
-    if (c<1) c=1;
-
-     $("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?> ").val(c);
-     calcPuestos();
+   { 
+     
+    if ((e.keyCode==38)||(e.keyCode==40))
+    {
+        key=e.keyCode;
+        //calcPuestos();
+        console.log('Flechas',e);
+    } 
+    else
+    {   console.log('Otras',e);
+        key=e.keyCode;
+        e.key='';
+    }
+     return e;
+        
    }
-   function angular()
-   {
-    $("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?> ").val(c);
+   function bloquear(e)
+   {  
+    console.log('evento entrar =>', e);
+    if ((e.keyCode==38)||(e.keyCode==40))
+    {   
+       return true;
+    }
+    else
+    {
+        return false;
+    }
+    
+
    }
+   function isNumber(evt) {
+
+        evt = (evt) ? evt : window.event;
+
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        console.log('Otras',charCode);
+        if (charCode==38 || charCode ==40) {
+
+        return true;
+
+        }
+
+        return false;
+
+}
    
    function calcPuestos(){
                     var cantidad =$("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?>").val();
