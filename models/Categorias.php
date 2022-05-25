@@ -36,7 +36,7 @@ class Categorias extends \yii\db\ActiveRecord
             [['categ_nombre'], 'filter', 'filter' => 'strtoupper'],
             [['categ_codigo'], 'filter', 'filter' => 'strtoupper'],
             [['categ_nombre', 'categ_codigo'], 'trim'],
-            [['categ_nombre'], 'unique', 'targetAttribute' => ['categ_nombre'], 'message'=>'Nombre de la categoria ya existe. Por favor prueba con otro.'],
+            [['categ_nombre'], 'unique', 'targetAttribute' => ['categ_nombre'], 'message'=>'Nombre categoria ya existe. Por favor prueba con otro.'],
             [['categ_codigo'], 'string', 'min' => 5,'max' => 15],
         ];
     }
