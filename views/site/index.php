@@ -12,10 +12,13 @@ $this->title = 'sisUrku18';
 
 ?>
 <style>
-body {
+body { 
     background-image: url("https://quillacollo.gob.bo/images/gallery-masonry-5-original.jpg");
     width: 100%;
     height: auto;
+    background-position: center center; 
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 .panel {
     border: 1px solid;
@@ -26,7 +29,7 @@ body {
 }
 </style>
 
-<div class="img-fluid cards">
+<div class="img-fluid">
 <div class="container">
     <!-- <div class="row"> -->
         <div class="panel panel-default" style="max-width: 24rem; height:16rem">
