@@ -78,21 +78,22 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                                 sentaje = lista[1];
                                 aseo = lista[3];
                                 //cobroDia = lista[4];
-                                
+                                var impTotal=0     
                                 $("#txt_patente").text("Patente Bs.:" + patente);
                                 $("#txt_sentaje").text("Sentaje Bs.:" + sentaje);
                                 $("#txt_aseo").text("Tasa de aseo Bs.:" + aseo);  
                                 $("#precio_patente").val(patente);
                                 $("#precio_sentaje").val(sentaje);
-                                $("#precio_aseo").val(aseo);     
+                                $("#precio_aseo").val(aseo); 
+                                impTotal= parseFloat(patente)+parseFloat(sentaje)+parseFloat(aseo)+10;  
                                 $("#'.Html::getInputId($model, 'eventual_importe_patente').'").val(patente);
                                 $("#'.Html::getInputId($model, 'eventual_costo_sentaje').'").val(sentaje); 
                                 $("#'.Html::getInputId($model, 'eventual_costo_aseo').'").val(aseo);                                                             
-                                
+                                $("#'.Html::getInputId($model, 'eventual_importe_total').'").val(impTotal);
                             }
                         );
                     }'
-    ])
+    ])->label("Actividad Economica de Publicidad");
     ?>
 
 
@@ -130,9 +131,10 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
          <div class="col-md-3 col-sm-3">
             <?=
             $form->field($model, 'eventual_cantidad_sitio')->textInput(
-                    [   'readonly' => true,
+                    [   'value'=> 1,
+                        'readonly' => true,
                         'onchange' => ' importePublicidad();'
-                    ])->label("Cantidad")
+                    ])->label("Cantidad de Puestos")
             ?>
         </div>
     </div>

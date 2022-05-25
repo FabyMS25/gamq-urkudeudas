@@ -116,13 +116,14 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                                $("#' . Html::getInputId($model, 'patente') . '").val(patente);
                                $("#' . Html::getInputId($model, 'sentaje') . '").val(sentaje);
                                $("#' . Html::getInputId($model, 'aseo') . '").val(aseo); 
-                                   
+                               var impTotal=0     
                                 if(cantidadSitio > 0){
                                     importeTotalPatente = cantidadSitio * patente;
                                     $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
                                     $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(sentaje);
                                     $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(aseo); 
-                               
+                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje)+parseFloat(aseo)+10;
+                                    $("#' . Html::getInputId($model, 'eventual_importe_total') . '").val(impTotal); 
                                 }
                             }
                         );
@@ -272,7 +273,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                           
                         $("#<?= Html::getInputId($model, 'eventual_importe_total') ?> ").val(totalImporte);     
                     }else{
-                        $("#'<?= . Html::getInputId($model, 'eventual_importe_patente') ?> '").val();                                
+                        totalImporte = totalImporte.toFixed(2);
                     }
     
     

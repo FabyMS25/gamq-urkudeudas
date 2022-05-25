@@ -71,7 +71,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         ],
         'settings' => [ 'width' => '100%',],
         'items' => $listaActividades,
-    ]);
+    ])->label("Actividad Economica de Espectaculos");
     ?>
 
     
@@ -97,6 +97,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         <div class="col-md-3 col-sm-3">
             <?=
             $form->field($model, 'eventual_cantidad_dia')->textInput([
+                'value'=>1,
                 'readonly' => true
                 
             ])

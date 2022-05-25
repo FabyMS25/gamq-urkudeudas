@@ -97,6 +97,11 @@ AppAsset::register($this);
                             ['label' => 'Anulados', 
                                 'url' => ['/pagos/anulados'],
                                 'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolCajero())],
+                            
+                            ['label' => 'Listados', 
+                                'url' => ['/listas/graderias'],
+                                'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli())],
+                                
                             /*['label' => 'General',
                                 'url' => ['/pagos/general'],
                                 'visible' => !Yii::$app->user->isGuest && Usuario::getRolAdmin(),

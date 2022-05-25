@@ -96,7 +96,7 @@ class PagosEventuales extends \yii\db\ActiveRecord
             'usua_id' => 'Usua ID',
             'contri_id' => 'Contribuyente',
             'sitios_id' => 'Sitio eventual',
-            'activi_id' => 'Actividad economica',
+            'activi_id' => 'Actividad Economica',
             
             'eventual_fecha_hora_pago' => 'Fecha pago',
             'eventual_fecha_inicio' => 'Fecha inicio',
