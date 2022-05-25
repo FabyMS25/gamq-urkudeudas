@@ -29,17 +29,17 @@ $config = [
         ],
 
         'jasper' => [
-             'class' => 'chrmorandi\jasper\Jasper',
+            'class' => 'chrmorandi\jasper\Jasper',
             'redirect_output' => false, //optional
             'resource_directory' => false, //optional
             'locale' => 'es_ES', //optional
             'db' => [
-                'dsn' => 'pgsql:host=localhost;dbname=urkupina2019',                
-                'username' => 'postgres',
-                'password' => 'GAMQ2021',
-                'port'     => '5432',
-                //'jdbcDir'  => 'C:\laragon\www\sistemaurkupina\vendor\chrmorandi\yii2-jasper\src\JasperStarter\jdbc\', 
-                //'jdbcUrl'  => 'jdbc:postgresql://"+localhost+":"+5432+"/"+urkupina2019'
+                'dsn' => 'pgsql:host=181.177.143.185;port=5432;dbname=urkupinia?sslmode=disable',                
+                'username' => 'gamq',
+                'password' => 'root'
+               // 'port'     => '5432',
+                //'jdbcDir'  => 'D:\laragon\www\sistemaurkupina\vendor\chrmorandi\yii2-jasper\src\JasperStarter\jdbc\', 
+                //'jdbcUrl'  => 'jdbc:postgresql:/181.177.143.185:5432/urkupinia'
             ]              
         ],
         'user' => [
