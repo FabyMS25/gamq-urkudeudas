@@ -42,17 +42,8 @@ AppAsset::register($this);
             echo Nav::widget([
             'options' => ['class' => 'navbar-nav navbar-right'],  
             'items' => [
-            //Supervisor        
-        [
-            'label' => 'Seguimiento',
-            'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()or Usuario::getRolSupervisor()),
-            'items' =>
-            [
-                [ 'label' => 'Listado Graderias Sillas','url' => ['/listas/index'], 'visible' => !Yii::$app->user->isGuest],
-                ['label' => 'Listado Puesto Eventuales', 'url' => ['/index'] ,'visible' => !Yii::$app->user->isGuest],    
-            ],
-        ],
-        ['label' => 'Principal', 'url' => ['/site/index']],
+        
+                ['label' => 'Principal', 'url' => ['/site/index']],
                 
                 [
                     'label' => 'Parametros',
@@ -85,10 +76,9 @@ AppAsset::register($this);
                     'visible' => !Yii::$app->user->isGuest && Usuario::getRolPreli(),
                 ],
                 // SITIOS PARA SILLAS Y GRADERIAS
-               
                 [
                     'label' => 'Sillas y graderias',
-                    'visible' => !Yii::$app->user->isGuest,
+                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli() or Usuario::getRolCajero()),
                     'items' =>
                         [                
                        
@@ -117,28 +107,41 @@ AppAsset::register($this);
                 // ACTIVIDADE EVENTUALES              
                 [
                     'label' => 'Eventuales',
-                     'visible' => !Yii::$app->user->isGuest,
+                     'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli() or Usuario::getRolCajero()),
                     'items' =>
                         [                            
                             ['label' => 'Preliquidar', 
                                 'url' => ['/pagos-eventuales/eventuales-alasitas'], 
                                 'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli()),
-                                ],
+                            ],
                             ['label' => 'Preliquidaciones',
                                 'url' => ['/pagos-eventuales/index'], 
                                 'visible' => !Yii::$app->user->isGuest,
-                                ],
+                            ],
                             ['label' => 'Pagados', 
                                 'url' => ['/pagos-eventuales/pagados'], 
                                 'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolCajero()),
-                                ],
+                            ],
                             ['label' => 'Anulados',
                                 'url' => ['/pagos-eventuales/anulados'], 
                                 'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolCajero()),
-                                ]
+                            ]
                         ],
                 ] ,
-                
+                //SUPERVISOR        
+                [
+                    'label' => 'Seguimiento',
+                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolSupervisor()),
+                    'items' =>
+                        [
+                            ['label' => 'Listado Graderias Sillas',
+                                'url' => ['/listas/index'], 
+                                'visible' => !Yii::$app->user->isGuest], //or Usuario::getRolSupervisor())],
+                            ['label' => 'Listado Puesto Eventuales', 
+                                'url' => ['/index'] ,
+                                'visible' => !Yii::$app->user->isGuest ],    
+                        ],
+                ],
                 // SENTAJES               
                 [
                     'label' => 'Sentajes',
