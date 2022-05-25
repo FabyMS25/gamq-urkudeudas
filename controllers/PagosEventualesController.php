@@ -11,6 +11,7 @@ use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
+use chrmorandi\jasper\Jasper;
 
 /**
  * PagosEventualesController implements the CRUD actions for PagosEventuales model.
