@@ -42,8 +42,22 @@ AppAsset::register($this);
             echo Nav::widget([
             'options' => ['class' => 'navbar-nav navbar-right'],  
             'items' => [
+<<<<<<< HEAD
+            //Supervisor        
+        [
+            'label' => 'Seguimiento',
+            'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()or Usuario::getRolSupervisor()),
+            'items' =>
+            [
+                [ 'label' => 'Listado Graderias Sillas','url' => ['/listas/index'], 'visible' => !Yii::$app->user->isGuest],
+                ['label' => 'Listado Puesto Eventuales', 'url' => ['/listas-eventuales/index'] ,'visible' => !Yii::$app->user->isGuest],    
+            ],
+        ],
+        ['label' => 'Principal', 'url' => ['/site/index']],
+=======
         
                 ['label' => 'Principal', 'url' => ['/site/index']],
+>>>>>>> d3abf9205d018da50161a71ff0bac25e02acb2fe
                 
                 [
                     'label' => 'Parametros',
@@ -73,7 +87,7 @@ AppAsset::register($this);
                 
                 ['label' => 'Contribuyentes', 
                     'url' => ['/contribuyentes/index'], 
-                    'visible' => !Yii::$app->user->isGuest && Usuario::getRolPreli(),
+                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli()),
                 ],
                 // SITIOS PARA SILLAS Y GRADERIAS
                 [

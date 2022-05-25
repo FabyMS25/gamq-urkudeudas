@@ -36,7 +36,7 @@ class Extensiones extends \yii\db\ActiveRecord
             [['ext_nombre','ext_abreviado'], 'trim'],
             [['ext_nombre','ext_abreviado'], 'filter', 'filter' => 'strtoupper'],
             [['ext_abreviado'], 'string', 'max' => 5],
-            [['ext_nombre'], 'unique', 'targetAttribute' => ['ext_nombre'], 'message'=>'Nombre ya existe. Por favor ingrese otro.'],
+            [['ext_nombre'], 'unique', 'targetAttribute' => ['ext_nombre'], 'message'=>'El Departamento ya existe. Por favor ingrese otro.'],
         ];
     }
 
