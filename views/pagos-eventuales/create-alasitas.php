@@ -111,7 +111,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                             }
                         );
                     }'
-    ])
+    ])->label("Actividad Ecoomica de Alasitas")
     ?>
 
 
