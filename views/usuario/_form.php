@@ -5,7 +5,7 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model app\models\Usuario */
 /* @var $form yii\widgets\ActiveForm */
-$items = ['administrador' => 'Administrador', 'preliquidador' => 'Preliquidador', 'cajero'=>'Cajero'];
+$items = ['administrador' => 'Administrador', 'preliquidador' => 'Preliquidador', 'cajero'=>'Cajero', 'supervisor'=>'Supervisor'];
 ?>
 
 <div class="usuario-form">

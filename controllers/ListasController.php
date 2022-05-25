@@ -3,59 +3,70 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\PagosEventuales;
-use app\models\GraderiasSillas;
-use app\models\SearchPagosEventuales;
+use app\models\Pagos;
+use app\models\SearchPagos;
+use app\models\SearchGraderiasSillas;
+;
+
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
-
 /**
- * PagosEventualesController implements the CRUD actions for PagosEventuales model.
+ * PagosController implements the CRUD actions for Pagos model.
  */
-class ListasController extends Controller
-{
+class ListasController extends Controller {
+
     /**
      * @inheritdoc
      */
-    public function behaviors()
-    {
+    public function behaviors() {
         return [
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
                     //'delete' => ['post'],
                     //'bulk-delete' => ['post'],
-                ], 
+                ],
             ],
         ];
     }
 
     /**
-     * Lists all GraderiasSillas models.
+     * Lists all Pagos models.
      * @return mixed
      */
-    public function actionIndex()
-    {  
-        $msj='hola';
+    public function actionIndex() {
         $this->verificarSesion();
-        //$searchModel = new GraderiasSillas();
-        //$dataProvider = $searchModel->search(Yii::$app->request->queryParams);        
-        //$dataProvider->query->andWhere(['grad_estado'=>1]);
+        $listaGraderia = (new Pagos())->listaIdGraderiasSillasPreliquidados();
+        $searchModel = new \app\models\SearchGraderiasSillas();
+        $dataProvider = $searchModel->searchPreliquidaciones(Yii::$app->request->queryParams);
+        $dataProvider->query->andFilterWhere(['grad_estado' => 1]);
+        $dataProvider->query->andFilterWhere(['NOT IN', 'grad_id', $listaGraderia]);
 
-        return $this->render('graderias', ['msj'=> $msj]
-            //'searchModel' => $searchModel,
-            //'dataProvider' => $dataProvider,
-            //'zona'=>$id
-        //]
-        );
+        return $this->render('graderias', [
+                    'searchModel' => $searchModel,
+                    'dataProvider' => $dataProvider,
+        ]);
     }
 
+    /* public function actionGeneral() {
+        $this->verificarSesion();
+        $searchModel = new \app\models\SearchGraderiasSillas();
+        $dataProvider = $searchModel->searchPreliquidaciones(Yii::$app->request->queryParams);
+        $dataProvider->query->andFilterWhere(['grad_estado' => 1]);
+        $dataProvider->query->andFilterWhere(['NOT IN', 'grad_id', $listaGraderia]);
+        //'pago_cobrado' => 1, 'pago_anulado' => 0
 
-    public function actionBulkDelete()
+        return $this->render('graderias', [
+                    'searchModel' => $searchModel,
+                    'dataProvider' => $dataProvider,
+        ]);
+    }
+ */
+public function actionBulkDelete()
     {       
         $this->verificarSesion();
         $request = Yii::$app->request;
@@ -80,11 +91,11 @@ class ListasController extends Controller
        
     }
 
-    // funcion que verifica la existencia de una sesion activa
-    public function verificarSesion(){
-        if(Yii::$app->user->isGuest){
-           Yii::$app->user->logout(true);           
-           return $this->goHome();
-       }
-   }
+
+public function verificarSesion() {
+    if (Yii::$app->user->isGuest) {
+        Yii::$app->user->logout(true);
+        return $this->goHome();
+    }
+}
 }

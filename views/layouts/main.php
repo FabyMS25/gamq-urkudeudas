@@ -42,8 +42,17 @@ AppAsset::register($this);
             echo Nav::widget([
             'options' => ['class' => 'navbar-nav navbar-right'],  
             'items' => [
-                
-                ['label' => 'Principal', 'url' => ['/site/index']],
+            //Supervisor        
+        [
+            'label' => 'Seguimiento',
+            'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()or Usuario::getRolSupervisor()),
+            'items' =>
+            [
+                [ 'label' => 'Listado Graderias Sillas','url' => ['/listas/index'], 'visible' => !Yii::$app->user->isGuest],
+                ['label' => 'Listado Puesto Eventuales', 'url' => ['/index'] ,'visible' => !Yii::$app->user->isGuest],    
+            ],
+        ],
+        ['label' => 'Principal', 'url' => ['/site/index']],
                 
                 [
                     'label' => 'Parametros',
@@ -98,10 +107,6 @@ AppAsset::register($this);
                                 'url' => ['/pagos/anulados'],
                                 'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolCajero())],
                             
-                            ['label' => 'Listados', 
-                                'url' => ['/listas/index'],
-                                'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli())
-                            ],
                                 
                             /*['label' => 'General',
                                 'url' => ['/pagos/general'],
@@ -181,9 +186,11 @@ AppAsset::register($this);
                             . '</li>',
                             //['label' => 'Cambiar contraseña', 'url' => ['/usuario/update-pass'],  'visible' => !Yii::$app->user->isGuest],
                         ]
-                 ]):"",          
+                 ]):"",  
+
                 
                 ],
+
             'options' => ['class' => 'nav navbar-nav'],
             ]);
             NavBar::end();

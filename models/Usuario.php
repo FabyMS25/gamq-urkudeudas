@@ -176,7 +176,16 @@ class Usuario extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
             
     }
-
+    public static function getRolSupervisor() {
+        $model = (new Usuario())->findOne(Yii::$app->user->id);
+       if(!empty($model)){
+            return $model->usua_rol === "supervisor";
+       }else{
+           return FALSE;
+       }
+           
+   }
+    
     /**
      * @inheritdoc
      */
