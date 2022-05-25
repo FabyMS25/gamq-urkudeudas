@@ -65,7 +65,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         'onchange' => '
             var id = $(this).val();            
             // valores null 
-            $("#'.Html::getInputId($model, 'eventual_cantidad_sitio').'").val(null);
+            $("#'.Html::getInputId($model, 'eventual_cantidad_sitio').'").val(1);
             $("#'.Html::getInputId($model, 'eventual_importe_patente').'").val(null);
             $("#'.Html::getInputId($model, 'eventual_costo_aseo').'").val(null);
             $("#'.Html::getInputId($model, 'eventual_importe_total').'").val(null);
@@ -78,18 +78,22 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                                 sentaje = lista[1];
                                 aseo = lista[3];
                                 //cobroDia = lista[4];
-                                
+                                var impTotal=0     
                                 $("#txt_patente").text("Patente Bs.:" + patente);
                                 $("#txt_sentaje").text("Sentaje Bs.:" + sentaje);
                                 $("#txt_aseo").text("Tasa de aseo Bs.:" + aseo);  
                                 $("#precio_patente").val(patente);
                                 $("#precio_sentaje").val(sentaje);
-                                $("#precio_aseo").val(aseo);                                                                   
-                                
+                                $("#precio_aseo").val(aseo); 
+                                impTotal= parseFloat(patente)+parseFloat(sentaje)+parseFloat(aseo)+10;  
+                                $("#'.Html::getInputId($model, 'eventual_importe_patente').'").val(patente);
+                                $("#'.Html::getInputId($model, 'eventual_costo_sentaje').'").val(sentaje); 
+                                $("#'.Html::getInputId($model, 'eventual_costo_aseo').'").val(aseo);                                                             
+                                $("#'.Html::getInputId($model, 'eventual_importe_total').'").val(impTotal);
                             }
                         );
                     }'
-    ])
+    ])->label("Actividad Economica de Publicidad");
     ?>
 
 
@@ -107,14 +111,18 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                         'format' => 'Y-m-d',
                         'separator' => ' a ',
                     ]
-                ]
+                    ],
+                    'options' => [  'class'=>'form-control',
+                                    'onchange' => 'calcDia();' ]   
+                
+
             ]);
             ?>
         </div> 
        
         <div class="col-md-3 col-sm-3">
             <?= $form->field($model, 'eventual_cantidad_dia')->textInput(
-                    [                       
+                    [   'readonly' => true,                    
                         'onchange' => 'importePublicidad(); '
                     ])
             ?>  
@@ -123,9 +131,10 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
          <div class="col-md-3 col-sm-3">
             <?=
             $form->field($model, 'eventual_cantidad_sitio')->textInput(
-                    [
+                    [   'value'=> 1,
+                        'readonly' => true,
                         'onchange' => ' importePublicidad();'
-                    ])->label("Cantidad")
+                    ])->label("Cantidad de Puestos")
             ?>
         </div>
     </div>
@@ -157,6 +166,23 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 </div>
 
 <script type="text/javascript">
+
+
+    function calcDia()
+    {
+        var cad = $("#<?= Html::getInputId($model, 'rango_fechas') ?>").val();
+        console.log('cad=> ',cad);
+        let arre=cad.split(' a ');
+        f1= new Date(arre[0].trim());
+        f2= new Date(arre[1].trim());
+        dif=f2-f1;
+        var dias = (dif/86400).toFixed()/1000;
+        dias++;
+          console.log('dias es : ', dias);
+          $("#<?= Html::getInputId($model, 'eventual_cantidad_dia') ?> ").val(dias);
+        importePublicidad();  
+    }    
+
     function sindicatoComprador(idContribuyente){                         
         if( idContribuyente> 0){ 
             $.post("index.php?r=sindicatos/ajax-sindicato&id="+idContribuyente,

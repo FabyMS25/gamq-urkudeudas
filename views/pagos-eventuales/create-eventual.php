@@ -116,13 +116,14 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                                $("#' . Html::getInputId($model, 'patente') . '").val(patente);
                                $("#' . Html::getInputId($model, 'sentaje') . '").val(sentaje);
                                $("#' . Html::getInputId($model, 'aseo') . '").val(aseo); 
-                                   
+                               var impTotal=0     
                                 if(cantidadSitio > 0){
                                     importeTotalPatente = cantidadSitio * patente;
                                     $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
                                     $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(sentaje);
                                     $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(aseo); 
-                               
+                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje)+parseFloat(aseo)+10;
+                                    $("#' . Html::getInputId($model, 'eventual_importe_total') . '").val(impTotal); 
                                 }
                             }
                         );
@@ -168,14 +169,14 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         <div class="col-md-3 col-sm-3">
             <?=
             $form->field($model, 'eventual_cantidad_sitio')->textInput([
+                'readonly' => true,
                 'type'    =>'number', 
                 'min'     =>1, 
                 'max'     =>10, 
                 'step'    =>1,
                 'onchange'=>'calcPuestos();',
-               //'onkeydown'=> 'anular(event)',
                 'onkeypress'=> 'return isNumber(event)',
-                //'onkeyup'   => 'isNumber(event)'
+               
             ])
             ?>
         </div>
@@ -272,7 +273,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                           
                         $("#<?= Html::getInputId($model, 'eventual_importe_total') ?> ").val(totalImporte);     
                     }else{
-                        $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val();                                
+                        totalImporte = totalImporte.toFixed(2);
                     }
     
     
