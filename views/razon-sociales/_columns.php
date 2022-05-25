@@ -15,6 +15,9 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'razon_estado',
+        'value'=> function ($model) {
+            return ($model->razon_estado === 1)? "ACTIVO": "INACTIVO";
+        },
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
