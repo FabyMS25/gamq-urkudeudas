@@ -40,6 +40,7 @@ class Usuario extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 [['usua_apellidos'], 'string', 'max' => 150],
                 [['usua_ci'], 'string', 'min' => 3 ,'max' => 15],
                 [['usua_password','usua_cuenta',], 'string', 'min' => 5 ,'max' => 50],
+                [['usua_ci', 'usua_cuenta'], 'unique', 'targetAttribute' => ['usua_ci', 'usua_cuenta'], 'message' => 'El Carnet o la Cuenta del usuario ya esta registrado. verifique por favor'],    
                 [['usua_rol'], 'string', 'max' => 50],
         ];
     }
