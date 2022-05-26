@@ -45,7 +45,7 @@ class ListasEventualesController extends Controller {
         $dataProvider->query->andFilterWhere(['eventual_estado'=>1]);
        
 
-        return $this->render('index', [
+        return $this->render('index' , [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
