@@ -209,7 +209,7 @@ AppAsset::register($this);
             </div>
         </div>
 
-        <footer class="footer" style="text-transform: uppercase">
+        <footer class="footer">
             <div class="container" >
                 <p class="pull-left">&copy; Gobierno Autónomo Municipal de Quillacollo</p>
                 <p class="pull-right"><?= date('Y') ?></p>
