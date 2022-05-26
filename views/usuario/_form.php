@@ -22,7 +22,7 @@ $items = ['administrador' => 'Administrador', 'preliquidador' => 'Preliquidador'
 
     <?= $form->field($model, 'usua_password')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'usua_rol')->dropDownList($items, ['prompt' => '* Selecione una opcion*']) ?>
+    <?= $form->field($model, 'usua_rol')->dropDownList($items, ['prompt' => '* Seleccione una opcion*']) ?>
   
 	<?php if (!Yii::$app->request->isAjax){ ?>
 	  	<div class="form-group">
