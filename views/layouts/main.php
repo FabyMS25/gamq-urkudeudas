@@ -42,22 +42,8 @@ AppAsset::register($this);
             echo Nav::widget([
             'options' => ['class' => 'navbar-nav navbar-right'],  
             'items' => [
-<<<<<<< HEAD
-            //Supervisor        
-        [
-            'label' => 'Seguimiento',
-            'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()or Usuario::getRolSupervisor()),
-            'items' =>
-            [
-                [ 'label' => 'Listado Graderias Sillas','url' => ['/listas/index'], 'visible' => !Yii::$app->user->isGuest],
-                ['label' => 'Listado Puesto Eventuales', 'url' => ['/listas-eventuales/index'] ,'visible' => !Yii::$app->user->isGuest],    
-            ],
-        ],
-        ['label' => 'Principal', 'url' => ['/site/index']],
-=======
         
                 ['label' => 'Principal', 'url' => ['/site/index']],
->>>>>>> d3abf9205d018da50161a71ff0bac25e02acb2fe
                 
                 [
                     'label' => 'Parametros',
@@ -150,10 +136,10 @@ AppAsset::register($this);
                         [
                             ['label' => 'Listado Graderias Sillas',
                                 'url' => ['/listas/index'], 
-                                'visible' => !Yii::$app->user->isGuest], //or Usuario::getRolSupervisor())],
+                                'visible' => !Yii::$app->user->isGuest ],
                             ['label' => 'Listado Puesto Eventuales', 
-                                'url' => ['/index'] ,
-                                'visible' => !Yii::$app->user->isGuest ],    
+                            'url' => ['/listas-eventuales/index'] ,
+                            'visible' => !Yii::$app->user->isGuest ],    
                         ],
                 ],
                 // SENTAJES               
@@ -233,7 +219,7 @@ AppAsset::register($this);
             </div>
         </div>
 
-        <footer class="footer">
+        <footer class="footer" style="text-transform: uppercase">
             <div class="container" >
                 <p class="pull-left">&copy; Gobierno Autónomo Municipal de Quillacollo</p>
                 <p class="pull-right"><?= date('Y') ?></p>

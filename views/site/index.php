@@ -15,10 +15,14 @@ $this->title = 'sisUrku18';
 body { 
     background-image: url("https://quillacollo.gob.bo/images/gallery-masonry-5-original.jpg");
     width: 100%;
-    height: auto;
+    height: 100%;
+    position: relative;
     background-position: center center; 
     background-size: cover;
     background-repeat: no-repeat;
+    top: 0;
+    left: 0;
+    z-index: -100;
 }
 .panel {
     border: 1px solid;
