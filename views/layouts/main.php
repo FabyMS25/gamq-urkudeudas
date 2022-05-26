@@ -73,7 +73,7 @@ AppAsset::register($this);
                 
                 ['label' => 'Contribuyentes', 
                     'url' => ['/contribuyentes/index'], 
-                    'visible' => !Yii::$app->user->isGuest && Usuario::getRolPreli(),
+                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli()),
                 ],
                 // SITIOS PARA SILLAS Y GRADERIAS
                 [
@@ -136,10 +136,10 @@ AppAsset::register($this);
                         [
                             ['label' => 'Listado Graderias Sillas',
                                 'url' => ['/listas/index'], 
-                                'visible' => !Yii::$app->user->isGuest], //or Usuario::getRolSupervisor())],
+                                'visible' => !Yii::$app->user->isGuest ],
                             ['label' => 'Listado Puesto Eventuales', 
-                                'url' => ['/index'] ,
-                                'visible' => !Yii::$app->user->isGuest ],    
+                            'url' => ['/listas-eventuales/index'] ,
+                            'visible' => !Yii::$app->user->isGuest ],    
                         ],
                 ],
                 // SENTAJES               

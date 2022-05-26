@@ -3,22 +3,19 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Pagos;
-use app\models\SearchPagos;
-use app\models\SearchGraderiasSillas;
-use yii\base\Model\SitiosEventuales;
-use yii\base\Model\SearchSitiosEventuales;
-
+use app\models\PagosEventuales;
+use app\models\SearchPagosEventuales;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
+
 /*
  *
  */
-class ListasController extends Controller {
+class ListasEventualesController extends Controller {
 
     /**
      * @inheritdoc
@@ -41,17 +38,18 @@ class ListasController extends Controller {
      */
     public function actionIndex() {
         $this->verificarSesion();
-        $listaGraderia = (new Pagos())->listaIdGraderiasSillasPreliquidados();
-        $searchModel = new \app\models\SearchGraderiasSillas();
-        $dataProvider = $searchModel->searchPreliquidaciones(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['grad_estado' => 1]);
-        $dataProvider->query->andFilterWhere(['NOT IN', 'grad_id', $listaGraderia]);
+        
+        $searchModel = new SearchPagosEventuales();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+         $dataProvider->query->andWhere(['IS ', 'eventual_fecha_hora_pago',  NULL]);
+        $dataProvider->query->andFilterWhere(['eventual_estado'=>1]);
+       
 
-        return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+        return $this->render('index' , [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
-    }
+   }
 
     
  
