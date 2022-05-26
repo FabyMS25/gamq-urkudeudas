@@ -41,8 +41,8 @@ class ListasEventualesController extends Controller {
         
         $searchModel = new SearchPagosEventuales();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-         $dataProvider->query->andWhere(['IS ', 'eventual_fecha_hora_pago',  NULL]);
-        $dataProvider->query->andFilterWhere(['eventual_estado'=>1]);
+         //$dataProvider->query->andWhere(['IS ', 'eventual_fecha_hora_pago',  NULL]);
+        //$dataProvider->query->andFilterWhere(['eventual_estado'=>1]);
        
 
         return $this->render('index' , [

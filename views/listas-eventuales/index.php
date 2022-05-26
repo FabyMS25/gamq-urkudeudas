@@ -7,7 +7,7 @@ use johnitvn\ajaxcrud\CrudAsset;
 use johnitvn\ajaxcrud\BulkButtonWidget;
 
 
-$this->title = 'Listado de sillas y graderias';
+$this->title = 'Listado de Puestos Eventuales';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="pagos-index">
