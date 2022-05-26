@@ -11,6 +11,7 @@ use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
+use chrmorandi\jasper\Jasper;
 /**
  * PagosController implements the CRUD actions for Pagos model.
  */
@@ -670,6 +671,59 @@ class PagosController extends Controller {
             ]);
         }
     }
+
+    public function actionReporteDiferencias() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DIFERENCIA COBROS GRADERIAS SILLAS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_diferencias_graderias_sillas";
+        $carpeta = "reportes/graderias_sillas";
+        
+        $parametros = [];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'title' => $titulo,
+                'content' => $this->renderAjax('reporte-diferencias', [
+                    'url' => $url,
+                ]),
+                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return $this->render('reporte-diferencias', [
+                        'url' => $url,
+            ]);
+        }
+    }
+
+    public function actionReporteDiferenciasEventuales() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DIFERENCIA COBROS EVENTUALES - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_diferencias_eventuales";
+        $carpeta = "reportes/eventuales";
+        
+        $parametros = [];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'title' => $titulo,
+                'content' => $this->renderAjax('reporte-diferencias-eventuales', [
+                    'url' => $url,
+                ]),
+                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return $this->render('reporte-diferencias-eventuales', [
+                        'url' => $url,
+            ]);
+        }    
+    }
+
 
     protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
 
