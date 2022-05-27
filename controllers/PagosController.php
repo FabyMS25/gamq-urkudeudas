@@ -121,7 +121,7 @@ class PagosController extends Controller {
         $model = $this->findModel($id);
         $model->scenario = "cobrar_graderias_sillas";
         $titulo = "Cobrar preliquidacion de " . $model->graderiaSilla->grad_codigo;
-
+        //  echo 'aqui';
         if ($request->isAjax) {
             /*           Process for ajax request            */
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -134,6 +134,7 @@ class PagosController extends Controller {
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
                 $resultado = $this->actualizarDatosCobro($model);
+                print_r($resultado);
                 $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
                 return [
                     'forceReload' => '#crud-datatable-pjax',
@@ -482,12 +483,11 @@ class PagosController extends Controller {
         }
     }
 
-    protected function actualizarDatosCobro($model) {
+    public function actualizarDatosCobro($model) {
         $modelGraderia = new \app\models\GraderiasSillas();
-
         $auxGraderia = $modelGraderia->findOne($model->grad_id);
         $auxGraderia->grad_vendido = 1; //modifica estado de vendido
-
+//var_dump($auxGraderia);
         $model->usua_id = Yii::$app->user->id;
         $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
         $model->pago_cobrado = 1;

@@ -32,11 +32,11 @@ use yii\widgets\DetailView;
                  'attribute'=>'pago_con_exencion',
                  'value'=> ($model->pago_con_exencion)?"Si": "No"                
              ],
-           // 'pago_fecha_hora',
+            //'pago_fecha_hora',
             //'pago_anulado',
             'pago_anulado_detalle',
             'pago_anulado_fecha_hora',
-           // 'pago_preliquidacion',
+            //'pago_preliquidacion',
             //'pago_id_user_preliquidacion',
             [
                 'attribute' => 'pago_id_user_preliquidacion',

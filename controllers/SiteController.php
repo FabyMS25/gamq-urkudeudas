@@ -179,18 +179,13 @@ class SiteController extends Controller
            }
            */
         
-          //$mensaje = 'hola mundo';
-          //$num = [1,2,3];
-          //return $this->render('index', ['mensaje' => $mensaje, 'arr' => $num]);
-          //$model = (new \yii\db\Query())
-            //->select(['totales', 'reservados', 'vendidos'])
-            //->select(['*'])
-            //->from(['usuario'])
-            //->all();
-            //var_dump($model);
-            
-        $sql = "SELECT * FROM view_totales_graderias_sillas";
-        $command = Yii::$app->db->createCommand($sql);
+        
+        $modelGestion = (new \app\models\Gestiones())->gestionVigente();
+        $gest_id = $modelGestion->gest_id;
+        
+        $sql = "SELECT * FROM totales_graderillas_sillas(:id)";
+        $command = Yii::$app->db->createCommand($sql)
+                                ->bindValue(':id', $gest_id);
         $graderias = $command->queryAll();
         $sql1 = "SELECT * FROM view_totales_alasitas";
         $command1 = Yii::$app->db->createCommand($sql1);
