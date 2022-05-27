@@ -14,7 +14,6 @@ $this->title = 'Sitios eventuales y alasitas para preliquidaciones';
 $this->params['breadcrumbs'][] = $this->title;
 
 CrudAsset::register($this);
-
 ?>
 <div class="pagos-eventuales-index">
     <div id="ajaxCrudDatatable">

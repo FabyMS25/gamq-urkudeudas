@@ -82,6 +82,7 @@ class SearchGraderiasSillas extends GraderiasSillas {
         $modelGestion = (new \app\models\Gestiones())->gestionVigente();          
         $query = GraderiasSillas::find()
                 ->where(['graderias_sillas.gest_id'=>$modelGestion->gest_id])                
+                //
                 ->innerJoinWith('zona');
         
         $dataProvider = new ActiveDataProvider([
