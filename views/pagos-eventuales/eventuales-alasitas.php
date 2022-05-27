@@ -57,6 +57,6 @@ CrudAsset::register($this);
 <?php Modal::begin([
     "id"=>"ajaxCrudModal",
     "footer"=>"",// always need it for jquery plugin
-    'size' => 'modal-lg',
+    'size' => 'modal-xl',
 ])?>
 <?php Modal::end(); ?>
