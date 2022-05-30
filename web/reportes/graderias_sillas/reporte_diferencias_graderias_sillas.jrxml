@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_diferencias_graderias_sillas" language="groovy" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="dd3c87d9-8b91-423f-b5b1-f40d85fc4a1f">
 	<property name="ireport.zoom" value="2.0"/>
-	<property name="ireport.x" value="2"/>
+	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT pago_nro_comprobante,
@@ -95,7 +95,7 @@ ORDER BY zona_nombre::TEXT ASC]]>
 			</textField>
 			<image>
 				<reportElement x="0" y="2" width="116" height="60" uuid="a57938b5-a97f-4a39-a757-afd1cf566c2a"/>
-				<imageExpression><![CDATA["c:\\laragon\\www\\proyecto-urkupina\\web\\logo\\logo_gamq.jpg"]]></imageExpression>
+				<imageExpression><![CDATA["C:\\laragon\\www\\proyecto-urkupina\\web\\logo\\logo_gamq.jpg"]]></imageExpression>
 			</image>
 		</band>
 	</title>

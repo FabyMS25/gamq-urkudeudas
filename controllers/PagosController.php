@@ -134,7 +134,22 @@ class PagosController extends Controller {
                     Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
-                $resultado = $this->actualizarDatosCobro($model);
+                $model->usua_id = Yii::$app->user->id;
+                $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
+                $model->pago_cobrado = 1;
+                $codigo=$model->grad_id;
+                $sql='UPDATE graderias_sillas SET grad_vendido=:val WHERE grad_id=:id';
+                $command= Yii::$app->db->createCommand($sql)
+                                 ->bindValue(':id', $codigo)
+                                 ->bindValue(':val', 1)
+                                 ->queryOne();
+
+                //Yii::$app->db->createCommand()->update('graderias_sillas',['grad_vendido'->1], 'grad_id==$codigo')->execute();
+                if ($model->save())
+                   $resultado= true;
+                   else
+                  $resultado = false;
+                //$resultado =$this->actualizarDatosCobro($model);
                 $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
                 return [
                     'forceReload' => '#crud-datatable-pjax',
@@ -485,10 +500,9 @@ class PagosController extends Controller {
 
     protected function actualizarDatosCobro($model) {
         $modelGraderia = new \app\models\GraderiasSillas();
-
+        
         $auxGraderia = $modelGraderia->findOne($model->grad_id);
         $auxGraderia->grad_vendido = 1; //modifica estado de vendido
-
         $model->usua_id = Yii::$app->user->id;
         $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
         $model->pago_cobrado = 1;
@@ -496,10 +510,24 @@ class PagosController extends Controller {
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            if ($auxGraderia->save(false) && $model->save(false)) {
+            if ($auxGraderia->save(false)) 
+            {
+                $resultado=true;
+            }
+            else
+            {
+                //echo "MODEL1 NOT SAVED";
+                print_r($auxGraderia->getAttributes());
+                print_r($auxGraderia->getErrors());
+            }
+            
+            if ($model->save(false)) {
                 $transaction->commit();
                 $resultado = true;
             } else {
+                //echo "MODEL2 NOT SAVED";
+                print_r($model->getAttributes());
+                print_r($model->getErrors());
                 $transaction->rollBack();
             }
         } catch (Exception $e) {
@@ -761,4 +789,5 @@ class PagosController extends Controller {
         }
     }
 
+    
 }

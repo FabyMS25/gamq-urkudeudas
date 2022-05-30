@@ -1,7 +1,6 @@
 <?php
 
 namespace app\controllers;
-
 use Yii;
 use app\models\PagosEventuales;
 use app\models\SearchPagosEventuales;
@@ -11,6 +10,7 @@ use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
+
 
 /*
  *
@@ -32,20 +32,16 @@ class ListasEventualesController extends Controller {
         ];
     }
 
-    /**
-     * Lists all Pagos models.
-     * @return mixed
-     */
     public function actionIndex() {
         $this->verificarSesion();
         
-        $searchModel = new SearchPagosEventuales();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-         $dataProvider->query->andWhere(['IS ', 'eventual_fecha_hora_pago',  NULL]);
-        $dataProvider->query->andFilterWhere(['eventual_estado'=>1]);
-       
+        $searchModel = new \app\models\SearchSitiosEventuales();
+        $listaSitios = (new PagosEventuales())->listaIdsSitiosEventuales();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);        
+        $dataProvider->query->andFilterWhere(['sitios_estado' => 1]);
+        $dataProvider->query->andFilterWhere(['NOT IN', 'sitios_id', $listaSitios]);
 
-        return $this->render('index' , [
+        return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
