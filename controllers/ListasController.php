@@ -41,11 +41,12 @@ class ListasController extends Controller {
      */
     public function actionIndex() {
         $this->verificarSesion();
-        $listaGraderia = (new Pagos())->listaIdGraderiasSillasPreliquidados();
+        //$listaGraderia = (new Pagos())->listaIdGraderiasSillasPreliquidados();
         $searchModel = new \app\models\SearchGraderiasSillas();
         $dataProvider = $searchModel->searchPreliquidaciones(Yii::$app->request->queryParams);
         $dataProvider->query->andFilterWhere(['grad_estado' => 1]);
-        $dataProvider->query->andFilterWhere(['NOT IN', 'grad_id', $listaGraderia]);
+        $dataProvider->query->andFilterWhere(['grad_vendido' => 0]);
+        //$dataProvider->query->andFilterWhere(['NOT IN', 'grad_id', $listaGraderia]);
 
         return $this->render('index', [
                     'searchModel' => $searchModel,

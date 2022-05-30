@@ -42,7 +42,7 @@ class PagosController extends Controller {
         $searchModel = new \app\models\SearchGraderiasSillas();
         $dataProvider = $searchModel->searchPreliquidaciones(Yii::$app->request->queryParams);
         $dataProvider->query->andFilterWhere(['grad_estado' => 1]);
-        $dataProvider->query->andFilterWhere(['NOT IN', 'grad_id', $listaGraderia]);
+        $dataProvider->query->andFilterWhere(['grad_vendido'=> 0]);
 
         return $this->render('index', [
                     'searchModel' => $searchModel,
@@ -136,12 +136,17 @@ class PagosController extends Controller {
             } else if ($model->load($request->post()) && $model->validate()) {
                 $model->usua_id = Yii::$app->user->id;
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
-                $model->pago_cobrado = 1;
                 $codigo=$model->grad_id;
-                $sql='UPDATE graderias_sillas SET grad_vendido=:val WHERE grad_id=:id';
+                $resto=$modelSitio->grad_longitud - $model->pago_longitud_modificada;
+                $model->pago_cobrado = 0;
+                $val=0;
+                if ($resto==0) 
+                {$val=1; $model->pago_cobrado = 1;
+                }
+                $sql='UPDATE graderias_sillas SET grad_vendido=:val,  WHERE grad_id=:id';
                 $command= Yii::$app->db->createCommand($sql)
                                  ->bindValue(':id', $codigo)
-                                 ->bindValue(':val', 1)
+                                 ->bindValue(':val', $val)
                                  ->queryOne();
 
                 //Yii::$app->db->createCommand()->update('graderias_sillas',['grad_vendido'->1], 'grad_id==$codigo')->execute();
@@ -218,8 +223,6 @@ class PagosController extends Controller {
         $model->pago_estado = 1;
         $model->pago_fecha_hora_preliquidacion = date('Y-m-d H:m:s');
         $model->pago_preliquidacion = 1;
-
-
         $modelSitio = \app\models\GraderiasSillas::findOne($id);
         $titulo = "Preliquidacion para el codigo <strong> " . $modelSitio->grad_codigo . "</strong>";
 
@@ -236,11 +239,32 @@ class PagosController extends Controller {
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                     Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
-            } else if ($model->load($request->post()) && $model->save()) {
+            } else if ($model->load($request->post()) && $model->validate()) {
+                $codigo=$model->grad_id;
+                $resto=$modelSitio->grad_longitud - $model->pago_longitud_modificada;
+                $model->pago_cobrado = 0;
+                $val=0;
+                if ($resto==0) 
+                {
+                    $val=1; $model->pago_cobrado = 1;
+                }
+                $sql='UPDATE graderias_sillas SET grad_vendido=:val, grad_longitud=:rest WHERE grad_id=:id';
+                $command= Yii::$app->db->createCommand($sql)
+                                 ->bindValue(':id', $codigo)
+                                 ->bindValue(':val', $val)
+                                 ->bindValue(':rest',$resto)
+                                 ->queryOne();
+
+                if ($model->save())
+                   $resultado= true;
+                   else
+                  $resultado = false;
+                //$resultado =$this->actualizarDatosCobro($model);
+                $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
-                    'content' => '<span class="text-success"> Se registro los datos de la preliquidacion. </span>',
+                    'content' => '<span class="text-success">'. $mensaje . 'Se registro los datos de la preliquidacion. </span>',
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                     Html::a('recibo preliquidacion', ['recibo-liquidacion', 'id' => $model->pago_id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                 ];
@@ -789,5 +813,5 @@ class PagosController extends Controller {
         }
     }
 
-    
+
 }
