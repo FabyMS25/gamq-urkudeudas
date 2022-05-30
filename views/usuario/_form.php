@@ -20,7 +20,7 @@ $items = ['administrador' => 'Administrador', 'preliquidador' => 'Preliquidador'
 
     <?= $form->field($model, 'usua_cuenta')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'usua_password')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'usua_password')->textInput(['maxlength' => true])->input('password')  ?>
 
     <?= $form->field($model, 'usua_rol')->dropDownList($items, ['prompt' => '* Seleccione una opcion*']) ?>
   

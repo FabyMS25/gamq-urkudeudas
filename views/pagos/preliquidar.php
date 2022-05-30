@@ -173,10 +173,13 @@ function isNumber(evt) {
                             totalPatente = patente * longitud;                            
                             totalAseo = aseo * longitud;                            
                         }
-                        
+
+                        totalPatente = totalPatente.toFixed(2);
+                        totalAseo = totalAseo.toFixed(2);
+  
                         total = parseFloat(totalPatente) + parseFloat(totalAseo) + parseFloat(comprobante);
                         total = total.toFixed(2);
-
+                       // print( '$totalPatente - $totalAseo - $comprobante');
                         $("#txt_patente").text("Patente Bs.:" + patente);
                         $("#txt_aseo").text("Tasa de aseo Bs.:" + aseo);
 
