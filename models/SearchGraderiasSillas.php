@@ -12,12 +12,12 @@ use app\models\GraderiasSillas;
  */
 class SearchGraderiasSillas extends GraderiasSillas {
 
-    public $zona;
-
+    public $Zona;
+    
     public function rules() {
         return [
                 [['grad_id', 'zona_id', 'gest_id', 'grad_vendido', 'grad_estado'], 'integer'],
-                [['grad_codigo', 'grad_direccion', 'grad_acera', 'grad_tipo_armado', 'grad_tipo_sitio'], 'safe'],
+                [['Zona','grad_codigo', 'grad_direccion', 'grad_acera', 'grad_tipo_armado', 'grad_tipo_sitio'], 'safe'],
                 [['grad_longitud'], 'number'],
                 [['zona', 'grad_reservado'], 'safe']
         ];
