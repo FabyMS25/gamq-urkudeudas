@@ -122,7 +122,7 @@ class PagosController extends Controller {
         $model = $this->findModel($id);
         $model->scenario = "cobrar_graderias_sillas";
         $titulo = "Cobrar preliquidacion de " . $model->graderiaSilla->grad_codigo;
-
+        
         if ($request->isAjax) {
             /*           Process for ajax request            */
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -522,7 +522,7 @@ class PagosController extends Controller {
         }
     }
 
-    protected function actualizarDatosCobro($model) {
+    public function actualizarDatosCobro($model) {
         $modelGraderia = new \app\models\GraderiasSillas();
         
         $auxGraderia = $modelGraderia->findOne($model->grad_id);
