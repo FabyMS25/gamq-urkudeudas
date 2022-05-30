@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_diferencias_graderias_sillas" language="groovy" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="dd3c87d9-8b91-423f-b5b1-f40d85fc4a1f">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT pago_nro_comprobante,
+            contribuyente,
+            grad_codigo,
+            zona_nombre,
+            pago_longitud_modificada,
+            pago_cobrado,
+            pago_importe_total,
+            calculo_real,
+            diferencia,
+            pago_fecha_hora_cobro,
+            cobrador
+FROM view_diferencias_cobros_graderias
+WHERE pago_cobrado = 1
+ORDER BY zona_nombre::TEXT ASC]]>
+	</queryString>
+	<field name="pago_nro_comprobante" class="java.lang.Integer"/>
+	<field name="contribuyente" class="java.lang.String"/>
+	<field name="grad_codigo" class="java.lang.String"/>
+	<field name="zona_nombre" class="java.lang.String"/>
+	<field name="pago_longitud_modificada" class="java.math.BigDecimal"/>
+	<field name="pago_cobrado" class="java.lang.Integer"/>
+	<field name="pago_importe_total" class="java.math.BigDecimal"/>
+	<field name="calculo_real" class="java.math.BigDecimal"/>
+	<field name="diferencia" class="java.math.BigDecimal"/>
+	<field name="pago_fecha_hora_cobro" class="java.sql.Timestamp"/>
+	<field name="cobrador" class="java.lang.String"/>
+	<variable name="sum_importe" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{pago_importe_total}]]></variableExpression>
+	</variable>
+	<variable name="sum_efectivo" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{calculo_real}]]></variableExpression>
+	</variable>
+	<variable name="sum_diferencia" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{diferencia}]]></variableExpression>
+	</variable>
+	<group name="zona_nombre">
+		<groupExpression><![CDATA[$F{zona_nombre}]]></groupExpression>
+		<groupHeader>
+			<band height="23">
+				<textField>
+					<reportElement x="11" y="3" width="89" height="20" uuid="f6e9bd08-ba2d-4f97-9ce2-e781aa7101c4"/>
+					<textFieldExpression><![CDATA[$F{zona_nombre}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement x="116" y="2" width="480" height="15" uuid="fa9156ac-6284-42bd-a1ff-0608d0e4f5e6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[FESTIVIDAD DE LA VIRGEN DE URKUPIÑA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="116" y="47" width="480" height="15" uuid="16ab8ba6-01ad-459b-9bae-4842204b136c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[	REPORTE DE DIFERENCIAS DE COBROS Y PAGOS (GRADERIAS O SILLA)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="116" y="32" width="480" height="15" uuid="82b39ef3-e467-4ec6-98d8-2f963bef0aec"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[DIRECCION DE RECAUDACIONES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="116" y="17" width="480" height="15" uuid="83cf1cce-8fcc-431f-be21-9c4398ceefe0"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[GOBIERNO AUTONOMO MUNICIPAL DE QUILLACOLLO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="560" y="62" width="100" height="15" uuid="402786b8-ec03-433a-be25-47dd5906255b"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha y hora impresion:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy h:mm a">
+				<reportElement x="660" y="62" width="92" height="15" uuid="72941f9d-f931-4478-9db0-117b46a5d11c"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="0" y="2" width="116" height="60" uuid="a57938b5-a97f-4a39-a757-afd1cf566c2a"/>
+				<imageExpression><![CDATA["C:\\laragon\\www\\proyecto-urkupina\\web\\logo\\logo_gamq.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="26" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="30" height="26" uuid="c120089c-8d0a-4f02-99df-3d0ef5ebd905"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nº]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="0" width="62" height="26" uuid="1f0d736d-1f20-446f-8c0a-680fb88c9cdb"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[COMPROBANTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="92" y="0" width="100" height="26" uuid="a06191ce-8002-46d2-a54d-9d25411b2924"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CONTRIBUYENTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="192" y="0" width="56" height="26" uuid="6dc7c201-807a-460c-b2f9-c6c140053ad5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CODIGO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="248" y="0" width="66" height="26" uuid="6cde0d0c-40ec-4ed0-86fd-ae82c8d83c6a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MTS. LINEALES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="314" y="0" width="49" height="26" uuid="583d1be7-5bed-41df-b70b-c63d44e3b4e1"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[COBRADO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="363" y="0" width="73" height="26" uuid="30e6c23e-bd7a-426b-89e2-8805fb8dc33f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOT. IMPORTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="436" y="0" width="77" height="26" uuid="d4281e38-4378-46fa-935b-bba0e4b22430"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOT. EFECTIVO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="513" y="0" width="70" height="26" uuid="438197b5-6f93-4e67-ac9c-66c880f35bb7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DIFERENCIA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="583" y="0" width="77" height="26" uuid="9f30bb52-8f07-4d7f-9589-2bb0de81a9cb"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FECHA COBRO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="660" y="0" width="92" height="26" uuid="262e9a1b-0799-4ac5-af71-eb60d6f5bc3f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[COBRADOR]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="30" height="20" uuid="93423e1e-8c35-480c-92e7-f85c3b521824"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="0" width="62" height="20" uuid="d71b55b6-ec63-4489-93c5-9939e0d4f49b"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_nro_comprobante}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="92" y="0" width="100" height="20" uuid="511ee48d-ed5d-4f1e-b262-e97bf821956d"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{contribuyente}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="192" y="0" width="56" height="20" uuid="32c170ff-3fb1-44b0-b466-4d600318ee0c"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grad_codigo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="248" y="0" width="66" height="20" uuid="c8188b57-88b8-4d6b-bb0a-19180b594975"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_longitud_modificada}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="314" y="0" width="49" height="20" uuid="e308ae0d-4f53-4c23-bc74-3f17d0508d87"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_cobrado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="363" y="0" width="73" height="20" uuid="d0314ea9-629c-4853-9c72-2468c357956b"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_importe_total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="436" y="0" width="77" height="20" uuid="378013cf-852d-43fc-bd20-26d7163c4b3e"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{calculo_real}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="513" y="0" width="70" height="20" uuid="44c18a3a-2793-4742-ab9c-47d80a184c51"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{diferencia}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="583" y="0" width="77" height="20" uuid="b7be5041-b676-4013-9f4d-7791e0ddb8fb"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_fecha_hora_cobro}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="660" y="0" width="92" height="20" uuid="b6dd1a7a-9e99-478b-82af-367a9280f630"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cobrador}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="648" y="4" width="100" height="15" uuid="2d685fb6-83b4-4674-b9e7-e018f5b7c248">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="548" y="4" width="100" height="15" uuid="f653a390-01df-479f-9ce5-ef9b33b583d6"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="26" splitType="Stretch">
+			<staticText>
+				<reportElement x="263" y="1" width="100" height="20" uuid="b0e3a6b7-e14a-44a1-b26f-f053716da601"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTALES:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="363" y="1" width="73" height="20" uuid="27f3e1b8-62ed-4c3b-b095-f9812121c3eb"/>
+				<textElement textAlignment="Right">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{sum_importe}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="436" y="1" width="77" height="20" uuid="36d7eada-a887-468d-9591-e4b8367c9b60"/>
+				<textElement textAlignment="Right">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{sum_efectivo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="513" y="2" width="70" height="20" uuid="14a6fa21-cc0e-4b3f-a7e7-f5a86b33d2bf"/>
+				<textElement textAlignment="Right">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{sum_diferencia}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="0" width="748" height="1" uuid="90b56094-3903-4adb-b575-45b983caadcd"/>
+			</line>
+		</band>
+	</summary>
+</jasperReport>

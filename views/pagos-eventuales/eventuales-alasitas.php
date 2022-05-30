@@ -14,7 +14,6 @@ $this->title = 'Sitios eventuales y alasitas para preliquidaciones';
 $this->params['breadcrumbs'][] = $this->title;
 
 CrudAsset::register($this);
-
 ?>
 <div class="pagos-eventuales-index">
     <div id="ajaxCrudDatatable">
@@ -58,6 +57,6 @@ CrudAsset::register($this);
 <?php Modal::begin([
     "id"=>"ajaxCrudModal",
     "footer"=>"",// always need it for jquery plugin
-    'size' => 'modal-lg',
+    'size' => 'modal-xl',
 ])?>
 <?php Modal::end(); ?>

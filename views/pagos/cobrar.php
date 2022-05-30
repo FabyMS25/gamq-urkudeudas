@@ -56,7 +56,7 @@ if (Yii::$app->user->isGuest) {
 
 
     <div class="alert alert-info">
-<?php $form = ActiveForm::begin(); ?>    
+    <?php $form = ActiveForm::begin(); ?>    
         <?php // echo $form ->errorSummary($model); ?>    
         <?= $form->field($model, 'pago_nro_comprobante')->textInput(['maxlength' => true]) ?>     
 

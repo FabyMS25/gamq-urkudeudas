@@ -11,6 +11,7 @@ use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
+use chrmorandi\jasper\Jasper;
 /**
  * PagosController implements the CRUD actions for Pagos model.
  */
@@ -121,7 +122,7 @@ class PagosController extends Controller {
         $model = $this->findModel($id);
         $model->scenario = "cobrar_graderias_sillas";
         $titulo = "Cobrar preliquidacion de " . $model->graderiaSilla->grad_codigo;
-        //  echo 'aqui';
+        
         if ($request->isAjax) {
             /*           Process for ajax request            */
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -133,8 +134,22 @@ class PagosController extends Controller {
                     Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
-                $resultado = $this->actualizarDatosCobro($model);
-                print_r($resultado);
+                $model->usua_id = Yii::$app->user->id;
+                $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
+                $model->pago_cobrado = 1;
+                $codigo=$model->grad_id;
+                $sql='UPDATE graderias_sillas SET grad_vendido=:val WHERE grad_id=:id';
+                $command= Yii::$app->db->createCommand($sql)
+                                 ->bindValue(':id', $codigo)
+                                 ->bindValue(':val', 1)
+                                 ->queryOne();
+
+                //Yii::$app->db->createCommand()->update('graderias_sillas',['grad_vendido'->1], 'grad_id==$codigo')->execute();
+                if ($model->save())
+                   $resultado= true;
+                   else
+                  $resultado = false;
+                //$resultado =$this->actualizarDatosCobro($model);
                 $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
                 return [
                     'forceReload' => '#crud-datatable-pjax',
@@ -485,9 +500,9 @@ class PagosController extends Controller {
 
     public function actualizarDatosCobro($model) {
         $modelGraderia = new \app\models\GraderiasSillas();
+        
         $auxGraderia = $modelGraderia->findOne($model->grad_id);
         $auxGraderia->grad_vendido = 1; //modifica estado de vendido
-//var_dump($auxGraderia);
         $model->usua_id = Yii::$app->user->id;
         $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
         $model->pago_cobrado = 1;
@@ -495,10 +510,24 @@ class PagosController extends Controller {
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            if ($auxGraderia->save(false) && $model->save(false)) {
+            if ($auxGraderia->save(false)) 
+            {
+                $resultado=true;
+            }
+            else
+            {
+                //echo "MODEL1 NOT SAVED";
+                print_r($auxGraderia->getAttributes());
+                print_r($auxGraderia->getErrors());
+            }
+            
+            if ($model->save(false)) {
                 $transaction->commit();
                 $resultado = true;
             } else {
+                //echo "MODEL2 NOT SAVED";
+                print_r($model->getAttributes());
+                print_r($model->getErrors());
                 $transaction->rollBack();
             }
         } catch (Exception $e) {
@@ -671,6 +700,59 @@ class PagosController extends Controller {
         }
     }
 
+    public function actionReporteDiferencias() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DIFERENCIA COBROS GRADERIAS SILLAS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_diferencias_graderias_sillas";
+        $carpeta = "reportes/graderias_sillas";
+        
+        $parametros = [];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'title' => $titulo,
+                'content' => $this->renderAjax('reporte-diferencias', [
+                    'url' => $url,
+                ]),
+                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return $this->render('reporte-diferencias', [
+                        'url' => $url,
+            ]);
+        }
+    }
+
+    public function actionReporteDiferenciasEventuales() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DIFERENCIA COBROS EVENTUALES - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_diferencias_eventuales";
+        $carpeta = "reportes/eventuales";
+        
+        $parametros = [];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'title' => $titulo,
+                'content' => $this->renderAjax('reporte-diferencias-eventuales', [
+                    'url' => $url,
+                ]),
+                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return $this->render('reporte-diferencias-eventuales', [
+                        'url' => $url,
+            ]);
+        }    
+    }
+
+
     protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
 
         $archivo = $file;
@@ -707,4 +789,5 @@ class PagosController extends Controller {
         }
     }
 
+    
 }

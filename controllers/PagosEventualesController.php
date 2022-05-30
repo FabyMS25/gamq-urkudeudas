@@ -11,6 +11,7 @@ use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
+use chrmorandi\jasper\Jasper;
 
 /**
  * PagosEventualesController implements the CRUD actions for PagosEventuales model.
@@ -213,8 +214,7 @@ class PagosEventualesController extends Controller
         $model->eventual_preliquidacion = 1;
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
         $model->eventual_costo_comprobante=$model::COMPROBANTE; 
-        $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
-        $titulo = "Preliquidacion de actividades economicas eventuales";
+        $model->eventual_user_id_preliquidacion = Yii::$app->user->id;        $titulo = "Preliquidacion de actividades economicas eventuales";
 
         if($request->isAjax){
             //$this->verificarSesion();
