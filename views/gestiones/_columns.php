@@ -27,7 +27,8 @@ return [
         'attribute'=>'gest_vigente',
         'value'=> function ($model) {
             return ($model->gest_vigente === 1 )? "Si": "No";
-        }
+        },
+        'filter' =>["1" => "Si", "0"=>"No"]
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
@@ -35,6 +36,7 @@ return [
         'value'=> function ($model) {
             return ($model->gest_estado === 1)? "ACTIVO": "INACTIVO";
          },
+         'filter' =>["1" => "ACTIVO", "0"=>"INACTIVO"]
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
