@@ -182,11 +182,42 @@ class SiteController extends Controller
         
         $modelGestion = (new \app\models\Gestiones())->gestionVigente();
         $gest_id = $modelGestion->gest_id;
-        
-        $sql = "SELECT * FROM totales_graderillas_sillas(:id)";
+        $sql = "SELECT * FROM totales_graderillas_sillas(:id, :zona_id)";
         $command = Yii::$app->db->createCommand($sql)
-                                ->bindValue(':id', $gest_id);
+                                ->bindValue(':id', $gest_id)
+                                ->bindValue(':zona_id', 1);
         $graderias = $command->queryAll();
+
+        $sqlz2 = "SELECT * FROM totales_graderillas_sillas(:id, :zona_id)";
+        $command = Yii::$app->db->createCommand($sqlz2)
+                                ->bindValue(':id', $gest_id)
+                                ->bindValue(':zona_id', 2);
+        $graderiasz2 = $command->queryAll();
+
+        $sqlz3 = "SELECT * FROM totales_graderillas_sillas(:id, :zona_id)";
+        $command = Yii::$app->db->createCommand($sqlz3)
+                                ->bindValue(':id', $gest_id)
+                                ->bindValue(':zona_id', 3);
+        $graderiasz3 = $command->queryAll();
+
+        $sqlz4 = "SELECT * FROM totales_graderillas_sillas(:id, :zona_id)";
+        $command = Yii::$app->db->createCommand($sqlz4)
+                                ->bindValue(':id', $gest_id)
+                                ->bindValue(':zona_id', 4);
+        $graderiasz4 = $command->queryAll();
+
+        $sqlz5 = "SELECT * FROM totales_graderillas_sillas(:id, :zona_id)";
+        $command = Yii::$app->db->createCommand($sqlz5)
+                                ->bindValue(':id', $gest_id)
+                                ->bindValue(':zona_id', 5);
+        $graderiasz5 = $command->queryAll();
+
+        $sqlz6 = "SELECT * FROM totales_graderillas_sillas(:id, :zona_id)";
+        $command = Yii::$app->db->createCommand($sqlz6)
+                                ->bindValue(':id', $gest_id)
+                                ->bindValue(':zona_id', 6);
+        $graderiasz6 = $command->queryAll();
+    
         $sql1 = "SELECT * FROM view_totales_alasitas";
         $command1 = Yii::$app->db->createCommand($sql1);
         $alasitas = $command1->queryAll();
@@ -194,7 +225,9 @@ class SiteController extends Controller
         $command2 = Yii::$app->db->createCommand($sql2);
         $eventuales = $command2->queryAll();
         
-        return $this->render('index', ['graderias'=> $graderias, 'alasitas'=> $alasitas, 'eventuales'=> $eventuales ] );
+        return $this->render('index', ['graderias'=> $graderias, 'graderiasz2'=> $graderiasz2,
+        'graderiasz3'=> $graderiasz3, 'graderiasz4'=> $graderiasz4, 'graderiasz5'=> $graderiasz5,
+        'graderiasz6'=> $graderiasz6, 'alasitas'=> $alasitas, 'eventuales'=> $eventuales ] );
     }
 
     /**
