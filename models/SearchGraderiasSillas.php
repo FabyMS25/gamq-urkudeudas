@@ -82,7 +82,6 @@ class SearchGraderiasSillas extends GraderiasSillas {
         $modelGestion = (new \app\models\Gestiones())->gestionVigente();          
         $query = GraderiasSillas::find()
                 ->where(['graderias_sillas.gest_id'=>$modelGestion->gest_id])                
-                //
                 ->innerJoinWith('zona');
         
         $dataProvider = new ActiveDataProvider([
@@ -109,7 +108,7 @@ class SearchGraderiasSillas extends GraderiasSillas {
             'grad_longitud' => $this->grad_longitud,
             'grad_vendido' => $this->grad_vendido,
             'grad_estado' => $this->grad_estado,
-             'grad_reservado'=> $this->grad_reservado
+            'grad_reservado'=> $this->grad_reservado
         ]);
 
         $query->andFilterWhere(['ilike', 'grad_codigo', $this->grad_codigo])
