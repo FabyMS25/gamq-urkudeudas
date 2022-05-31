@@ -21,6 +21,7 @@ return [
         'attribute'=>'zona',
         'value' => 'zona.zona_nombre',
         'width' => '90px',
+        'filter' =>false
     ],
     
     [

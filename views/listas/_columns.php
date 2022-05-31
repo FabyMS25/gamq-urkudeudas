@@ -15,10 +15,6 @@ return [
         'filter' =>false
     ],
     [
-        'label'=>'zona',
-        'value' => 'zona.zona_nombre'
-    ],
-    [
         'class'=>'\kartik\grid\DataColumn',
         'label'=> 'Zona',
         'attribute'=>'zona_id',

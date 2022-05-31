@@ -70,7 +70,7 @@ class PagosController extends Controller {
         //
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado' => 1, 'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
+        $dataProvider->query->andFilterWhere(['pago_estado'=>1,'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
         if(Usuario::getRolPreli()){
             $dataProvider->query->andFilterWhere(['pago_id_user_preliquidacion' => \Yii::$app->user->id]);
         }
@@ -100,7 +100,7 @@ class PagosController extends Controller {
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado' => 1, 'pago_anulado' => 1,]);
+        $dataProvider->query->andFilterWhere(['pago_estado' => 1,'pago_preliquidacion' => 1, 'pago_anulado' => 1,]);
         if(Usuario::getRolCajero()){
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
@@ -136,7 +136,7 @@ class PagosController extends Controller {
             } else if ($model->load($request->post()) && $model->validate()) {
                 $model->usua_id = Yii::$app->user->id;
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
-                
+                $model->pago_cobrado=1;
                 
                 if ($model->save())
                    $resultado= true;
@@ -234,7 +234,7 @@ class PagosController extends Controller {
                 $val=0;
                 if ($resto==0) 
                 {
-                    $val=1; $model->pago_cobrado = 1;
+                    $val=1; 
                 }
                 $sql='UPDATE graderias_sillas SET grad_vendido=:val, grad_longitud=:rest WHERE grad_id=:id';
                 $command= Yii::$app->db->createCommand($sql)
@@ -770,7 +770,7 @@ class PagosController extends Controller {
         $request = Yii::$app->request;
         $titulo = "REPORTE GRADERIAS PAGADAS POR CAJERO - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_pagos_graderias_cajeros";
-        $carpeta = "cajeros";
+        $carpeta = "reportes/cajeros";
         
         $parametros = [];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
