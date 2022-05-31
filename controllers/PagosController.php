@@ -136,20 +136,8 @@ class PagosController extends Controller {
             } else if ($model->load($request->post()) && $model->validate()) {
                 $model->usua_id = Yii::$app->user->id;
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
-                $codigo=$model->grad_id;
-                $resto=$modelSitio->grad_longitud - $model->pago_longitud_modificada;
-                $model->pago_cobrado = 0;
-                $val=0;
-                if ($resto==0) 
-                {$val=1; $model->pago_cobrado = 1;
-                }
-                $sql='UPDATE graderias_sillas SET grad_vendido=:val,  WHERE grad_id=:id';
-                $command= Yii::$app->db->createCommand($sql)
-                                 ->bindValue(':id', $codigo)
-                                 ->bindValue(':val', $val)
-                                 ->queryOne();
-
-                //Yii::$app->db->createCommand()->update('graderias_sillas',['grad_vendido'->1], 'grad_id==$codigo')->execute();
+                
+                
                 if ($model->save())
                    $resultado= true;
                    else
