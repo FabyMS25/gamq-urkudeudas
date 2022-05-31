@@ -754,6 +754,7 @@ class PagosController extends Controller {
                 'title' => $titulo,
                 'content' => $this->renderAjax('reporte-diferencias-eventuales', [
                     'url' => $url,
+                    'size' => 'modal-xl',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
@@ -764,6 +765,84 @@ class PagosController extends Controller {
         }    
     }
 
+    public function actionPagadosCajeros() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE GRADERIAS PAGADAS POR CAJERO - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_pagos_graderias_cajeros";
+        $carpeta = "cajeros";
+        
+        $parametros = [];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'title' => $titulo,
+                'content' => $this->renderAjax('reporte-pagos-graderias-cajeros', [
+                    'url' => $url
+                ]),
+                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return $this->render('reporte-pagos-graderias-cajeros', [
+                        'url' => $url,
+            ]);
+        }
+    }
+
+    public function actionAnuladosCajeros() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE GRADERIAS ANULADAS POR CAJERO - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_anulados_graderias_cajeros";
+        $carpeta = "cajeros";
+        
+        $parametros = [];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'title' => $titulo,
+                'content' => $this->renderAjax('reporte-anulados-graderias-cajeros', [
+                    'url' => $url,
+                ]),
+                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return $this->render('reporte-anulados-graderias-cajeros', [
+                        'url' => $url,
+            ]);
+        }
+    }
+
+    public function actionVendidosDisponibles() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE GRADERIAS VENDIDAS Y DISPONIBLES - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_graderias_vendidas_disponibles";
+        $carpeta = "reportes/graderias_sillas";
+        
+        $parametros = [];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'title' => $titulo,
+                'content' => $this->renderAjax('reporte-graderias-disponibles', [
+                    'url' => $url,
+                ]),
+                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return $this->render('reporte-graderias-disponibles', [
+                'url' => $url,
+            ]);
+        }
+
+    }
 
     protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
 
