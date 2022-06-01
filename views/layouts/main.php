@@ -134,12 +134,22 @@ AppAsset::register($this);
                     'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolSupervisor()),
                     'items' =>
                         [
-                            ['label' => 'Listado Graderias Sillas',
+                            [ 'label' => 'Listado Graderias Sillas',
                                 'url' => ['/listas/index'], 
-                                'visible' => !Yii::$app->user->isGuest ],
-                            ['label' => 'Listado Puesto Eventuales', 
-                            'url' => ['/listas-eventuales/index'] ,
-                            'visible' => !Yii::$app->user->isGuest ],    
+                                'visible' => !Yii::$app->user->isGuest 
+                            ],
+                            [ 'label' => 'Listado Puesto Eventuales', 
+                                'url' => ['/listas-eventuales/index'] ,
+                                'visible' => !Yii::$app->user->isGuest
+                            ],
+                            [ 'label' => 'Listado Eventuales Pagados', 
+                                'url' => ['/pagos-eventuales/pagados'], 
+                                'visible' => !Yii::$app->user->isGuest
+                            ],    
+                            [ 'label' => 'Listado Eventuales Anulados',
+                                'url' => ['/pagos-eventuales/anulados'], 
+                                'visible' => !Yii::$app->user->isGuest
+                            ],
                         ],
                 ],
                 // SENTAJES               
@@ -179,8 +189,8 @@ AppAsset::register($this);
                         'linkOptions' => ['role' => 'modal-remote'],
                         'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()),
                         ],
-                        ['label' => 'Longitud disponible (mts) en graderias-sillas',
-                        'url' => ['pagos/reporte-graderias-disponibles'],
+                        ['label' => 'Graderias Vendidas y Disponibles (mts)',
+                        'url' => ['reportes/graderias-disponibles'],
                         'linkOptions' => ['role' => 'modal-remote'],
                         'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()),
                         ],

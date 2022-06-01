@@ -193,4 +193,12 @@ class PagosEventuales extends \yii\db\ActiveRecord
         }
         return $url;
     }
+
+    // funcion para convertir numeral a literal
+    public function montoTotalLiteral(){
+        $montoTotal = $this->eventual_importe_total;
+        $modelAux = new NumeroALetras();
+        return $modelAux->convertir($montoTotal);
+    }
+
 }

@@ -25,6 +25,7 @@
             INNER JOIN gestiones GE ON GE.gest_id = ZN.gest_id AND GE.gest_id = GS.gest_id
             LEFT JOIN usuario US ON US.usua_id = PG.pago_id_user_preliquidacion
             WHERE GS.grad_estado = 1 AND (grad_reservado = 0 OR grad_reservado ISNULL)
+            AND GS.grad_acera = 'NORTE'
             ORDER BY GS.grad_codigo]]>
 	</queryString>
 	<field name="grad_id" class="java.lang.Integer"/>
