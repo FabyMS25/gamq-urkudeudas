@@ -112,7 +112,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         </div><div class="col-md-3 col-sm-3">
             <?= $form->field($model, 'eventual_costo_sentaje')->textInput(['readonly' => true]) ?>
         </div><div class="col-md-2 col-sm-2">
-            <?= $form->field($model, 'eventual_costo_aseo')->textInput(['readonly' => true]) ?>
+            <?= $form->field($model, 'eventual_costo_aseo')->textInput(['readonly' => true])->label("Total Aseo"); ?>
         </div>
         <div class="col-md-2 col-sm-2">
             <?= $form->field($model, 'eventual_costo_comprobante')->textInput(['readonly' => true]) ?>

@@ -70,7 +70,7 @@ class PagosController extends Controller {
         //
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado'=>1,'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
+        $dataProvider->query->andFilterWhere(['pago_estado'=> 1,'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
         if(Usuario::getRolPreli()){
             $dataProvider->query->andFilterWhere(['pago_id_user_preliquidacion' => \Yii::$app->user->id]);
         }

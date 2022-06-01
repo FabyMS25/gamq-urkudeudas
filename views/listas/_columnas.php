@@ -16,13 +16,12 @@ return [
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'label'=> 'Zona',
         'attribute'=>'zona_id',
-        'width' => '100px',
-        'value' =>'zona.zona_nombre',
-        'filter'=> false
+        'width'=>'90px',
+        'value' => 'zona_id',
+               
     ],
-    
+      
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'grad_codigo',
@@ -47,10 +46,6 @@ return [
          'class'=>'\kartik\grid\DataColumn',
          'attribute'=>'grad_tipo_sitio',
      ],
-     /*[
-         'class'=>'\kartik\grid\DataColumn',
-         'attribute'=>'grad_vendido',
-     ],*/
     [
          'class'=>'\kartik\grid\DataColumn',
          'attribute'=>'grad_reservado',
@@ -59,11 +54,6 @@ return [
          },
         'filter' =>[1 => 'Si', 0=>'No']
      ],
-    // [
-        // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'grad_estado',
-    // ],
-    
+  
 
 ];   
-$filterInputOptions = [integer => 'Zona'];
