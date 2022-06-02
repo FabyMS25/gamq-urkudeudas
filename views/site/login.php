@@ -6,6 +6,7 @@
 
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
+use yii\captcha\Captcha;
 
 $this->title = 'Autentificación';
 $this->params['breadcrumbs'][] = $this->title;
@@ -32,6 +33,15 @@ $this->params['breadcrumbs'][] = $this->title;
                              <?= $form->field($model, 'password')->passwordInput() ?>
                         </div>
                         
+                        <div class="form-group">
+                             <?= $cod ?>
+                        </div>
+
+                        <div class="form-group">
+                             <?= $form->field($model, 'cod')->textInput() ?>
+                        </div>
+
+
                         <div class="form-group last">
                             <div class="col-md-4 col-sm-4 col-md-offset-4">
                                 <?= Html::submitButton('Ingresar', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
