@@ -16,9 +16,6 @@ class LoginForm extends Model
     public $username;
     public $password;
     public $rememberMe = true;
-    public $verifyCode;
-    public $cod;
-    public $captcha;
 
     private $_user = false;
 
@@ -41,13 +38,8 @@ public function behaviors()
             ['rememberMe', 'boolean'],
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
-            ['cod', 'required'],
-            ['cod', 'validateCod'],
-            //['captcha', 'captcha', 'captchaAction' => 'site/captcha'],
-            ['captcha', 'captcha'],
         ];
     }
-
 
     public function attributeLabels()
     {
@@ -55,22 +47,7 @@ public function behaviors()
             'username' => 'Usuario',
             'rememberMe' => 'Recuérdame',
             'password' => 'Contraseña',
-            'cod' => 'Codigo',
         ];
-    }
-
-    public function validateCod($attribute, $params)
-    {
-        if (!$this->hasErrors()) 
-        {
-            var_dump($attribute);
-            echo $params;
-            /* $user = $this->getUser();
-
-            if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Nombre de usuario o contraseña incorrecto.');
-            } */
-        }
     }
 
     /**

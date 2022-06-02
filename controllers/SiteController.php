@@ -50,8 +50,7 @@ class SiteController extends Controller
                 'class' => 'yii\web\ErrorAction',
             ],
             'captcha' => [
-                //'class' => 'yii\captcha\CaptchaAction',
-                'class' => 'app\controllers\MathCaptchaAction',
+                'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
         ];
@@ -236,32 +235,18 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionLogin()
-    {
-        if (!Yii::$app->user->isGuest) {
-            return ($this->redirect(''));//['site/login']));
-        }
+    public function actionLogin() {
+         if (!Yii::$app->user->isGuest) {
+            return ($this->redirect(['site/login']));
+        } 
 
         $model = new LoginForm();
-        var_dump($model);
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
-        $cod = $this->getCod(4);
         return $this->render('login', [
-            'model' => $model, 'cod'=> $cod
+            'model' => $model,
         ]);
-    }
-    public function getCod($n) {
-        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $randomString = '';
-    
-        for ($i = 0; $i < $n; $i++) {
-            $index = rand(0, strlen($characters) - 1);
-            $randomString .= $characters[$index];
-        }
-    
-        return $randomString;
     }
     /**
      * Logout action.
