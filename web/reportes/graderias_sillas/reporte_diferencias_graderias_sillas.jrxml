@@ -95,7 +95,7 @@ ORDER BY zona_nombre::TEXT ASC]]>
 			</textField>
 			<image>
 				<reportElement x="0" y="2" width="116" height="60" uuid="a57938b5-a97f-4a39-a757-afd1cf566c2a"/>
-				<imageExpression><![CDATA["C:\\laragon\\www\\proyecto-urkupina\\web\\logo\\logo_gamq.jpg"]]></imageExpression>
+				<imageExpression><![CDATA["D:\\laragon\\www\\proyecto-urkupina\\web\\logo\\logo_gamq.jpg"]]></imageExpression>
 			</image>
 		</band>
 	</title>

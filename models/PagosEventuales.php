@@ -106,8 +106,8 @@ class PagosEventuales extends \yii\db\ActiveRecord
             'eventual_importe_patente' => 'Patente',
             'eventual_costo_comprobante' => 'Comprobante',
             'eventual_costo_sentaje' => 'Sentaje',
-            'eventual_costo_aseo' => 'Tasa de aseo',
-            'eventual_importe_total' => 'Importe Bs.',
+            'eventual_costo_aseo' => 'Tasa aseo',
+            'eventual_importe_total' => 'Importe/Bs.',
             'eventual_anulado' => 'Anulado',
             'eventual_anulado_detalle' => 'Justificacion de anulacion',
             'eventual_anulado_fecha_hora' => 'Fecha anulacion',
@@ -193,4 +193,12 @@ class PagosEventuales extends \yii\db\ActiveRecord
         }
         return $url;
     }
+
+    // funcion para convertir numeral a literal
+    public function montoTotalLiteral(){
+        $montoTotal = $this->eventual_importe_total;
+        $modelAux = new NumeroALetras();
+        return $modelAux->convertir($montoTotal);
+    }
+
 }

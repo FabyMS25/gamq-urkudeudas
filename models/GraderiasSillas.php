@@ -92,10 +92,7 @@ class GraderiasSillas extends \yii\db\ActiveRecord
         return $this->hasOne(Zonas::className(), ['zona_id' => 'zona_id']);
     }
 
-    public function getZonaNombre()
-    {
-        return $this->hasOne(Zonas::className(), ['zona_nombre' => 'zona_nombre']);
-    }
+    
     /**
      * @return \yii\db\ActiveQuery
      */

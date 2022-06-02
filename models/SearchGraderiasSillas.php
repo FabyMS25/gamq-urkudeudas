@@ -73,13 +73,13 @@ class SearchGraderiasSillas extends GraderiasSillas {
                 ->andFilterWhere(['ilike', 'grad_acera', $this->grad_acera])
                 ->andFilterWhere(['ilike', 'grad_tipo_armado', $this->grad_tipo_armado])
                 ->andFilterWhere(['ilike', 'grad_tipo_sitio', $this->grad_tipo_sitio]);
-        $query->andFilterWhere(['ilike', 'zonas.zona_nombre', $this->zona]);
+       
 
         return $dataProvider;
     }
     
      public function searchPreliquidaciones($params) {
-        $modelGestion = (new \app\models\Gestiones())->gestionVigente();          
+         $modelGestion = (new \app\models\Gestiones())->gestionVigente();          
         $query = GraderiasSillas::find()
                 ->where(['graderias_sillas.gest_id'=>$modelGestion->gest_id])                
                 ->innerJoinWith('zona');
@@ -116,7 +116,7 @@ class SearchGraderiasSillas extends GraderiasSillas {
                 ->andFilterWhere(['ilike', 'grad_acera', $this->grad_acera])
                 ->andFilterWhere(['ilike', 'grad_tipo_armado', $this->grad_tipo_armado])
                 ->andFilterWhere(['ilike', 'grad_tipo_sitio', $this->grad_tipo_sitio]);
-        $query->andFilterWhere(['ilike', 'zonas.zona_nombre', $this->zona]);
+                
 
         return $dataProvider;
     }

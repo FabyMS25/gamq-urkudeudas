@@ -17,7 +17,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'dataProvider' => $dataProvider,
             'filterModel' => $searchModel,
             'pjax'=>true,
-            'columns' => require(__DIR__.'/_columns.php'),
+            'columns' => require(__DIR__.'/_columnas.php'),
             'toolbar'=> [
                 ['content'=>                   
                     Html::a('<i class="glyphicon glyphicon-repeat"></i>', [''],
@@ -42,7 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php Modal::begin([
     "id"=>"ajaxCrudModal",
     "footer"=>"",// always need it for jquery plugin
-  'size' => 'modal-lg',
+  'size' => 'modal-xl',
 ])?>
 <?php Modal::end(); ?>
 

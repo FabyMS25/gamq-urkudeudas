@@ -214,7 +214,8 @@ class PagosEventualesController extends Controller
         $model->eventual_preliquidacion = 1;
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
         $model->eventual_costo_comprobante=$model::COMPROBANTE; 
-        $model->eventual_user_id_preliquidacion = Yii::$app->user->id;        $titulo = "Preliquidacion de actividades economicas eventuales";
+        $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
+        $titulo = "Preliquidacion de actividades economicas eventuales";
 
         if($request->isAjax){
             //$this->verificarSesion();
@@ -584,6 +585,7 @@ class PagosEventualesController extends Controller
         
         $request = Yii::$app->request;
         $model = $this->findModel($id);
+        $montoLiteral = $model->montoTotalLiteral();
         $titulo = "COMPROBANTE DE PAGO";
         $url = "";
 
@@ -591,15 +593,8 @@ class PagosEventualesController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             // jasper init
             $archivo = "comprobante_eventuales2";
-            Yii::setAlias('@ruta', 'reportes');
-
-            $jasper = Yii::$app->jasper;
-            $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
-            $jasper->process(
-                            Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', ['id_pago' => $id], ['pdf'], false)
-                    ->execute();
-            $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
-
+            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"'];
+            $url = $this->generarURLReportePdf('reportes', $archivo, $parametros);
             //end jasper
             return [
                 'title' => $titulo,
@@ -627,17 +622,9 @@ class PagosEventualesController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             // jasper init
             $archivo = "preliquidacion_sitios3";
-            Yii::setAlias('@ruta', 'reportes');
-
-            $jasper = Yii::$app->jasper;
-            
-            $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
-            $jasper->process(
-                            Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', ['id_pago' => $id], ['pdf'], false)
-                    ->execute();
-
-            $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
-
+            $carpeta =  "reportes";
+            $parametros = ['id_pago' => $id];
+            $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
             //end jasper
             return [
                 'title' => $titulo,
@@ -665,15 +652,9 @@ class PagosEventualesController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             // jasper init
             $archivo = "preliquidacion_actividades_economicas";
-            Yii::setAlias('@ruta', 'reportes');
-
-            $jasper = Yii::$app->jasper;
-            $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
-            $jasper->process(
-                            Yii::getAlias('@ruta').'/'.$archivo.'.jasper', ['id_pago' => $id], ['pdf'], false)
-                    ->execute();
-            $url = \Yii::getAlias('@ruta').'/'.$archivo.'.pdf';
-
+            $carpeta = "reportes";
+            $parametros = ['id_pago' => $id];
+            $url = $this -> generarURLReportePdf($carpeta,$archivo,$parametros);
             //end jasper
             return [
                 'title' => $titulo,
@@ -712,4 +693,18 @@ class PagosEventualesController extends Controller
             return $this->goHome();
         }
     }
+
+    protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
+
+        $archivo = $file;
+        Yii::setAlias('@ruta', $carpeta);
+
+        $jasper = Yii::$app->jasper;
+        $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
+        $jasper->process(
+                Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', $parametros, ['pdf'], false)->execute();
+        $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
+        return $url;
+    }
+
 }

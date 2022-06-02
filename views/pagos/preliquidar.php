@@ -155,10 +155,14 @@ function isNumber(evt) {
     });
 
     function precioGraderiasSilla() {
+
         var longitud = $("#<?= Html::getInputId($model, 'pago_longitud_modificada') ?>").val();
         var comprobante = $("#<?= Html::getInputId($model, 'pago_reposicion') ?>").val();
         var exencion = parseInt($("#<?= Html::getInputId($model, 'pago_con_exencion') ?>").val());
+        var longi =$("#<?= Html::getInputId($model, 'longitud') ?>").val();
 
+  if (longitud<=longi)
+  {
         var totalPatente = 0;
         var totalAseo = 0;
         var id = $("#<?= Html::getInputId($model, 'tip_arm_id') ?>").val();
@@ -194,6 +198,12 @@ function isNumber(evt) {
             $("#<?= Html::getInputId($model, 'pago_aseo') ?>").val(null);
             $("#<?= Html::getInputId($model, 'pago_importe_total') ?>").val(null);
         }
+    }
+    else
+    {
+        alert("La Longitud a Vender no debe ser mayor a la Longitud Disponible");
+        $("#<?= Html::getInputId($model, 'pago_longitud_modificada') ?>").val(longi);
+    } 
 
     }
 

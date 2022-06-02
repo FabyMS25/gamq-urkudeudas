@@ -27,3 +27,9 @@ composer.phar
 phpunit.phar
 # local phpunit config
 /phpunit.xml
+
+# jasper files
+.jasper
+
+# pdf files
+.pdf
