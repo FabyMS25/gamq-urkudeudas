@@ -62,7 +62,7 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
     <?=
     $form->field($model, 'tip_arm_id')->dropDownList($listaTipoArmados, [
         'prompt' => ' *** Seleccione una opcion ***',
-        'onchange' => 'precioGraderiasSilla(); '
+        'onchange' => 'precioGraderiasSilla();'
     ]);
     ?> 
 
@@ -75,11 +75,11 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
             $form->field($model, 'pago_longitud_modificada')->textInput([
                 'value' => $model->graderiaSilla->grad_longitud,
                 'type'    =>'number', 
-                'min'     =>1, 
-                'max'     =>10, 
+                'min'     =>0.5, 
+                'max'     =>$model->graderiaSilla->grad_longitud, 
                 'step'    =>0.1,
                 'onkeypress'=> 'return isNumber(event)',               
-                'onkeyup' => 'precioGraderiasSilla()'
+                'onkeyup' => 'actualizar()'
             ])
             ?>
         </div>
@@ -118,24 +118,23 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
 <script type="text/javascript">
 
 function isNumber(evt) {
-
-  evt = (evt) ? evt : window.event;
-
-   var getNumCd = (evt.which) ? evt.which : evt.keyCode;
-
-    if ((getNumCd==44)||(getNumCd==38)||(getNumCd==40) 
-        || (getNumCd <=57 && getNumCd >= 48)){
-
+   
+      evt = (evt) ? evt : window.event;
+      var getNumCd = (evt.which) ? evt.which : evt.keyCode;
+     
+    if ((getNumCd <=57 && getNumCd >= 48)){
+        
       return true;
 
-   }
-   else
-   {
+       }
+    else
+    {
+        
     return false;
-   } 
+    } 
 }
 
-    function sindicatoComprador(idContribuyente) {
+ function sindicatoComprador(idContribuyente) {
         if (idContribuyente > 0) {
             $.post("index.php?r=sindicatos/ajax-sindicato&id=" + idContribuyente,
                     function (data) {
@@ -145,27 +144,19 @@ function isNumber(evt) {
         }
 
     }
-    $(document).ready(function () {
-        $("form").keypress(function (e) {
-            var codigoTecla = parseInt(e.keyCode);
-            if (codigoTecla === 13) {
-                return false;
-            }
-        });
-    });
 
     function precioGraderiasSilla() {
 
         var longitud = $("#<?= Html::getInputId($model, 'pago_longitud_modificada') ?>").val();
+        
         var comprobante = $("#<?= Html::getInputId($model, 'pago_reposicion') ?>").val();
         var exencion = parseInt($("#<?= Html::getInputId($model, 'pago_con_exencion') ?>").val());
         var longi =$("#<?= Html::getInputId($model, 'longitud') ?>").val();
 
-  if (longitud<=longi)
-  {
         var totalPatente = 0;
         var totalAseo = 0;
         var id = $("#<?= Html::getInputId($model, 'tip_arm_id') ?>").val();
+
         if (longitud > 0 && id > 0 && exencion >= 0) {
             $.post("index.php?r=tipo-armados/ajax-tipo-precios&id=" + id,
                     function (data) {
@@ -198,14 +189,70 @@ function isNumber(evt) {
             $("#<?= Html::getInputId($model, 'pago_aseo') ?>").val(null);
             $("#<?= Html::getInputId($model, 'pago_importe_total') ?>").val(null);
         }
+    
+  
     }
-    else
+
+    function actualizar()
     {
-        alert("La Longitud a Vender no debe ser mayor a la Longitud Disponible");
-        $("#<?= Html::getInputId($model, 'pago_longitud_modificada') ?>").val(longi);
-    } 
+        var longitud = $("#<?= Html::getInputId($model, 'pago_longitud_modificada') ?>").val();
+        if (longitud=='') longitud=1;
+        if ((parseFloat(longitud)==0)||(parseFloat(longitud)<=0)) { alert('longitud no puede ser igual o menor a 0');
+                                             longitud=(1/2);  }
+        console.log('Longitud es =>', longitud,'porra');
+        
+        var comprobante = $("#<?= Html::getInputId($model, 'pago_reposicion') ?>").val();
+        var exencion = parseInt($("#<?= Html::getInputId($model, 'pago_con_exencion') ?>").val());
+        var longi =$("#<?= Html::getInputId($model, 'longitud') ?>").val();
+        if (parseFloat(longitud)>parseFloat(longi)) { alert('Longitud no puede ser mayor a la Longitud Disponible');
+                              longitud=longi; }
+        var totalPatente = 0;
+        var totalAseo = 0;
+        $("#<?= Html::getInputId($model, 'pago_longitud_modificada') ?>").val(longitud);
+        var id = $("#<?= Html::getInputId($model, 'tip_arm_id') ?>").val();
+        if (longitud > 0 && id > 0 && exencion >= 0) {
+            $.post("index.php?r=tipo-armados/ajax-tipo-precios&id=" + id,
+                    function (data) {
+                        lista = data.split(" - ");
+                        patente = lista[0];
+                        aseo = lista[1];
+
+                        if (exencion === 0) {  // igual a NO
+                            totalPatente = patente * longitud;                            
+                            totalAseo = aseo * longitud;                            
+                        }
+
+                        totalPatente = totalPatente.toFixed(2);
+                        totalAseo = totalAseo.toFixed(2);
+  
+                        total = parseFloat(totalPatente) + parseFloat(totalAseo) + parseFloat(comprobante);
+                        total = total.toFixed(2);
+                       // print( '$totalPatente - $totalAseo - $comprobante');
+                        $("#txt_patente").text("Patente Bs.:" + patente);
+                        $("#txt_aseo").text("Tasa de aseo Bs.:" + aseo);
+
+                        $("#<?= Html::getInputId($model, 'pago_importe_patente') ?>").val(totalPatente);
+                        $("#<?= Html::getInputId($model, 'pago_aseo') ?>").val(totalAseo);
+                        $("#<?= Html::getInputId($model, 'pago_importe_total') ?>").val(total);
+
+                    }
+            );
+
+        
+        }
+    
+  
 
     }
+
+    $(document).ready(function () {
+        $("form").keypress(function (e) {
+            var codigoTecla = parseInt(e.keyCode);
+            if (codigoTecla === 13) {
+                return false;
+            }
+        });
+    });
 
 
 </script>

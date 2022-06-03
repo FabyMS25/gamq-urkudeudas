@@ -99,7 +99,7 @@ class Pagos extends \yii\db\ActiveRecord
             'contri_id' => 'Contribuyentes', // id
             'tip_arm_id' => 'Tipo de armado',
             'pago_nro_liquidacion' => 'N° preliquidacion',
-            'pago_longitud_modificada' => 'Longitud(metros lineales)',
+            'pago_longitud_modificada' => 'Longitud a Vender(metros lineales)',
             'pago_nro_comprobante' => 'Comprobante',
             //'pago_descuento_porcentaje' => 'Descuento Porcentaje(%)',
             //'pago_descuento_monto' => 'Descuento Bs.',
@@ -119,7 +119,7 @@ class Pagos extends \yii\db\ActiveRecord
             'pago_con_exencion' => 'Exencion',
             'pago_observaciones' => 'Observaciones',
             // personalizado           
-            'longitud' => 'Longitud (metros lineales)',
+            'longitud' => 'Longitud Disponible(metros lineales)',
             'codigo' => 'Codigo',
             'nombre' => 'Nombres',
             'paterno' => 'Ap. paterno',

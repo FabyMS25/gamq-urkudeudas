@@ -33,43 +33,10 @@ $this->params['breadcrumbs'][] = $this->title;
                              <?= $form->field($model, 'password')->passwordInput() ?>
                         </div>
 
-                        <?php 
                          function generateCod($n) {
                             $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                             $randomString = '';
                             for ($i = 0; $i < $n; $i++) {
-                                $index = rand(0, strlen($characters) - 1);
-                                $randomString .= $characters[$index];
-                            }
-                            return $randomString;
-                         }
-                        ?>
-
-                        <div class="form-group"> 
-                            <input type="text" class="captcha" 
-                                    readonly disabled value="<?=generateCod(4);?>" name="cadena" id="cadena" /> 
-                            <button type="button" id="actualizar" value="Actualizar" >
-                                <span style='font-size:40px;' class="icon">&#128259;</span>    
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label for="text">Captcha</label>
-                            <input class="form-control" id="txt" type="text" required>
-                        </div>
-
-                        <div class="form-group last">
-                            <div class="col-md-4 col-sm-4 col-md-offset-4">
-                                <?= 
-                                    Html::submitButton('Ingresar', ['id'=> 'enviar', 'class' => 'btn btn-primary',
-                                    'name' => 'login-button', 'disabled' => 'disabled']);                 
-                                ?>
-                            </div>
-                        </div>
-                        
-                    </form>
-                </div>
-
-                </div>
             </div>
         </div>
     </div>
