@@ -31,10 +31,11 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="form-group">
                              <?= $form->field($model, 'password')->passwordInput() ?>
                         </div>
-                        
+
+                       
                         <div class="form-group last">
                             <div class="col-md-4 col-sm-4 col-md-offset-4">
-                                <?= Html::submitButton('Ingresar', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
+                                <?= Html::submitButton('Ingresar', ['id'=> 'enviar', 'class' => 'btn btn-primary', 'name' => 'login-button']) ?>
                             </div>
                         </div>
                     </form>

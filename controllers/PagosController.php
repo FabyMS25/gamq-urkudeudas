@@ -248,7 +248,7 @@ class PagosController extends Controller {
                    else
                   $resultado = false;
                 //$resultado =$this->actualizarDatosCobro($model);
-                $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
+                $mensaje = ($resultado ? "Transaccion Exitosa,  " : " Error al realizar el cobro NO");
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
