@@ -150,7 +150,6 @@ body {
                     <h5> Totales: <?=$row['totales'] ?> </h5>
                     <h5> Vendidos: <?=$row['vendidos'] ?> </h5>
                     <h5> Disponibles: <?=$row['disponibles'] ?> </h5>
-                    <!-- <h5>-</h5> -->
                 </div>
                 <?php endforeach ?>
             </div>
@@ -163,7 +162,6 @@ body {
                     <h5> Totales: <?=$row['totales'] ?> </h5>
                     <h5> Vendidos: <?=$row['vendidos'] ?> </h5>
                     <h5> Disponibles: <?=$row['disponibles'] ?> </h5>
-                    <!-- <h5>-</h5> -->
                 </div>
                 <?php endforeach ?>
             </div>
