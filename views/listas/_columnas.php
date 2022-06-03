@@ -18,7 +18,8 @@ return [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'zona_id',
         'width'=>'90px',
-        'value' => 'zona_id',
+        'value' => 'zona.zona_nombre',
+        'filter' =>false
                
     ],
       
