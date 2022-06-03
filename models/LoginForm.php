@@ -41,7 +41,6 @@ public function behaviors()
         ];
     }
 
-
     public function attributeLabels()
     {
         return [
@@ -50,8 +49,6 @@ public function behaviors()
             'password' => 'Contraseña',
         ];
     }
-
-
 
     /**
      * Validates the password.

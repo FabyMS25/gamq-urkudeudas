@@ -6,6 +6,7 @@
 
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
+use yii\captcha\Captcha;
 
 $this->title = 'Autentificación';
 $this->params['breadcrumbs'][] = $this->title;
@@ -32,19 +33,60 @@ $this->params['breadcrumbs'][] = $this->title;
                              <?= $form->field($model, 'password')->passwordInput() ?>
                         </div>
 
-                       
-                        <div class="form-group last">
-                            <div class="col-md-4 col-sm-4 col-md-offset-4">
-                                <?= Html::submitButton('Ingresar', ['id'=> 'enviar', 'class' => 'btn btn-primary', 'name' => 'login-button']) ?>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                </div>
+                         function generateCod($n) {
+                            $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                            $randomString = '';
+                            for ($i = 0; $i < $n; $i++) {
             </div>
         </div>
     </div>
 </div>
 
 <?php ActiveForm::end(); ?>
+
+<style>
+    .captcha {
+        border: none; text-align: center; background-color: #632127; 
+        color: white; font-size:35px;
+        width: 250px;
+    }
+    #actualizar {
+        border: none;
+        background-color: white;
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<script type="text/javascript">
+        var boton=document.getElementById('actualizar'),
+            cadena= document.getElementById('cadena'),
+            intro= document.getElementById('txt');
+
+      function Textrandom(length) {
+          key="";
+          str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+          for(i=0; i<length; i++) {
+            var h = parseInt(Math.random() * 35);
+            key =key+str[h];
+          }
+          return key;
+      }
+
+        function verificar() {  
+           if (cadena.value==intro.value) {
+              document.getElementById('enviar').disabled=false;
+           }
+        }
+        function obtener() {
+          cadena.value=Textrandom(4);                  
+        }
+
+        document.getElementById('actualizar').onclick= function(){
+          obtener();
+        };
+
+        document.getElementById('txt').onkeyup= function(){
+          verificar();
+        };
+      </script>
