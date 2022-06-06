@@ -16,13 +16,13 @@ return [
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'zona_id',
-        'width'=>'90px',
+        'attribute'=>'zona',
         'value' => 'zona.zona_nombre',
-        'filter' =>false
+        'filter' =>[1 => 'Zona 1', 2=>'Zona 2', 3=> 'Zona 3', 4=>'Zona 4', 5=>'Zona 5', 6=>'Zona 6', 7=>'Zona 7'],
+        'width' => '95px',
                
     ],
-      
+         
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'grad_codigo',

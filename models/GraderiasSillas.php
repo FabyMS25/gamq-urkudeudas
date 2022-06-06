@@ -25,6 +25,8 @@ use Yii;
  */
 class GraderiasSillas extends \yii\db\ActiveRecord
 {
+
+
     /**
      * @inheritdoc
      */
