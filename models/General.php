@@ -38,5 +38,7 @@ class General extends \yii\db\ActiveRecord{
         
         return $resultado;                     
     } 
+
     
+
 }

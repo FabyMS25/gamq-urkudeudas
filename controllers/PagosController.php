@@ -1,9 +1,10 @@
 <?php
 
 namespace app\controllers;
-
+//require 'C:\laragon\www\proyecto-urkupina\web\phpqrcode\qrlib.php';
 use Yii;
 use app\models\Pagos;
+//use app\models\QrCode;
 use app\models\SearchPagos;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -137,6 +138,12 @@ class PagosController extends Controller {
                 $model->usua_id = Yii::$app->user->id;
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
                 $model->pago_cobrado=1;
+                $dir=$model->pago_nro_comprobante;
+                //$codigos= (new QrCode())-> Generar($dir,$model->pago_nro_comprobante);
+                $llamada=Yii::$app->insertar->TEXT("URKUPIÑA");
+                $llamada=Yii::$app->insertar->QRCODE(400,$dir);
+                
+                
                 
                 if ($model->save())
                    $resultado= true;

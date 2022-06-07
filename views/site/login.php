@@ -7,7 +7,7 @@
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use yii\captcha\Captcha;
-require 'C:\laragon\www\proyecto-urkupina\web\phpqrcode\qrlib.php';
+
 $this->title = 'Autentificación';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -77,23 +77,6 @@ $form = ActiveForm::begin([
 </div>
 
 <?php ActiveForm::end(); 
-$dir = 'temp/';
-	
-if(!file_exists($dir))
-    mkdir($dir);
-
-$filename = $dir.'test.png';
-
-$tamanio = 15;
-$level = 'H';
-$frameSize = 1;
-$contenido = 'http://www.codigosdeprogramacion.com';
-
-QRcode::png($contenido, $filename, $level, $tamanio, $frameSize);
-
-echo '<img src="'.$filename.'" />';
-
-
 ?>
 
 <style>

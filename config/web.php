@@ -53,6 +53,11 @@ $config = [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
+        'insertar' => [
+            'class' => 'app\components\Qrcodetest',
+        ],
+
+        
         /*'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             // send all mails to a file by default. You have to set
