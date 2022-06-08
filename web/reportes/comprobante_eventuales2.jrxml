@@ -1,50 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Compro_publi" pageWidth="612" pageHeight="792" columnWidth="612" leftMargin="0" rightMargin="0" topMargin="155" bottomMargin="0" uuid="7e598c53-6280-42f7-be3a-3c6d7f3991e4">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="cm"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="263"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="729"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="GAMQ Urkupina"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="396"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
+	<parameter name="image_path" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[SELECT contribuyente, 
+		<![CDATA[SELECT contribuyente,
 contri_ci,
-contri_nit, 
-activi_descripcion, 
+contri_nit,
+activi_descripcion,
 se.sitios_codigo,
 se.sitios_descripcion,
 se.sitios_numero_sitio,
 sindi_nombre,
 eventual_fecha_hora_pago AS pago_fecha_hora_cobro,
-       activi_largo_mts, 
-       activi_ancho_mts, 
-       activi_superficie, 
-       activi_costo_patente, 
-       activi_costo_sentaje_dia, 
-       activi_costo_aseo_por_dia, 
-       activi_costo_aseo_por_sitio, 
+       activi_largo_mts,
+       activi_ancho_mts,
+       activi_superficie,
+       activi_costo_patente,
+       activi_costo_sentaje_dia,
+       activi_costo_aseo_por_dia,
+       activi_costo_aseo_por_sitio,
        categ_nombre,
-       --eventual_id, 
-eventual_fecha_inicio, 
+       --eventual_id,
+eventual_fecha_inicio,
        eventual_fecha_limite,
-       eventual_cantidad_dia, 
-       eventual_cantidad_sitio, 
-       lpad(nro_liquidacion||'',8,'0') AS nro_liquidacion, 
-       comprobante, 
-       eventual_importe_patente, 
-       eventual_costo_comprobante, 
+       eventual_cantidad_dia,
+       eventual_cantidad_sitio,
+       lpad(nro_liquidacion||'',8,'0') AS nro_liquidacion,
+       comprobante,
+       eventual_importe_patente,
+       eventual_costo_comprobante,
        eventual_costo_sentaje,
-       eventual_costo_aseo, 
-       eventual_importe_total, 
-       eventual_preliquidacion, 
-       id_liquidador, 
+       eventual_costo_aseo,
+       eventual_importe_total,
+       eventual_preliquidacion,
+       id_liquidador,
        (usuario.usua_nombres ||' '||usuario.usua_apellidos) AS nombre_liquidador,
-       eventual_fecha_hora_liquidacion, 
+       eventual_fecha_hora_liquidacion,
        eventual_estado
- 
-  FROM view_pagos_eventuales_validos 
+
+  FROM view_pagos_eventuales_validos
   INNER JOIN usuario ON usuario.usua_id = view_pagos_eventuales_validos.id_liquidador
   INNER JOIN sitios_eventuales se ON view_pagos_eventuales_validos.sitios_id = se.sitios_id
   WHERE eventual_id = $P{id_pago}]]>
@@ -383,7 +386,7 @@ eventual_fecha_inicio,
 				<textElement textAlignment="Left">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<text><![CDATA[URKUPIÑA2021]]></text>
+				<text><![CDATA[URKUPIÑA 2022]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="89" y="244" width="237" height="15" uuid="4694866c-8c49-416b-8850-b537c8c06838">
@@ -554,7 +557,7 @@ eventual_fecha_inicio,
 				<textFieldExpression><![CDATA[$F{pago_fecha_hora_cobro}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="50" y="52" width="340" height="15" uuid="6afe51ca-caae-4098-af08-852e1f21df7c">
+				<reportElement x="50" y="52" width="315" height="15" uuid="6afe51ca-caae-4098-af08-852e1f21df7c">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
 				</reportElement>
@@ -604,6 +607,10 @@ eventual_fecha_inicio,
 				</textElement>
 				<textFieldExpression><![CDATA[$F{nro_liquidacion} + " - "+$F{comprobante}]]></textFieldExpression>
 			</textField>
+			<image onErrorType="Blank">
+				<reportElement x="365" y="28" width="100" height="100" uuid="31bd2b88-c938-4576-a399-afe0832dc729"/>
+				<imageExpression><![CDATA[$P{image_path} + "/" + $F{comprobante} + ".png"]]></imageExpression>
+			</image>
 		</band>
 	</summary>
 </jasperReport>

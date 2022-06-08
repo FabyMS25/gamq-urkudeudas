@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2018-07-26T15:44:54 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_eventuales_pagos" printOrder="Horizontal" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="087fe845-347f-48b5-b66e-69b79672acd4">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="navi"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -15,37 +13,40 @@
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="238"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="751"/>
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
 	<queryString>
-		<![CDATA[SELECT 
--- pago_id, tip_arm_id, 
-pago_nro_comprobante, 
-	--pago_nro_liquidacion, 
-       pago_longitud_modificada, 
-       
-       pago_importe_patente, 
-       pago_aseo, 
-       pago_reposicion, 
-       pago_importe_total, 
-       pago_anulado, 
-       pago_anulado_detalle, 
-       pago_anulado_fecha_hora, 
+		<![CDATA[SELECT
+-- pago_id, tip_arm_id,
+pago_nro_comprobante,
+	--pago_nro_liquidacion,
+       pago_longitud_modificada,
+
+       pago_importe_patente,
+       pago_aseo,
+       pago_reposicion,
+       pago_importe_total,
+       pago_anulado,
+       pago_anulado_detalle,
+       pago_anulado_fecha_hora,
        --pago_id_user_preliquidacion, pago_preliquidacion, pago_fecha_hora_preliquidacion, liquidador,
-       pago_fecha_hora_cobro, 
+       pago_fecha_hora_cobro,
        pago_cobrado,
-       pago_con_exencion, 
-       pago_estado,        
-       ext_id, sindi_id, 
-       contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit, 
-       grad_codigo, grad_direccion, 
-       grad_longitud, grad_acera, 
-       grad_tipo_armado, grad_tipo_sitio, 
-       tip_arm_descricpion, tip_arm_patente, tip_arm_tasa_aseo, tip_arm_unidad_medida, 
-       gest_id, 
+       pago_con_exencion,
+       pago_estado,
+       ext_id, sindi_id,
+       contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit,
+       grad_codigo, grad_direccion,
+       grad_longitud, grad_acera,
+       grad_tipo_armado, grad_tipo_sitio,
+       tip_arm_descricpion, tip_arm_patente, tip_arm_tasa_aseo, tip_arm_unidad_medida,
+       gest_id,
        zona_nombre, zona_color, zona_descripcion,
 				(usuario.usua_nombres|| ' '||usuario.usua_apellidos) AS cajero
   FROM view_graderias_sillas
   INNER JOIN  usuario ON usuario.usua_id = view_graderias_sillas.usua_id
-WHERE  pago_estado = 1 AND (pago_anulado = 0  OR pago_anulado = 1 ) 
+WHERE  pago_estado = 1 AND (pago_anulado = 0  OR pago_anulado = 1 )
 ORDER BY pago_nro_comprobante::INT ASC]]>
 	</queryString>
 	<field name="pago_nro_comprobante" class="java.lang.Integer"/>
@@ -285,7 +286,7 @@ ORDER BY pago_nro_comprobante::INT ASC]]>
 				<textElement textAlignment="Right">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[IF(EQUALS($F{pago_anulado},0),$F{pago_importe_patente},0)]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{pago_anulado} == 0) ? $F{pago_importe_patente} : 0]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="433" y="0" width="60" height="30" uuid="8b261b2b-8399-4387-8cfb-6c52b7738ad1"/>
@@ -293,7 +294,7 @@ ORDER BY pago_nro_comprobante::INT ASC]]>
 				<textElement textAlignment="Right">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[IF(EQUALS($F{pago_anulado},0),$F{pago_aseo},0)]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{pago_anulado} == 0) ? $F{pago_aseo} : 0]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="493" y="0" width="60" height="30" uuid="20a6a78f-87cd-478a-9b51-a31b1c46e5ef">
@@ -303,7 +304,7 @@ ORDER BY pago_nro_comprobante::INT ASC]]>
 				<textElement textAlignment="Right">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[IF(EQUALS($F{pago_anulado},0),$F{pago_reposicion},0)]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{pago_anulado} == 0) ? $F{pago_reposicion} : 0]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="553" y="0" width="60" height="30" uuid="c7f2b625-32ea-40d6-9712-521acdf94620"/>
@@ -311,7 +312,7 @@ ORDER BY pago_nro_comprobante::INT ASC]]>
 				<textElement textAlignment="Right">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[IF(EQUALS($F{pago_anulado},0),$F{pago_importe_total},0)]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{pago_anulado} == 0) ? $F{pago_importe_total} : 0]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy">
 				<reportElement x="613" y="0" width="60" height="30" uuid="51578c8a-785e-43b1-92ca-7bf71514e367"/>

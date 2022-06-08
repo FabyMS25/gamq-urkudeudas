@@ -190,7 +190,7 @@ AppAsset::register($this);
                         'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()),
                         ],
                         ['label' => 'Graderias Vendidas y Disponibles (mts)',
-                        'url' => ['reportes/graderias-disponibles'],
+                        'url' => ['reportes/reporte-espacios-disponibles'],
                         'linkOptions' => ['role' => 'modal-remote'],
                         'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()),
                         ],

@@ -53,7 +53,7 @@ $config = [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        'insertar' => [
+        'generadorQR' => [
             'class' => 'app\components\Qrcodetest',
         ],
 

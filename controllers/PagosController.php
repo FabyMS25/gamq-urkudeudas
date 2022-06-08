@@ -1,10 +1,8 @@
 <?php
-
 namespace app\controllers;
-//require 'C:\laragon\www\proyecto-urkupina\web\phpqrcode\qrlib.php';
+
 use Yii;
 use app\models\Pagos;
-//use app\models\QrCode;
 use app\models\SearchPagos;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -17,7 +15,6 @@ use chrmorandi\jasper\Jasper;
  * PagosController implements the CRUD actions for Pagos model.
  */
 class PagosController extends Controller {
-
     /**
      * @inheritdoc
      */
@@ -123,6 +120,8 @@ class PagosController extends Controller {
         $model = $this->findModel($id);
         $model->scenario = "cobrar_graderias_sillas";
         $titulo = "Cobrar preliquidacion de " . $model->graderiaSilla->grad_codigo;
+
+        $siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
         
         if ($request->isAjax) {
             /*           Process for ajax request            */
@@ -138,16 +137,14 @@ class PagosController extends Controller {
                 $model->usua_id = Yii::$app->user->id;
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
                 $model->pago_cobrado=1;
-                $dir=$model->pago_nro_comprobante;
-                //$codigos= (new QrCode())-> Generar($dir,$model->pago_nro_comprobante);
-                $llamada=Yii::$app->insertar->TEXT("URKUPIÑA");
-                $llamada=Yii::$app->insertar->QRCODE(400,$dir);
+                $dir = $model->pago_nro_comprobante;
                 
-                
+                $llamada=Yii::$app->generadorQR->TEXT($siteUrl);
+                $llamada=Yii::$app->generadorQR->QRCODE(400,$dir);
                 
                 if ($model->save())
                    $resultado= true;
-                   else
+                else
                   $resultado = false;
                 //$resultado =$this->actualizarDatosCobro($model);
                 $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
@@ -507,6 +504,7 @@ class PagosController extends Controller {
                 'title' => $titulo,
                 'content' => $this->renderAjax('recibo-liquidacion', [
                     'url' => $url,
+                    'size' => 'modal-lg',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
@@ -564,24 +562,26 @@ class PagosController extends Controller {
         $url = "";
         $model = $this->findModel($id);
         $montoLiteral = $model->montoTotalLiteral();
+        $qrImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             // jasper init
             $archivo = "comprobante_graderia_silla";
-            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"'];
+            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"', 'image_path' => '"'.$qrImagePath.'"'];
             $url = $this->generarURLReportePdf('reportes', $archivo, $parametros);
             //end jasper
             return [
                 'title' => $titulo,
                 'content' => $this->renderAjax('comprobante-pago', [
                     'url' => $url,
+                    'size' => 'modal-lg',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
         } else {
             return $this->render('comprobante-pago', [
-                        'url' => $url,
+                'url' => $url,
             ]);
         }
     }
@@ -716,6 +716,7 @@ class PagosController extends Controller {
         } else {
             return $this->render('reporte-general', [
                 'url' => $url,
+                'size' => 'modal-xl',
             ]);
         }
     }
@@ -827,27 +828,31 @@ class PagosController extends Controller {
     }
 
     public function actionReporteDisponibles() {
+        
+        var_dump("LLEGA HASTA AQUI");
+        echo "QUE ESTA PASANDO";
         $this->verificarSesion();
         $request = Yii::$app->request;
+        var_dump($request);
         $titulo = "REPORTE GRADERIAS VENDIDAS Y DISPONIBLES - FECHA " . date("d/m/Y H:m");
-        $archivo = "reporte-disponibles";
-        $carpeta = "reportes";
+        $archivo = "reporte_espacios_disponibles";
+        $carpeta = "reportes/graderias_sillas";
         
         $parametros = [];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-
+        var_dump("Pasa el generarURLReport");
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'title' => $titulo,
-                'content' => $this->renderAjax('graderias_disponibles', [
+                'content' => $this->renderAjax('reportes/reporte-espacios-disponibles', [
                     'url' => $url,
                     'size' => 'modal-xl',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
         } else {
-            return $this->render('graderias_disponibles', [
+            return $this->render('reportes/reporte-espacios-disponibles', [
                 'url' => $url,
             ]);
         }
@@ -857,12 +862,14 @@ class PagosController extends Controller {
 
         $archivo = $file;
         Yii::setAlias('@ruta', $carpeta);
-
+        var_dump("Normbre de archivo jasper: ".$archivo);
+        var_dump("Carpeta destino : ".$carpeta);
         $jasper = Yii::$app->jasper;
         $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
         $jasper->process(
                 Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', $parametros, ['pdf'], false)->execute();
         $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
+        var_dump("URL generado: ".$url);
         return $url;
     }
 

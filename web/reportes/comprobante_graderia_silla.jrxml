@@ -3,35 +3,37 @@
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="cm"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="bd urkupina"/>
-	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="81"/>
+	<property name="ireport.y" value="403"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
+	<parameter name="image_path" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[SELECT pago_id, grad_id, usua_id, contri_id, tip_arm_id,
-lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
-pago_nro_comprobante,
-       pago_longitud_modificada,  pago_descuento_porcentaje,
-       pago_descuento_monto, pago_importe_patente,
-       pago_aseo, pago_reposicion,
-       pago_importe_total,
-       pago_id_user_preliquidacion,
-       pago_preliquidacion,
-       pago_fecha_hora_preliquidacion,
-       pago_fecha_hora_cobro,
-       pago_con_exencion,
-       contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit,
-       liquidador, grad_codigo, grad_direccion, grad_longitud, grad_acera,
-       grad_tipo_armado, grad_tipo_sitio, grad_vendido, grad_reservado,
-       grad_estado,
-       tip_arm_descricpion, tip_arm_patente, tip_arm_tasa_aseo,
-       tip_arm_unidad_medida,  zona_nombre, zona_color, zona_descripcion
-  FROM view_graderias_sillas
-  WHERE pago_id = $P{id_pago]]>
+		<![CDATA[SELECT CAST(pago_id AS TEXT) codigo,
+          grad_id, usua_id, contri_id, tip_arm_id,
+          lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion,
+          pago_nro_comprobante,
+          pago_longitud_modificada, pago_descuento_porcentaje,
+          pago_descuento_monto, pago_importe_patente,
+          pago_aseo, pago_reposicion,
+          pago_importe_total,
+          pago_id_user_preliquidacion,
+          pago_preliquidacion,
+          pago_fecha_hora_preliquidacion,
+          pago_fecha_hora_cobro,
+          pago_con_exencion,
+          contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit,
+          liquidador, grad_codigo, grad_direccion, grad_longitud, grad_acera,
+          grad_tipo_armado, grad_tipo_sitio, grad_vendido, grad_reservado,
+          grad_estado,
+          tip_arm_descricpion, tip_arm_patente, tip_arm_tasa_aseo,
+          tip_arm_unidad_medida,  zona_nombre, zona_color, zona_descripcion
+          FROM view_graderias_sillas
+          WHERE pago_id = $P{id_pago}]]>
 	</queryString>
-	<field name="pago_id" class="java.lang.Integer">
-		<property name="com.jaspersoft.studio.field.label" value="pago_id"/>
+	<field name="codigo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="codigo"/>
 	</field>
 	<field name="grad_id" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="grad_id"/>
@@ -168,7 +170,7 @@ pago_nro_comprobante,
 				<textFieldExpression><![CDATA[$F{contri_nombres} + " "+$F{contri_paterno} + " "+$F{contri_materno} + " CI:"+$F{contri_ci}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="91" y="121" width="108" height="20" uuid="b0207a5a-e66b-4510-9c04-949d5dc8193b">
+				<reportElement positionType="FixRelativeToBottom" x="90" y="121" width="60" height="20" uuid="b0207a5a-e66b-4510-9c04-949d5dc8193b">
 					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
 					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
 					<property name="com.jaspersoft.studio.unit.x" value="cm"/>
@@ -191,7 +193,7 @@ pago_nro_comprobante,
 				<text><![CDATA[15990]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true">
-				<reportElement x="91" y="91" width="270" height="30" uuid="ba3c329a-9c75-49a5-8927-7e59b93fc945">
+				<reportElement x="90" y="91" width="271" height="30" uuid="ba3c329a-9c75-49a5-8927-7e59b93fc945">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
@@ -260,7 +262,7 @@ pago_nro_comprobante,
 				<textFieldExpression><![CDATA[$F{contri_nit}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="129" y="142" width="232" height="15" uuid="90ed887c-4b18-41c4-a3b6-cc60af3ac3f1">
+				<reportElement positionType="FixRelativeToBottom" x="129" y="142" width="211" height="15" uuid="90ed887c-4b18-41c4-a3b6-cc60af3ac3f1">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
@@ -272,7 +274,7 @@ pago_nro_comprobante,
 				<textFieldExpression><![CDATA[$F{zona_nombre} + " - "+ $F{zona_color}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="90" y="142" width="70" height="15" uuid="39834834-65ca-4f21-a345-b70be104b35c">
+				<reportElement positionType="FixRelativeToBottom" x="90" y="142" width="39" height="15" uuid="39834834-65ca-4f21-a345-b70be104b35c">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
@@ -285,7 +287,7 @@ pago_nro_comprobante,
 				<text><![CDATA[ZONA:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="90" y="158" width="52" height="15" uuid="7620299f-120e-4bec-a79b-01cad2e16f3d">
+				<reportElement positionType="FixRelativeToBottom" x="90" y="158" width="55" height="15" uuid="7620299f-120e-4bec-a79b-01cad2e16f3d">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
@@ -297,7 +299,7 @@ pago_nro_comprobante,
 				<text><![CDATA[CODIGO :]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="145" y="158" width="216" height="15" uuid="288679b4-8801-47c2-93b1-6e21a2e21a70">
+				<reportElement positionType="FixRelativeToBottom" x="145" y="158" width="195" height="15" uuid="288679b4-8801-47c2-93b1-6e21a2e21a70">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
@@ -306,7 +308,7 @@ pago_nro_comprobante,
 				<textFieldExpression><![CDATA[$F{grad_codigo}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="90" y="174" width="56" height="15" uuid="b2d3ccc5-a433-4e47-a5cd-73d869c1cd19">
+				<reportElement positionType="FixRelativeToBottom" x="90" y="174" width="55" height="15" uuid="b2d3ccc5-a433-4e47-a5cd-73d869c1cd19">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
@@ -318,14 +320,14 @@ pago_nro_comprobante,
 				<text><![CDATA[ACERA:]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="145" y="174" width="216" height="15" uuid="8a2f0329-a4fc-404b-97b3-9ac37223ef34"/>
+				<reportElement positionType="FixRelativeToBottom" x="145" y="174" width="195" height="15" uuid="8a2f0329-a4fc-404b-97b3-9ac37223ef34"/>
 				<textElement verticalAlignment="Middle">
 					<font size="8" isBold="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{grad_acera}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="90" y="190" width="60" height="15" uuid="637c6e35-a8db-4383-b768-2904c60c77f7">
+				<reportElement positionType="FixRelativeToBottom" x="90" y="190" width="55" height="15" uuid="637c6e35-a8db-4383-b768-2904c60c77f7">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
@@ -338,7 +340,7 @@ pago_nro_comprobante,
 				<text><![CDATA[LONGITUD:]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="145" y="190" width="216" height="15" uuid="63155bee-75be-4f59-800a-ca255d67811a">
+				<reportElement positionType="FixRelativeToBottom" x="145" y="190" width="195" height="15" uuid="63155bee-75be-4f59-800a-ca255d67811a">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
@@ -398,10 +400,10 @@ pago_nro_comprobante,
 				<textElement textAlignment="Left">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<text><![CDATA[URKUPIÑA2018]]></text>
+				<text><![CDATA[URKUPIÑA 2022]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="92" y="206" width="250" height="15" uuid="89f36765-97ac-415b-adee-ed0841117074"/>
+				<reportElement positionType="FixRelativeToBottom" x="90" y="206" width="250" height="15" uuid="89f36765-97ac-415b-adee-ed0841117074"/>
 				<textElement>
 					<font size="8"/>
 				</textElement>
@@ -423,7 +425,7 @@ pago_nro_comprobante,
 				<textFieldExpression><![CDATA[$F{pago_fecha_hora_cobro}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="50" y="52" width="340" height="15" uuid="6afe51ca-caae-4098-af08-852e1f21df7c">
+				<reportElement x="50" y="52" width="315" height="15" uuid="6afe51ca-caae-4098-af08-852e1f21df7c">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
 				</reportElement>
@@ -473,6 +475,10 @@ pago_nro_comprobante,
 				</textElement>
 				<textFieldExpression><![CDATA[$F{grad_id}+ " - "+$F{pago_nro_liquidacion} + " - "+$F{pago_nro_comprobante}]]></textFieldExpression>
 			</textField>
+			<image onErrorType="Blank">
+				<reportElement x="365" y="29" width="100" height="100" uuid="93904204-4f95-41e7-868c-825c71c4c705"/>
+				<imageExpression><![CDATA[$P{image_path} + "/" + $F{pago_nro_comprobante} + ".png"]]></imageExpression>
+			</image>
 		</band>
 	</summary>
 </jasperReport>

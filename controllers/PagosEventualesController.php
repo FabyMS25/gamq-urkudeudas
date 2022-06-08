@@ -1,5 +1,4 @@
 <?php
-
 namespace app\controllers;
 
 use Yii;
@@ -151,6 +150,7 @@ class PagosEventualesController extends Controller
         $model = $this->findModel($id);  
         $model->scenario = "cobrar_liquidacion";
         $titulo = "Cobrar liquidacion nro. <strong>".$model->eventual_nro_liquidacion."</strong>";
+        $siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
 
         if($request->isAjax){            
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -166,6 +166,12 @@ class PagosEventualesController extends Controller
             }else if($model->load($request->post()) && $model->validate()){
                 $model->eventual_fecha_hora_pago = date('Y-m-d H:m:s');
                 $model->usua_id = Yii::$app->user->id;
+
+                $dir=$model->eventual_nro_comprobante;
+                //$codigos= (new QrCode())-> Generar($dir,$model->pago_nro_comprobante);
+                $llamada=Yii::$app->generadorQR->TEXT($siteUrl);
+                $llamada=Yii::$app->generadorQR->QRCODE(400,$dir);
+
                 if($model->save()){
                    return [
                         'forceReload'=>'#crud-datatable-pjax',
@@ -271,9 +277,7 @@ class PagosEventualesController extends Controller
        
     }
     
- 
-
-        // liquidacion de act. economicas eventuales
+    // liquidacion de act. economicas eventuales
     public function actionCreateAlasitas($id)
     {
         $this->verificarSesion();
@@ -490,9 +494,6 @@ class PagosEventualesController extends Controller
        
     }
 
-
-   
-
     /**
      * Delete an existing PagosEventuales model.
      * For ajax request will return json object
@@ -504,7 +505,6 @@ class PagosEventualesController extends Controller
     
     public function actionAnularLiquidacion($id)
     {
-         
        $this->verificarSesion();
        
         $request = Yii::$app->request;
@@ -525,6 +525,7 @@ class PagosEventualesController extends Controller
         }
 
     }
+
     public function actionDelete($id)
     {
         $request = Yii::$app->request;
@@ -588,24 +589,26 @@ class PagosEventualesController extends Controller
         $montoLiteral = $model->montoTotalLiteral();
         $titulo = "COMPROBANTE DE PAGO";
         $url = "";
+        $qrImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             // jasper init
             $archivo = "comprobante_eventuales2";
-            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"'];
+            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"', 'image_path' => '"'.$qrImagePath.'"'];
             $url = $this->generarURLReportePdf('reportes', $archivo, $parametros);
             //end jasper
             return [
                 'title' => $titulo,
                 'content' => $this->renderAjax('preliquidacion-sitios', [
                     'url' => $url,
+                    'size' => 'modal-lg',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
         } else {
             return $this->render('preliquidacion-sitios', [
-                        'url' => $url,
+                'url' => $url,
             ]);
         }
     }
@@ -630,12 +633,13 @@ class PagosEventualesController extends Controller
                 'title' => $titulo,
                 'content' => $this->renderAjax('preliquidacion-sitios', [
                     'url' => $url,
+                    'size' => 'modal-lg',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
         } else {
             return $this->render('preliquidacion-sitios', [
-                        'url' => $url,
+                'url' => $url,
             ]);
         }
     }
@@ -660,12 +664,13 @@ class PagosEventualesController extends Controller
                 'title' => $titulo,
                 'content' => $this->renderAjax('preliquidacion-actividades', [
                     'url' => $url,
+                    'size' => 'modal-lg',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
         } else {
             return $this->render('preliquidacion-actividades', [
-                        'url' => $url,
+                'url' => $url,
             ]);
         }
     }
