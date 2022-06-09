@@ -639,7 +639,7 @@ class PagosController extends Controller {
     }
     
     // funcion para generar reportes del cajero (individual)
-   /* public function actionReporteFormPago(){
+   /* public function actionReporteFormPago() {
         $this->verificarSesion();
         
         $request = Yii::$app->request;
@@ -690,8 +690,8 @@ class PagosController extends Controller {
             }
         }  
         
-    }*/
-
+    }
+    */
 
     public function actionReporteGeneral() {
         $this->verificarSesion();
@@ -699,8 +699,9 @@ class PagosController extends Controller {
         $titulo = "REPORTE COMPROBANTES PAGADOS Y ANULADOS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_general_graderias_sillas";
         $carpeta = "reportes/graderias_sillas";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
         
-        $parametros = [];
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         if ($request->isAjax) {
@@ -721,14 +722,44 @@ class PagosController extends Controller {
         }
     }
 
+    public function actionReporteEspaciosDisponibles() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE ESPACIOS DISPONIBLES - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_espacios_vendidos_disponibles";
+        $carpeta = "reportes/graderias_sillas";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'title' => $titulo,
+                'content' => $this->renderAjax('reporte-espacios-disponibles', [
+                    'url' => $url,
+                    'size' => 'modal-xl',
+                ]),
+                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return $this->render('reporte-espacios-disponibles', [
+                'url' => $url,
+                'size' => 'modal-xl',
+            ]);
+        }
+    }
+
     public function actionReporteDiferencias() {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DIFERENCIA COBROS GRADERIAS SILLAS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_diferencias_graderias_sillas";
         $carpeta = "reportes/graderias_sillas";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
         
-        $parametros = [];
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         if ($request->isAjax) {
@@ -754,8 +785,9 @@ class PagosController extends Controller {
         $titulo = "REPORTE DIFERENCIA COBROS EVENTUALES - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_diferencias_eventuales";
         $carpeta = "reportes/eventuales";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
         
-        $parametros = [];
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         if ($request->isAjax) {
@@ -764,25 +796,27 @@ class PagosController extends Controller {
                 'title' => $titulo,
                 'content' => $this->renderAjax('reporte-diferencias-eventuales', [
                     'url' => $url,
-                    'size' => 'modal-xl',
+                    'size' => 'modal-lg',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
         } else {
             return $this->render('reporte-diferencias-eventuales', [
                 'url' => $url,
+                'size' => 'modal-lg',
             ]);
-        }    
+        }   
     }
 
-    public function actionReportePagadosCajeros() {
+    public function actionReportePagosGraderiasCajeros() {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE GRADERIAS PAGADAS POR CAJERO - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_pagos_graderias_cajeros";
         $carpeta = "reportes/cajeros";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
         
-        $parametros = [];
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         if ($request->isAjax) {
@@ -790,25 +824,28 @@ class PagosController extends Controller {
             return [
                 'title' => $titulo,
                 'content' => $this->renderAjax('reporte-pagos-graderias-cajeros', [
-                    'url' => $url
+                    'url' => $url,
+                    'size' => 'modal-lg',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
         } else {
             return $this->render('reporte-pagos-graderias-cajeros', [
-                        'url' => $url,
+                'url' => $url,
+                'size' => 'modal-lg',
             ]);
         }
     }
 
-    public function actionReporteAnuladosCajeros() {
+    public function actionReporteAnuladosGraderiasCajeros() {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE GRADERIAS ANULADAS POR CAJERO - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_anulados_graderias_cajeros";
         $carpeta = "reportes/cajeros";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
         
-        $parametros = [];
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         if ($request->isAjax) {
@@ -817,59 +854,28 @@ class PagosController extends Controller {
                 'title' => $titulo,
                 'content' => $this->renderAjax('reporte-anulados-graderias-cajeros', [
                     'url' => $url,
+                    'size' => 'modal-lg',
                 ]),
                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];
         } else {
             return $this->render('reporte-anulados-graderias-cajeros', [
-                        'url' => $url,
-            ]);
-        }
-    }
-
-    public function actionReporteDisponibles() {
-        
-        var_dump("LLEGA HASTA AQUI");
-        echo "QUE ESTA PASANDO";
-        $this->verificarSesion();
-        $request = Yii::$app->request;
-        var_dump($request);
-        $titulo = "REPORTE GRADERIAS VENDIDAS Y DISPONIBLES - FECHA " . date("d/m/Y H:m");
-        $archivo = "reporte_espacios_disponibles";
-        $carpeta = "reportes/graderias_sillas";
-        
-        $parametros = [];
-        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-        var_dump("Pasa el generarURLReport");
-        if ($request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return [
-                'title' => $titulo,
-                'content' => $this->renderAjax('reportes/reporte-espacios-disponibles', [
-                    'url' => $url,
-                    'size' => 'modal-xl',
-                ]),
-                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-            ];
-        } else {
-            return $this->render('reportes/reporte-espacios-disponibles', [
                 'url' => $url,
+                'size' => 'modal-lg',
             ]);
         }
     }
 
     protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
-
         $archivo = $file;
         Yii::setAlias('@ruta', $carpeta);
-        var_dump("Normbre de archivo jasper: ".$archivo);
-        var_dump("Carpeta destino : ".$carpeta);
+
         $jasper = Yii::$app->jasper;
         $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
         $jasper->process(
                 Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', $parametros, ['pdf'], false)->execute();
         $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
-        var_dump("URL generado: ".$url);
+        
         return $url;
     }
 

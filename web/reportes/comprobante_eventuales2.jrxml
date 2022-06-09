@@ -13,44 +13,43 @@
 	<parameter name="image_path" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT contribuyente,
-contri_ci,
-contri_nit,
-activi_descripcion,
-se.sitios_codigo,
-se.sitios_descripcion,
-se.sitios_numero_sitio,
-sindi_nombre,
-eventual_fecha_hora_pago AS pago_fecha_hora_cobro,
-       activi_largo_mts,
-       activi_ancho_mts,
-       activi_superficie,
-       activi_costo_patente,
-       activi_costo_sentaje_dia,
-       activi_costo_aseo_por_dia,
-       activi_costo_aseo_por_sitio,
-       categ_nombre,
-       --eventual_id,
-eventual_fecha_inicio,
-       eventual_fecha_limite,
-       eventual_cantidad_dia,
-       eventual_cantidad_sitio,
-       lpad(nro_liquidacion||'',8,'0') AS nro_liquidacion,
-       comprobante,
-       eventual_importe_patente,
-       eventual_costo_comprobante,
-       eventual_costo_sentaje,
-       eventual_costo_aseo,
-       eventual_importe_total,
-       eventual_preliquidacion,
-       id_liquidador,
-       (usuario.usua_nombres ||' '||usuario.usua_apellidos) AS nombre_liquidador,
-       eventual_fecha_hora_liquidacion,
-       eventual_estado
-
-  FROM view_pagos_eventuales_validos
-  INNER JOIN usuario ON usuario.usua_id = view_pagos_eventuales_validos.id_liquidador
-  INNER JOIN sitios_eventuales se ON view_pagos_eventuales_validos.sitios_id = se.sitios_id
-  WHERE eventual_id = $P{id_pago}]]>
+        contri_ci,
+        contri_nit,
+        activi_descripcion,
+        se.sitios_codigo,
+        se.sitios_descripcion,
+        se.sitios_numero_sitio,
+        sindi_nombre,
+        eventual_fecha_hora_pago AS pago_fecha_hora_cobro,
+        activi_largo_mts,
+        activi_ancho_mts,
+        activi_superficie,
+        activi_costo_patente,
+        activi_costo_sentaje_dia,
+        activi_costo_aseo_por_dia,
+        activi_costo_aseo_por_sitio,
+        categ_nombre,
+        --eventual_id,
+        eventual_fecha_inicio,
+        eventual_fecha_limite,
+        eventual_cantidad_dia,
+        eventual_cantidad_sitio,
+        lpad(nro_liquidacion||'',8,'0') AS nro_liquidacion,
+        comprobante,
+        eventual_importe_patente,
+        eventual_costo_comprobante,
+        eventual_costo_sentaje,
+        eventual_costo_aseo,
+        eventual_importe_total,
+        eventual_preliquidacion,
+        id_liquidador,
+        (usuario.usua_nombres ||' '||usuario.usua_apellidos) AS nombre_liquidador,
+        eventual_fecha_hora_liquidacion,
+        eventual_estado
+        FROM view_pagos_eventuales_validos
+        INNER JOIN usuario ON usuario.usua_id = view_pagos_eventuales_validos.id_liquidador
+        LEFT JOIN sitios_eventuales se ON view_pagos_eventuales_validos.sitios_id = se.sitios_id
+        WHERE eventual_id = $P{id_pago}]]>
 	</queryString>
 	<field name="contribuyente" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="contribuyente"/>
@@ -471,14 +470,14 @@ eventual_fecha_inicio,
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{sitios_codigo}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{sitios_codigo} != null) ? $F{sitios_codigo} : "-" ]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="141" y="155" width="220" height="24" isPrintWhenDetailOverflows="true" uuid="cadd3de1-861b-4ce6-ae55-a54d5533930a"/>
+				<reportElement x="142" y="154" width="218" height="24" isPrintWhenDetailOverflows="true" uuid="cadd3de1-861b-4ce6-ae55-a54d5533930a"/>
 				<textElement verticalAlignment="Top">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{sitios_descripcion}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{sitios_descripcion} != null) ? $F{sitios_descripcion} : "-"]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="131" y="180" width="52" height="16" uuid="4c1ca812-a857-4aa7-b685-d559505fd33e"/>
@@ -539,7 +538,7 @@ eventual_fecha_inicio,
 				<textElement verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{sitios_numero_sitio}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{sitios_numero_sitio} != null) ? $F{sitios_numero_sitio} : "-"]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>

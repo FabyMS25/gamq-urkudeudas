@@ -16,6 +16,7 @@
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
+	<parameter name="logo_path" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT nro_comprobante, contribuyente, sitios_codigo,
             sitios_descripcion, activi_descripcion, sitios_numero_sitio,
@@ -88,9 +89,9 @@
 				</textElement>
 				<text><![CDATA[	REPORTE DE DIFERENCIAS DE COBROS Y PAGOS (GRADERIAS O SILLA)]]></text>
 			</staticText>
-			<image>
-				<reportElement x="0" y="1" width="116" height="60" uuid="d141d78f-d0f5-41d9-95a1-77fff4f23528"/>
-				<imageExpression><![CDATA["D:\\laragon\\www\\sistemaurkupina\\web\\logo\\logo_gamq.jpg"]]></imageExpression>
+			<image onErrorType="Blank">
+				<reportElement x="0" y="1" width="115" height="70" uuid="d141d78f-d0f5-41d9-95a1-77fff4f23528"/>
+				<imageExpression><![CDATA[$P{logo_path} + "/logo/logo_gamq.jpg"]]></imageExpression>
 			</image>
 		</band>
 	</pageHeader>

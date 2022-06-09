@@ -3,6 +3,7 @@
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
+	<parameter name="logo_path" class="java.lang.String"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT pago_nro_comprobante,
             contribuyente,
@@ -93,9 +94,9 @@ ORDER BY zona_nombre::TEXT ASC]]>
 				</textElement>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
-			<image>
-				<reportElement x="0" y="2" width="116" height="60" uuid="a57938b5-a97f-4a39-a757-afd1cf566c2a"/>
-				<imageExpression><![CDATA["D:\\laragon\\www\\proyecto-urkupina\\web\\logo\\logo_gamq.jpg"]]></imageExpression>
+			<image onErrorType="Blank">
+				<reportElement x="0" y="2" width="115" height="70" uuid="a57938b5-a97f-4a39-a757-afd1cf566c2a"/>
+				<imageExpression><![CDATA[$P{logo_path} + "/logo/logo_gamq.jpg"]]></imageExpression>
 			</image>
 		</band>
 	</title>

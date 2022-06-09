@@ -581,7 +581,7 @@ class PagosEventualesController extends Controller
     /************************************************/
     // reportes jasper
     
-     public function actionComprobantePago($id) {
+    public function actionComprobantePago($id) {
         $this->verificarSesion();
         
         $request = Yii::$app->request;
