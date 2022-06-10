@@ -43,11 +43,32 @@ body {
 .azul { background: #0000FF }
 .naranja { background: #FF9900 }
 .celeste { background: #3D85C6 }
+
+.btn-info {
+    background: none;
+} 
+
+@media only screen and (max-width: 768px){
+ .p1 {
+    width: 100%;
+ }
+  
+}
 </style>
 
 <div class="img-fluid">
 <div class="container">
-        <div class="panel panel-default p1" style="max-width: 53rem; height:30rem">
+
+<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">Ver Resumen</button>
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+        <div class="panel panel-default p1">
             <div class="panel-heading"> <strong>Graderias y Sillas</strong> </div>
             <div class="panel-body">
                 <div class="row">
@@ -56,10 +77,10 @@ body {
                     <div class="amarillo padding">
                         <strong><?=$row['zona'] ?> </strong><br>
                         <p>
-                            TOTALES: <?=$row['totales'] ?> <br>
-                            RESERVADOS: <?=$row['reservados'] ?> <br>
-                            VENDIDOS: <?=$row['vendidos'] ?>  <br>
-                            DISPONIBLES: <?=$row['disponibles'] ?>
+                            Totales: <?=$row['totales'] ?> <br>
+                            Reservados: <?=$row['reservados'] ?> <br>
+                            Vendidos: <?=$row['vendidos'] ?>  <br>
+                            Disponibles: <?=$row['disponibles'] ?>
                     </p>
                     </div>
                     <?php endforeach ?>
@@ -70,10 +91,10 @@ body {
                     <div class="verde padding">
                         <strong><?=$row['zona'] ?> </strong><br>
                         <p>
-                            TOTALES: <?=$row['totales'] ?> <br>
-                            RESERVADOS: <?=$row['reservados'] ?> <br>
-                            VENDIDOS: <?=$row['vendidos'] ?>  <br>
-                            DISPONIBLES: <?=$row['disponibles'] ?>
+                            Totales: <?=$row['totales'] ?> <br>
+                            Reservados: <?=$row['reservados'] ?> <br>
+                            Vendidos: <?=$row['vendidos'] ?>  <br>
+                            Disponibles: <?=$row['disponibles'] ?>
                     </p>
                     </div>
                     <?php endforeach ?>
@@ -84,10 +105,10 @@ body {
                     <div class="rojo padding">
                         <strong><?=$row['zona'] ?> </strong><br>
                         <p>
-                            TOTALES: <?=$row['totales'] ?> <br>
-                            RESERVADOS: <?=$row['reservados'] ?> <br>
-                            VENDIDOS: <?=$row['vendidos'] ?>  <br>
-                            DISPONIBLES: <?=$row['disponibles'] ?>
+                            Totales: <?=$row['totales'] ?> <br>
+                            Reservados: <?=$row['reservados'] ?> <br>
+                            Vendidos: <?=$row['vendidos'] ?>  <br>
+                            Disponibles: <?=$row['disponibles'] ?>
                     </p>
                     </div>
                     <?php endforeach ?>
@@ -100,10 +121,10 @@ body {
                         <div class="azul padding">
                             <strong><?=$row['zona'] ?> </strong><br>
                             <p>
-                                TOTALES: <?=$row['totales'] ?> <br>
-                                RESERVADOS: <?=$row['reservados'] ?> <br>
-                                VENDIDOS: <?=$row['vendidos'] ?>  <br>
-                                DISPONIBLES: <?=$row['disponibles'] ?>
+                                Totales: <?=$row['totales'] ?> <br>
+                                Reservados: <?=$row['reservados'] ?> <br>
+                                Vendidos: <?=$row['vendidos'] ?>  <br>
+                                Disponibles: <?=$row['disponibles'] ?>
                         </p>
                         </div>
                         <?php endforeach ?>
@@ -114,10 +135,10 @@ body {
                         <div class="naranja padding">
                             <strong><?=$row['zona'] ?> </strong><br>
                             <p>
-                                TOTALES: <?=$row['totales'] ?> <br>
-                                RESERVADOS: <?=$row['reservados'] ?> <br>
-                                VENDIDOS: <?=$row['vendidos'] ?>  <br>
-                                DISPONIBLES: <?=$row['disponibles'] ?>
+                                Totales: <?=$row['totales'] ?> <br>
+                                Reservados: <?=$row['reservados'] ?> <br>
+                                Vendidos: <?=$row['vendidos'] ?>  <br>
+                                Disponibles: <?=$row['disponibles'] ?>
                         </p>
                         </div>
                         <?php endforeach ?>
@@ -128,10 +149,10 @@ body {
                         <div class="celeste padding">
                             <strong><?=$row['zona'] ?> </strong><br>
                             <p>
-                                TOTALES: <?=$row['totales'] ?> <br>
-                                RESERVADOS: <?=$row['reservados'] ?> <br>
-                                VENDIDOS: <?=$row['vendidos'] ?>  <br>
-                                DISPONIBLES: <?=$row['disponibles'] ?>
+                                Totales: <?=$row['totales'] ?> <br>
+                                Reservados: <?=$row['reservados'] ?> <br>
+                                Vendidos: <?=$row['vendidos'] ?>  <br>
+                                Disponibles: <?=$row['disponibles'] ?>
                         </p>
                         </div>
                         <?php endforeach ?>
@@ -142,8 +163,8 @@ body {
         </div>
 
         <div class="row">
-            <div class="col-md-3">
-            <div class="panel panel-default p2" style="max-width: 24rem; height:14rem">
+            <div class="col-sm-12 col-md-6">
+            <div class="panel panel-default p2" >
                 <div class="panel-heading"><strong>Alasitas</strong> </div>
                 <?php  foreach ($alasitas as $row ): ?>
                 <div class="panel-body">
@@ -154,8 +175,8 @@ body {
                 <?php endforeach ?>
             </div>
             </div>
-            <div class="col-md-3">
-            <div class="panel panel-default p3" style="max-width: 24rem; height:14rem">
+            <div class="col-sm-12 col-md-6">
+            <div class="panel panel-default p3" >
                 <div class="panel-heading"> <strong>Eventuales</strong> </div>
                 <?php  foreach ($eventuales as $row ): ?>
                 <div class="panel-body">
@@ -167,6 +188,16 @@ body {
             </div>
             </div>
         </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+</div>
+
+        
 
 </div>
 </div>
