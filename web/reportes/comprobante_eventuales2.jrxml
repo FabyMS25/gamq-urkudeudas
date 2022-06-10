@@ -7,7 +7,7 @@
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="GAMQ Urkupina"/>
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="396"/>
+	<property name="ireport.y" value="489"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
 	<parameter name="image_path" class="java.lang.String"/>
@@ -470,7 +470,7 @@
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[($F{sitios_codigo} != null) ? $F{sitios_codigo} : "-" ]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{sitios_codigo} != null) ? $F{sitios_codigo} : "-"]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="142" y="154" width="218" height="24" isPrintWhenDetailOverflows="true" uuid="cadd3de1-861b-4ce6-ae55-a54d5533930a"/>
