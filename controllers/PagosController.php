@@ -121,7 +121,8 @@ class PagosController extends Controller {
         $model->scenario = "cobrar_graderias_sillas";
         $titulo = "Cobrar preliquidacion de " . $model->graderiaSilla->grad_codigo;
 
-        $siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
+        //$siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
+        $siteUrl = 'http://181.177.143.186/proyecto-urkupina/web/index.php?r=pagos%2Fview&id='.$id;
         
         if ($request->isAjax) {
             /*           Process for ajax request            */
@@ -562,7 +563,8 @@ class PagosController extends Controller {
         $url = "";
         $model = $this->findModel($id);
         $montoLiteral = $model->montoTotalLiteral();
-        $qrImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        //$qrImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        $qrImagePath = "C:\laragon\www\proyecto-urkupina\web";
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;

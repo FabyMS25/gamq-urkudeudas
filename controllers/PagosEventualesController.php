@@ -150,7 +150,8 @@ class PagosEventualesController extends Controller
         $model = $this->findModel($id);  
         $model->scenario = "cobrar_liquidacion";
         $titulo = "Cobrar liquidacion nro. <strong>".$model->eventual_nro_liquidacion."</strong>";
-        $siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
+        //$siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
+        $siteUrl = 'http://181.177.143.186/proyecto-urkupina/web/index.php?r=pagos-eventuales%2Fview&id='.$id;
 
         if($request->isAjax){            
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -589,7 +590,8 @@ class PagosEventualesController extends Controller
         $montoLiteral = $model->montoTotalLiteral();
         $titulo = "COMPROBANTE DE PAGO";
         $url = "";
-        $qrImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        //$qrImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        $qrImagePath = "C:\laragon\www\proyecto-urkupina\web";
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
