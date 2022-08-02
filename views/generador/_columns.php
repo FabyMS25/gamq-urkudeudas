@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Url;
+use yii\helpers\Html;
 
 return [
     
@@ -48,19 +49,28 @@ return [
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
+        'template' => '{print}',
         'dropdown' => false,
         'vAlign'=>'middle',
         'urlCreator' => function($action, $model, $key, $index) { 
                 return Url::to([$action,'id'=>$key]);
         },
-        'viewOptions'=>['role'=>'modal-remote','title'=>'View','data-toggle'=>'tooltip'],
+        'buttons' =>[             
+            'print' => function ($url, $model, $key){ //glyphicon glyphicon-user                           
+                    return Html::a('<i class="glyphicon glyphicon-remove"></i>', ['test', 'id'=>$model->detalle_id],
+                            ['title'=> 'Test',
+                                 'class'=>'btn btn-primary btn-xs',
+                                'role'=>'modal-remote', 'data-toggle'=>'tooltip',]);   
+                            },
+        ] 
+        /*'viewOptions'=>['role'=>'modal-remote','title'=>'View','data-toggle'=>'tooltip'],
         'updateOptions'=>['role'=>'modal-remote','title'=>'Update', 'data-toggle'=>'tooltip'],
         'deleteOptions'=>['role'=>'modal-remote','title'=>'Delete', 
                           'data-confirm'=>false, 'data-method'=>false,// for overide yii data api
                           'data-request-method'=>'post',
                           'data-toggle'=>'tooltip',
                           'data-confirm-title'=>'Are youuuuuuuuuuuuu sure?',
-                          'data-confirm-message'=>'Are you sure want to delete this item'],
+                          'data-confirm-message'=>'Are you sure want to delete this item'],*/
     ],
 
 ];   
