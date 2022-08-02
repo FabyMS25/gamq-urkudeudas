@@ -38,7 +38,7 @@ $listaSindicatos=$modelSindicato->find()->where(['sindi_estado'=>1])->orderBy('s
     </div>
     <?= $form->field($model, 'contri_direccion')->textarea(['maxlength' => true, 'rows'=>2]) ?>
     <div class="row">        
-        <div class="col-md-6"><?= $form->field($model, 'contri_telefono')->textInput() ?></div>
+        <div class="col-md-6"><?= $form->field($model, 'contri_telefono')->textInput(['type' => 'text', 'maxlength' => 8]) ?></div>
         <div class="col-md-6"><?= $form->field($model, 'contri_nit')->textInput() ?></div>
     </div>   
     
