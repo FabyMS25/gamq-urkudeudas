@@ -56,7 +56,7 @@ class Descargos extends \yii\db\ActiveRecord
     {
         return [
             'desc_id' => 'Desc ID',
-            'usua_id' => 'Usuaario',
+            'usua_id' => 'Usuario',
             'razon_id' => 'Razon social',
             'desc_nro_comprobante' => 'Nro comprobante',
             'desc_responsable' => 'Responsable',
@@ -92,4 +92,10 @@ class Descargos extends \yii\db\ActiveRecord
     {
         return $this->hasMany(DetalleDescargos::className(), ['desc_id' => 'desc_id']);
     }
+
+    public function listaResponsables() {
+        return $this->find()->where(['desc_estado'=>1])
+            ->orderBy('desc_estado ASC')->all();
+    }
+    
 }

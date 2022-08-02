@@ -9,47 +9,43 @@ return [
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'desc_nro_comprobante',
+        'attribute'=>'detalle_id',
     ],
      
     
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'razon_id',
+        'attribute'=>'desc_id',
     ],
     
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'desc_responsable',
+        'attribute'=>'detalle_precio',
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'usua_id',
+        'attribute'=>'detalle_nro_inicio',
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'desc_fecha_hora',
+        'attribute'=>'detalle_nro_limite',
     ],
     [
          'class'=>'\kartik\grid\DataColumn',
-         'attribute'=>'desc_anulado',
+         'attribute'=>'detalle_cantidad',
      ],
-    // [
-        // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'desc_anulado_justificacion',
-    // ],
-    // [
-        // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'desc_anulado_fecha_hora',
-    // ],
-    // [
-        // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'desc_impreso',
-    // ],
-    // [
-        // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'desc_estado',
-    // ],
+     [
+        'class'=>'\kartik\grid\DataColumn',
+        'attribute'=>'detalle_fecha_entrega',
+     ],
+     [
+         'class'=>'\kartik\grid\DataColumn',
+         'attribute'=>'detalle_importe_bs',
+     ],
+     [
+         'class'=>'\kartik\grid\DataColumn',
+         'attribute'=>'detalle_estado',
+    ],
     [
         'class' => 'kartik\grid\ActionColumn',
         'dropdown' => false,
@@ -63,7 +59,7 @@ return [
                           'data-confirm'=>false, 'data-method'=>false,// for overide yii data api
                           'data-request-method'=>'post',
                           'data-toggle'=>'tooltip',
-                          'data-confirm-title'=>'Are you sure?',
+                          'data-confirm-title'=>'Are youuuuuuuuuuuuu sure?',
                           'data-confirm-message'=>'Are you sure want to delete this item'],
     ],
 
