@@ -5,6 +5,6 @@ return [
     'class' => 'yii\db\Connection',
     'dsn' => 'pgsql:host=181.177.143.185;dbname=urkupinia',
     'username' => 'gamq',
-    'password' => 'root',
+    'password' => 'gamq.22',
     'charset' => 'utf8',
 ];

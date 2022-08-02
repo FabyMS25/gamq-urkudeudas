@@ -159,7 +159,8 @@ AppAsset::register($this);
                     'items' =>
                     [
                         ['label' => 'Razon social', 'url' => ['/razon-sociales/index'], 'visible' => !Yii::$app->user->isGuest,],
-                        ['label' => 'Descargos', 'url' => ['/descargos/index'], 'visible' => !Yii::$app->user->isGuest,]
+                        ['label' => 'Sentajeros', 'url' => ['/descargos/index'], 'visible' => !Yii::$app->user->isGuest,],
+                        ['label' => 'Generar Descargo', 'url' => ['/generador/index'], 'visible' => !Yii::$app->user->isGuest,],
                     ],
                 ],
                 [
