@@ -31,12 +31,20 @@ $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable')
                 <?= $form->field($model, 'detalle_nro_limite')->textInput() ?>
             </div>
             <div class="col-md-6">
-                <?= $form->field($model, 'detalle_cantidad')->textInput() ?>
+                <?= 
+                    $form->field($model, 'detalle_cantidad')->textInput([
+                        'readonly' => true,
+                        'type'    =>'number',
+                        //'onchange'=>"alert('test')",
+                        //'onchange' => 'calcularCantidad()',
+                        //'onkeyup' => 'calcularCantidad();' 
+                    ])        
+                ?>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                <?= $form->field($model, 'detalle_importe_bs')->textInput() ?> 
+                <?= $form->field($model, 'detalle_importe_bs')->textInput(['readonly' => true]) ?> 
             </div>
             <div class="col-md-6">
             </div>
@@ -51,3 +59,39 @@ $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable')
     <?php ActiveForm::end(); ?>
     
 </div>
+
+
+<script type="text/javascript">
+    function calcularCantidad() {
+        var inicio = $("#<?= Html::getInputId($model, 'detalle_nro_inicio') ?>").val();
+        var limite = $("#<?= Html::getInputId($model, 'detalle_nro_limite') ?>").val();
+        var totalCant = 0;
+
+        console.log('dsd es =>', inicio);
+        alert('hola');
+
+        if (inicio > 0 && limite > 0) {
+            //$.post("index.php?r=generador%2Findex",
+            //function (data) {
+                t = limite - inicio;
+                totalCant = parseFloat(t); //(limite) - parseInt(inicio);
+                
+                $("#<?= Html::getInputId($model, 'detalle_cantidad') ?>").val(totalCant);
+            //}      
+            //); 
+        } else {
+            //$("#<?= Html::getInputId($model, 'detalle_nro_inicio') ?>").val(null);
+            //$("#<?= Html::getInputId($model, 'detalle_nro_limite') ?>").val(null);
+            $("#<?= Html::getInputId($model, 'detalle_cantidad') ?>").val(totalCant);
+        }
+    }
+
+    $(document).ready(function () {
+        $("form").keypress(function (e) {
+            var codigoTecla = parseInt(e.keyCode);
+            if (codigoTecla === 13) {
+                return false;
+            }
+        });
+    });
+</script>

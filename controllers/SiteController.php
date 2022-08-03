@@ -73,7 +73,8 @@ class SiteController extends Controller
        //***************
         $request = Yii::$app->request;
 
-        $model = new CambioContrasenia();  
+        //$model = new CambioContrasenia();  
+        $model = new Usuario();  
         if($request->isAjax)
         {
             Yii::$app->response->format = Response::FORMAT_JSON;
