@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="recibo_preliquidacion" pageWidth="612" pageHeight="792" columnWidth="528" leftMargin="42" rightMargin="42" topMargin="20" bottomMargin="42" uuid="f1ba603a-210e-4863-8a39-d8b6144b1893">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="navi"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -13,23 +14,20 @@
 	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
-	<property name="ireport.zoom" value="2.0"/>
-	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="222"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<queryString>
-		<![CDATA[SELECT pago_id, grad_id, usua_id, contri_id, tip_arm_id,
-lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
-       pago_longitud_modificada,  pago_descuento_porcentaje,
-       pago_descuento_monto, pago_importe_patente, pago_aseo, pago_reposicion,
-       pago_importe_total,
-       pago_id_user_preliquidacion, pago_preliquidacion, pago_fecha_hora_preliquidacion,
-
-       contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit,
-       liquidador, grad_codigo, grad_direccion, grad_longitud, grad_acera,
-       grad_tipo_armado, grad_tipo_sitio, grad_vendido, grad_reservado,
-       grad_estado,
-       tip_arm_descricpion, tip_arm_patente, tip_arm_tasa_aseo,
+		<![CDATA[SELECT pago_id, grad_id, usua_id, contri_id, tip_arm_id, 
+lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion , 
+       pago_longitud_modificada,  pago_descuento_porcentaje, 
+       pago_descuento_monto, pago_importe_patente, pago_aseo, pago_reposicion, 
+       pago_importe_total,  
+       pago_id_user_preliquidacion, pago_preliquidacion, pago_fecha_hora_preliquidacion, 
+       
+       contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit, 
+       liquidador, grad_codigo, grad_direccion, grad_longitud, grad_acera, 
+       grad_tipo_armado, grad_tipo_sitio, grad_vendido, grad_reservado, 
+       grad_estado, 
+       tip_arm_descricpion, tip_arm_patente, tip_arm_tasa_aseo, 
        tip_arm_unidad_medida,  zona_nombre, zona_color, zona_descripcion
   FROM view_graderias_sillas
   WHERE pago_id = $P{id_pago}]]>
@@ -211,7 +209,7 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 		</band>
 	</pageHeader>
 	<detail>
-		<band height="358" splitType="Stretch">
+		<band height="261" splitType="Stretch">
 			<textField>
 				<reportElement positionType="FixRelativeToBottom" x="109" y="65" width="350" height="15" uuid="720e89ba-3130-4806-a0eb-03d139f7e1ad"/>
 				<textElement verticalAlignment="Middle">
@@ -457,46 +455,11 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 				<textFieldExpression><![CDATA[$F{liquidador}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="2" y="231" width="523" height="17" uuid="3cde9a3e-158a-46e6-9cb4-103e5d591255"/>
+				<reportElement x="2" y="231" width="523" height="30" uuid="3cde9a3e-158a-46e6-9cb4-103e5d591255"/>
 				<textElement textAlignment="Justified">
 					<font size="9" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Señor(a) contribuyentes verifique sus datos antes de realizar el pago a caja.]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="75" y="255" width="388" height="28" uuid="57117e35-2925-4619-850c-b2226efb0c36"/>
-				<textElement textAlignment="Center"/>
-				<text><![CDATA["LA PRESENTE PRE-LIQUIDACION TIENE VALIDEZ HASTA LA 18:00 HRS. DEL PRESENTE DIA Y FIRMA EN CONFORMIDAD"]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="79" y="307" width="139" height="13" uuid="ec7b01f4-1cf2-4e5c-8884-de6ba399454e"/>
-				<text><![CDATA[.................................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="310" y="307" width="139" height="13" uuid="23ef8785-171e-4954-af7d-d68ebd67bcd0"/>
-				<text><![CDATA[.................................................]]></text>
-			</staticText>
-			<textField>
-				<reportElement x="98" y="320" width="100" height="17" uuid="c1afab65-13f8-4469-b785-2909280075e1"/>
-				<textFieldExpression><![CDATA[$F{liquidador}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="315" y="320" width="134" height="17" uuid="c02f26d8-38e9-41db-bca2-97562c768a26"/>
-				<textFieldExpression><![CDATA[$F{contri_nombres}+" "+$F{contri_paterno}+" "+$F{contri_materno}]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement x="98" y="337" width="100" height="16" uuid="0d20c1b6-b14d-4635-a4dc-5c932e120ee9"/>
-				<textElement textAlignment="Center">
-					<font size="10" isBold="true"/>
-				</textElement>
-				<text><![CDATA[PRELIQUIDADOR]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="332" y="337" width="100" height="16" uuid="d9ac6828-e19a-4be6-b2df-0912916b8d5c"/>
-				<textElement textAlignment="Center">
-					<font isBold="true"/>
-				</textElement>
-				<text><![CDATA[CLIENTE]]></text>
 			</staticText>
 		</band>
 	</detail>
