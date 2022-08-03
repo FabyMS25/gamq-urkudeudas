@@ -228,7 +228,7 @@ AppAsset::register($this);
                                 )
                             . Html::endForm()
                             . '</li>',
-                            //['label' => 'Cambiar contraseña', 'url' => ['/usuario/update-pass'],  'visible' => !Yii::$app->user->isGuest],
+                            ['label' => 'Cambiar contraseña', 'url' => ['/reset/index'],  'visible' => !Yii::$app->user->isGuest],
                         ]
                  ]):"",  
 

@@ -64,7 +64,7 @@ class Descargos extends \yii\db\ActiveRecord
             'desc_anulado' => 'Anulado',
             'desc_anulado_justificacion' => 'Justificacion',
             'desc_anulado_fecha_hora' => 'Fecha hora anulado',
-            'desc_impreso' => 'Impreso',
+            'desc_impreso' => 'Cantidad de boletas',
             'desc_estado' => ' Estado',
         ];
     }
