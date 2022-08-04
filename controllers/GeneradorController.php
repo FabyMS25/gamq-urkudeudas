@@ -72,12 +72,6 @@ class GeneradorController extends Controller
         } 
     }*/
 
-    /**
-     * Creates a new Descargos model.
-     * For ajax request will return json object
-     * and for non-ajax request if creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
     public function actionCreate()
     {
         $this->verificarSesion();
@@ -139,7 +133,7 @@ class GeneradorController extends Controller
      * @param integer $id
      * @return mixed
      */
-    /*public function actionUpdate($id)
+    public function actionUpdate($id)
     {
         $this->verificarSesion();
         $request = Yii::$app->request;
@@ -187,22 +181,26 @@ class GeneradorController extends Controller
                 ]);
             }
         }
-    }*/
+    }
 
-    /*public function actionDelete($id)
+    public function actionDelete($id)
     {
         $this->verificarSesion();
-        $request = Yii::$app->request;
-        $this->findModel($id)->delete();
+        $request = Yii::$app->request; 
 
         if($request->isAjax){
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceCerrar'=>true,'forceReload'=>'#crud-datatable-pjax'];
+            $sql = ' UPDATE detalle_descargos
+                    SET detalle_estado = 0
+                    WHERE detalle_id ='.$id;
+            $command = Yii::$app->db->createCommand($sql)->queryAll();
+            
+            return ['forceCerrar'=>true, 'forceReload'=>'#crud-datatable-pjax'];
         } else {
             return $this->redirect(['index']);
         }
 
-    }*/
+    }
 
     public function actionBulkDelete()
     {        
@@ -214,30 +212,17 @@ class GeneradorController extends Controller
         }
 
         if($request->isAjax){
-            /*
-            *   Process for ajax request
-            */
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ['forceCerrar'=>true,'forceReload'=>'#crud-datatable-pjax'];
         }else{
-            /*
-            *   Process for non-ajax request
-            */
             return $this->redirect(['index']);
         }
        
     }
 
-    /**
-     * Finds the Descargos model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return Descargos the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     protected function findModel($id)
     {
-        if (($model = Descargos::findOne($id)) !== null) {
+        if (($model = GeneradorDescargos::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

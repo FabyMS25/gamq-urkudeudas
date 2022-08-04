@@ -63,10 +63,10 @@ class GeneradorDescargos extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getDesc()
+    /* public function getDesc()
     {
         return $this->hasOne(Descargos::className(), ['desc_id' => 'desc_id']);
-    }
+    } */
     
     
 }
