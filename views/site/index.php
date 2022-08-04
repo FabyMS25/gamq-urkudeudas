@@ -9,7 +9,7 @@ use miloschuman\highcharts\Highcharts;
 
 /* @var $this yii\web\View */
 CrudAsset::register($this);
-$this->title = 'sisUrku18';
+$this->title = 'SisUrku2022';
 
 ?>
 <style>

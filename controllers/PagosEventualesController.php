@@ -619,7 +619,8 @@ class PagosEventualesController extends Controller
         $this->verificarSesion();
         
         $request = Yii::$app->request;
-        //$model = $this->findModel($id);
+        $model = $this->findModel($id);
+        $montoLiteral = $model->montoTotalLiteral();
         $titulo = "RECIBO DE LIQUIDACION  DE SITIOS ";
         $url = "";
 
@@ -628,7 +629,7 @@ class PagosEventualesController extends Controller
             // jasper init
             $archivo = "preliquidacion_sitios3";
             $carpeta =  "reportes";
-            $parametros = ['id_pago' => $id];
+            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"'];
             $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
             //end jasper
             return [
@@ -650,7 +651,8 @@ class PagosEventualesController extends Controller
         $this->verificarSesion();
         
         $request = Yii::$app->request;
-        //$model = $this->findModel($id);
+        $model = $this->findModel($id);
+        $montoLiteral = $model->montoTotalLiteral();
         $titulo = "RECIBO DE PRELIQUIDACION DE ACTIV. ECONOMICAS ";
         $url = "";
 
@@ -659,7 +661,7 @@ class PagosEventualesController extends Controller
             // jasper init
             $archivo = "preliquidacion_actividades_economicas";
             $carpeta = "reportes";
-            $parametros = ['id_pago' => $id];
+            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"'];
             $url = $this -> generarURLReportePdf($carpeta,$archivo,$parametros);
             //end jasper
             return [

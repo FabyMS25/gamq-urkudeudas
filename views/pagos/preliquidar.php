@@ -79,7 +79,8 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
                 'max'     =>$model->graderiaSilla->grad_longitud, 
                 'step'    =>0.1,
                 'onkeypress'=> 'return isNumber(event)',               
-                'onkeyup' => 'actualizar()'
+                'onkeyup' => 'actualizar()',
+                'onChange' => 'actualizar()'
             ])
             ?>
         </div>

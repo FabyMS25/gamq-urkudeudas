@@ -483,7 +483,8 @@ class PagosController extends Controller {
     public function actionReciboLiquidacion($id) {
         $this->verificarSesion();
         $request = Yii::$app->request;
-        //$model = $this->findModel($id);
+        $model = $this->findModel($id);
+        $montoLiteral = $model->montoTotalLiteral();
         $titulo = "RECIBO DE LIQUIDACION  ";
         $url = "";
 
@@ -496,7 +497,7 @@ class PagosController extends Controller {
             $jasper = Yii::$app->jasper;
             $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
             $jasper->process(
-                            Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', ['id_pago' => $id], ['pdf'], false)
+                            Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"'], ['pdf'], false)
                     ->execute();
             $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
 
