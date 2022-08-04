@@ -11,66 +11,67 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'detalle_id',
+        'filter' =>false
     ],
      
     
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'desc_id',
+        'filter' =>false
     ],
     
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'detalle_precio',
+        'filter' =>false
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'detalle_nro_inicio',
+        'filter' =>false
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'detalle_nro_limite',
+        'filter' =>false
     ],
     [
          'class'=>'\kartik\grid\DataColumn',
          'attribute'=>'detalle_cantidad',
+         'filter' =>false
      ],
      [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'detalle_fecha_entrega',
+        'filter' =>false
      ],
      [
          'class'=>'\kartik\grid\DataColumn',
          'attribute'=>'detalle_importe_bs',
+         'filter' =>false
      ],
      [
          'class'=>'\kartik\grid\DataColumn',
          'attribute'=>'detalle_estado',
+         'filter' =>false
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
-        'template' => '{print}',
         'dropdown' => false,
         'vAlign'=>'middle',
         'urlCreator' => function($action, $model, $key, $index) { 
                 return Url::to([$action,'id'=>$key]);
         },
-        'buttons' =>[             
-            'print' => function ($url, $model, $key){ //glyphicon glyphicon-user                           
-                    return Html::a('<i class="glyphicon glyphicon-remove"></i>', ['test', 'id'=>$model->detalle_id],
-                            ['title'=> 'Test',
-                                 'class'=>'btn btn-primary btn-xs',
-                                'role'=>'modal-remote', 'data-toggle'=>'tooltip',]);   
-                            },
-        ] 
-        /*'viewOptions'=>['role'=>'modal-remote','title'=>'View','data-toggle'=>'tooltip'],
-        'updateOptions'=>['role'=>'modal-remote','title'=>'Update', 'data-toggle'=>'tooltip'],
-        'deleteOptions'=>['role'=>'modal-remote','title'=>'Delete', 
-                          'data-confirm'=>false, 'data-method'=>false,// for overide yii data api
+        
+        'viewOptions'=>['role'=>'modal-remote','title'=>'View','data-toggle'=>'tooltip', 'hidden' => true],
+        'updateOptions'=>['role'=>'modal-remote','title'=>'Update', 'data-toggle'=>'tooltip', 'hidden' => true],
+        'deleteOptions'=>['role'=>'modal-remote','title'=>'Anular', 
+                          'data-confirm'=>false, 'data-method'=>false,
                           'data-request-method'=>'post',
                           'data-toggle'=>'tooltip',
-                          'data-confirm-title'=>'Are youuuuuuuuuuuuu sure?',
-                          'data-confirm-message'=>'Are you sure want to delete this item'],*/
+                          'data-confirm-title'=>'Anular registro',
+                          'data-confirm-message'=>'Esta seguro de anular este registro?'],
     ],
 
 ];   

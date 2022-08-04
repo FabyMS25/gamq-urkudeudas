@@ -4,9 +4,6 @@ use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
 use app\models\Descargos;
 
-/* @var $this yii\web\View */
-/* @var $model app\models\Descargos */
-/* @var $form yii\widgets\ActiveForm */
 $listaResponsablesDesc = (new Descargos())->listaResponsables();
 $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable');
 
@@ -20,31 +17,29 @@ $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable')
 
         <div class="row">
             <div class="col-md-6">
-                <?= $form->field($model, 'detalle_precio')->textInput() ?>
+                <?= $form->field($model, 'detalle_precio')->textInput(['id' => 'detalle_precio']) ?>
             </div>
             <div class="col-md-6">
-                <?= $form->field($model, 'detalle_nro_inicio')->textInput() ?>
+                <?= $form->field($model, 'detalle_nro_inicio')->textInput(['id' => 'detalle_nro_inicio']) ?>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                <?= $form->field($model, 'detalle_nro_limite')->textInput() ?>
+                <?= $form->field($model, 'detalle_nro_limite')->textInput(['id' => 'detalle_nro_limite', 'onchange'=>'actualizar()']) ?>
             </div>
             <div class="col-md-6">
                 <?= 
                     $form->field($model, 'detalle_cantidad')->textInput([
                         'readonly' => true,
                         'type'    =>'number',
-                        //'onchange'=>"alert('test')",
-                        //'onchange' => 'calcularCantidad()',
-                        //'onkeyup' => 'calcularCantidad();' 
+                        'id' => 'detalle_cantidad' 
                     ])        
                 ?>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                <?= $form->field($model, 'detalle_importe_bs')->textInput(['readonly' => true]) ?> 
+                <?= $form->field($model, 'detalle_importe_bs')->textInput(['readonly' => true, 'id'=>'detalle_importe_bs']) ?> 
             </div>
             <div class="col-md-6">
             </div>
@@ -56,42 +51,29 @@ $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable')
 	    </div>
 	<?php } ?>
 
-    <?php ActiveForm::end(); ?>
+    <?php ActiveForm::end();?>
     
 </div>
 
 
 <script type="text/javascript">
-    function calcularCantidad() {
-        var inicio = $("#<?= Html::getInputId($model, 'detalle_nro_inicio') ?>").val();
-        var limite = $("#<?= Html::getInputId($model, 'detalle_nro_limite') ?>").val();
-        var totalCant = 0;
 
-        console.log('dsd es =>', inicio);
-        alert('hola');
+function actualizar() {           
+  var precio  = document.getElementById("detalle_precio").value;
+  var inicio  = document.getElementById("detalle_nro_inicio").value;
+  var limite  = document.getElementById("detalle_nro_limite").value;
+  
+  if(inicio > 0 && limite > 0) { 
+    var totalCantidad = parseFloat(limite) - parseFloat(inicio);
+    var totalImporte  = parseFloat(precio) * parseFloat(totalCantidad);
+        
+        document.getElementById("detalle_cantidad").setAttribute('value', totalCantidad);
+        document.getElementById("detalle_importe_bs").setAttribute('value', totalImporte);      
+  }else {
+        document.getElementById("detalle_cantidad").setAttribute('value', '');
+        document.getElementById("detalle_importe_bs").setAttribute('value', '');  
+  }
 
-        if (inicio > 0 && limite > 0) {
-            //$.post("index.php?r=generador%2Findex",
-            //function (data) {
-                t = limite - inicio;
-                totalCant = parseFloat(t); //(limite) - parseInt(inicio);
-                
-                $("#<?= Html::getInputId($model, 'detalle_cantidad') ?>").val(totalCant);
-            //}      
-            //); 
-        } else {
-            //$("#<?= Html::getInputId($model, 'detalle_nro_inicio') ?>").val(null);
-            //$("#<?= Html::getInputId($model, 'detalle_nro_limite') ?>").val(null);
-            $("#<?= Html::getInputId($model, 'detalle_cantidad') ?>").val(totalCant);
-        }
-    }
-
-    $(document).ready(function () {
-        $("form").keypress(function (e) {
-            var codigoTecla = parseInt(e.keyCode);
-            if (codigoTecla === 13) {
-                return false;
-            }
-        });
-    });
+}
+  
 </script>

@@ -64,7 +64,7 @@ class SearchGeneradores extends GeneradorDescargos
             'detalle_cantidad' => $this->detalle_cantidad,
             'detalle_fecha_entrega' => $this->detalle_fecha_entrega,
             'detalle_importe_bs' => $this->detalle_importe_bs,
-            'detalle_estado' => $this->detalle_estado,
+            'detalle_estado' => 1,//$this->detalle_estado,
         ]);
 
         $query->andFilterWhere(['like', 'detalle_precio', $this->detalle_precio])
