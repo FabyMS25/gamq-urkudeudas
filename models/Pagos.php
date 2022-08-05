@@ -42,7 +42,7 @@ class Pagos extends \yii\db\ActiveRecord
     public $codigo, $nombre, $paterno, $materno, $ci;
     public $fecha_rango,$tipo;
     //
-    const COMPROBANTE = 0;
+    const COMPROBANTE = 10;
     
     public static function tableName()
     {

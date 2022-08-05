@@ -43,7 +43,7 @@ class PagosEventuales extends \yii\db\ActiveRecord
     public $estado_cobro_dia;
     public $nombre, $codigo, $ci;
     public $patente, $sentaje, $aseo;
-    const COMPROBANTE = 0;
+    const COMPROBANTE = 10;
 
     public static function tableName()
     {
