@@ -417,16 +417,16 @@ class PagosController extends Controller {
         $modelAux->pago_con_exencion = $model->pago_con_exencion;
 
         $resultado = false;
-        $transaction = Yii::$app->db->beginTransaction();
+        //$transaction = Yii::$app->db->beginTransaction();
         try {
             if ($modelAux->save(false) && $model->save(false)) {
-                $transaction->commit();
+                //$transaction->commit();
                 $resultado = true;
             } else {
-                $transaction->rollBack();
+               // $transaction->rollBack();
             }
         } catch (Exception $e) {
-            $transaction->rollBack();
+            //$transaction->rollBack();
         }
         return $resultado;
     }
@@ -441,25 +441,27 @@ class PagosController extends Controller {
     public function actionAnularPreliquidacion($id) {
         $this->verificarSesion();
         $request = Yii::$app->request;
-        $model = $this->findModel($id);
+        $model = $this->findModel($id); //var_dump($model);
+        $pago_longitud_modificada = $model->pago_longitud_modificada;
         $nro_preliquidacion = $model->pago_nro_liquidacion;
         $model->pago_estado = 0;
 
         // modelo graderias y sillas
         $modelGraderia = \app\models\GraderiasSillas::findOne($model->grad_id);
         $modelGraderia->grad_vendido = 0;
-        $resultado = false;
+        $modelGraderia->grad_longitud = $modelGraderia->grad_longitud + $pago_longitud_modificada; 
+         $resultado = false;
 
-        $transaction = Yii::$app->db->beginTransaction();
+        //$transaction = Yii::$app->db->beginTransaction();
         try {
             if ($modelGraderia->save(false) && $model->save(false)) {
-                $transaction->commit();
+                //$transaction->commit();
                 $resultado = true;
             } else {
-                $transaction->rollBack();
+                //$transaction->rollBack();
             }
         } catch (Exception $e) {
-            $transaction->rollBack();
+            //$transaction->rollBack();
         }
 
         $mensaje = ($resultado ? "Eliminado la preliquidacion " . $nro_preliquidacion : "Error, no se elimino la preliquidacion " . $nro_preliquidacion);
