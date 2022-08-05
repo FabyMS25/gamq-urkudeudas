@@ -15,7 +15,7 @@
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="162"/>
+	<property name="ireport.y" value="0"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
 	<queryString>
@@ -212,7 +212,7 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 		</band>
 	</pageHeader>
 	<detail>
-		<band height="392" splitType="Stretch">
+		<band height="378" splitType="Stretch">
 			<textField>
 				<reportElement positionType="FixRelativeToBottom" x="109" y="65" width="350" height="15" uuid="720e89ba-3130-4806-a0eb-03d139f7e1ad"/>
 				<textElement verticalAlignment="Middle">
@@ -392,25 +392,7 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 				<text><![CDATA[Tasa de aseo:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="412" y="183" width="100" height="15" uuid="86ef471e-6948-4ef4-9745-9f4266f313bc">
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
-				</reportElement>
-				<box rightPadding="5"/>
-				<textElement textAlignment="Right">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{pago_reposicion}]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement x="315" y="183" width="100" height="15" uuid="92b13927-4d86-4cf5-9aa4-a48f4f472f7e"/>
-				<textElement>
-					<font size="9" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Comprobante:]]></text>
-			</staticText>
-			<textField>
-				<reportElement x="412" y="198" width="100" height="15" uuid="2530acbd-01f3-41b4-892d-72103e2b04a5"/>
+				<reportElement x="413" y="183" width="100" height="15" uuid="2530acbd-01f3-41b4-892d-72103e2b04a5"/>
 				<box rightPadding="5">
 					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -423,7 +405,7 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 				<textFieldExpression><![CDATA[$F{pago_importe_total}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="293" y="198" width="122" height="15" uuid="0f75303f-834b-49e1-82e5-072861f9ac87"/>
+				<reportElement x="294" y="183" width="122" height="15" uuid="0f75303f-834b-49e1-82e5-072861f9ac87"/>
 				<box>
 					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -444,63 +426,63 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 				<text><![CDATA[DESCRIPCION:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="3" y="252" width="192" height="15" uuid="19f86b13-b6d2-4387-93cf-eae007ab94de"/>
+				<reportElement x="4" y="237" width="192" height="15" uuid="19f86b13-b6d2-4387-93cf-eae007ab94de"/>
 				<textElement>
 					<font size="9" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{pago_fecha_hora_preliquidacion}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="3" y="236" width="250" height="15" uuid="ecbc7acd-4f47-4dd0-bb40-b4bbfbabfdef"/>
+				<reportElement x="4" y="221" width="250" height="15" uuid="ecbc7acd-4f47-4dd0-bb40-b4bbfbabfdef"/>
 				<textElement>
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{liquidador}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="2" y="267" width="523" height="17" uuid="3cde9a3e-158a-46e6-9cb4-103e5d591255"/>
+				<reportElement x="3" y="252" width="523" height="17" uuid="3cde9a3e-158a-46e6-9cb4-103e5d591255"/>
 				<textElement textAlignment="Justified">
 					<font size="9" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Señor(a) contribuyentes verifique sus datos antes de realizar el pago a caja.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="75" y="291" width="388" height="28" uuid="57117e35-2925-4619-850c-b2226efb0c36"/>
+				<reportElement x="76" y="276" width="388" height="28" uuid="57117e35-2925-4619-850c-b2226efb0c36"/>
 				<textElement textAlignment="Center"/>
 				<text><![CDATA["LA PRESENTE PRE-LIQUIDACION TIENE VALIDEZ HASTA LA 18:00 HRS. DEL PRESENTE DIA Y FIRMA EN CONFORMIDAD"]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="79" y="343" width="139" height="13" uuid="ec7b01f4-1cf2-4e5c-8884-de6ba399454e"/>
+				<reportElement x="80" y="328" width="139" height="13" uuid="ec7b01f4-1cf2-4e5c-8884-de6ba399454e"/>
 				<text><![CDATA[.................................................]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="310" y="343" width="139" height="13" uuid="23ef8785-171e-4954-af7d-d68ebd67bcd0"/>
+				<reportElement x="311" y="328" width="139" height="13" uuid="23ef8785-171e-4954-af7d-d68ebd67bcd0"/>
 				<text><![CDATA[.................................................]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="98" y="356" width="100" height="17" uuid="c1afab65-13f8-4469-b785-2909280075e1"/>
+				<reportElement x="99" y="341" width="100" height="17" uuid="c1afab65-13f8-4469-b785-2909280075e1"/>
 				<textFieldExpression><![CDATA[$F{liquidador}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="315" y="356" width="134" height="17" uuid="c02f26d8-38e9-41db-bca2-97562c768a26"/>
+				<reportElement x="316" y="341" width="134" height="17" uuid="c02f26d8-38e9-41db-bca2-97562c768a26"/>
 				<textFieldExpression><![CDATA[$F{contri_nombres}+" "+$F{contri_paterno}+" "+$F{contri_materno}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="98" y="373" width="100" height="16" uuid="0d20c1b6-b14d-4635-a4dc-5c932e120ee9"/>
+				<reportElement x="99" y="358" width="100" height="16" uuid="0d20c1b6-b14d-4635-a4dc-5c932e120ee9"/>
 				<textElement textAlignment="Center">
 					<font size="10" isBold="true"/>
 				</textElement>
 				<text><![CDATA[PRELIQUIDADOR]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="332" y="373" width="100" height="16" uuid="d9ac6828-e19a-4be6-b2df-0912916b8d5c"/>
+				<reportElement x="333" y="358" width="100" height="16" uuid="d9ac6828-e19a-4be6-b2df-0912916b8d5c"/>
 				<textElement textAlignment="Center">
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[CLIENTE]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="3" y="216" width="312" height="20" uuid="3a323f04-bacb-4af8-8883-a944a7f582f6"/>
+				<reportElement x="4" y="201" width="312" height="20" uuid="3a323f04-bacb-4af8-8883-a944a7f582f6"/>
 				<textFieldExpression><![CDATA[$P{monto_literal}]]></textFieldExpression>
 			</textField>
 		</band>

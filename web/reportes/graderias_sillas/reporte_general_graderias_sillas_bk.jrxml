@@ -20,10 +20,10 @@
 	<queryString>
 		<![CDATA[SELECT
 -- pago_id, tip_arm_id,
-        COALESCE(pago_nro_comprobante, 0) nro_comprobante,
-        --pago_nro_comprobante,
+pago_nro_comprobante,
 	--pago_nro_liquidacion,
        pago_longitud_modificada,
+
        pago_importe_patente,
        pago_aseo,
        pago_reposicion,
@@ -32,8 +32,7 @@
        pago_anulado_detalle,
        pago_anulado_fecha_hora,
        --pago_id_user_preliquidacion, pago_preliquidacion, pago_fecha_hora_preliquidacion, liquidador,
-       COALESCE(CAST(pago_fecha_hora_cobro AS VARCHAR), '') fecha_hora_cobro,
-       --pago_fecha_hora_cobro,
+       pago_fecha_hora_cobro,
        pago_cobrado,
        pago_con_exencion,
        pago_estado,
@@ -51,7 +50,7 @@
 WHERE  pago_estado = 1 AND (pago_anulado = 0  OR pago_anulado = 1 )
 ORDER BY pago_nro_comprobante::INT ASC]]>
 	</queryString>
-	<field name="nro_comprobante" class="java.lang.Integer"/>
+	<field name="pago_nro_comprobante" class="java.lang.Integer"/>
 	<field name="pago_longitud_modificada" class="java.math.BigDecimal"/>
 	<field name="pago_importe_patente" class="java.math.BigDecimal"/>
 	<field name="pago_aseo" class="java.math.BigDecimal"/>
@@ -60,7 +59,7 @@ ORDER BY pago_nro_comprobante::INT ASC]]>
 	<field name="pago_anulado" class="java.lang.Integer"/>
 	<field name="pago_anulado_detalle" class="java.lang.String"/>
 	<field name="pago_anulado_fecha_hora" class="java.sql.Date"/>
-	<field name="fecha_hora_cobro" class="java.lang.String"/>
+	<field name="pago_fecha_hora_cobro" class="java.sql.Timestamp"/>
 	<field name="pago_cobrado" class="java.lang.Integer"/>
 	<field name="pago_con_exencion" class="java.lang.Boolean"/>
 	<field name="pago_estado" class="java.lang.Integer"/>
@@ -259,7 +258,7 @@ ORDER BY pago_nro_comprobante::INT ASC]]>
 				<textElement textAlignment="Center">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{nro_comprobante}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{pago_nro_comprobante}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
 				<reportElement x="96" y="0" width="106" height="30" uuid="63bb274e-11f0-407c-9955-6945807c4152"/>
@@ -325,7 +324,7 @@ ORDER BY pago_nro_comprobante::INT ASC]]>
 				<textElement textAlignment="Center">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{fecha_hora_cobro}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{pago_fecha_hora_cobro}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="0" y="0" width="30" height="30" uuid="7a94d227-5c8a-4687-8434-3cf2942d2216">
