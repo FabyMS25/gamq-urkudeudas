@@ -1,5 +1,5 @@
-<?php
 use yii\helpers\Html;
+<?php
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
 use app\models\Descargos;
@@ -64,7 +64,7 @@ function actualizar() {
   var limite  = document.getElementById("detalle_nro_limite").value;
   
   if(inicio > 0 && limite > 0) { 
-    var totalCantidad = parseFloat(limite) - parseFloat(inicio);
+    var totalCantidad = (parseFloat(limite) - parseFloat(inicio)) + 1;
     var totalImporte  = parseFloat(precio) * parseFloat(totalCantidad);
         
         document.getElementById("detalle_cantidad").setAttribute('value', totalCantidad);
