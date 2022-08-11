@@ -18,20 +18,20 @@
 	<property name="ireport.y" value="0"/>
 	<parameter name="logo_path" class="java.lang.String"/>
 	<queryString language="SQL">
-		<![CDATA[SELECT GS.grad_id, GS.grad_codigo, GS.grad_direccion, GS.grad_acera, GS.grad_tipo_armado, GS.grad_longitud,
+		<![CDATA[SELECT GS.grad_id, GS.grad_codigo, GS.grad_direccion, GS.grad_acera, GS.grad_tipo_armado, GS.grad_resto,
             COALESCE(PG.longitud_vendida,0) AS longitud_venta,
-            (GS.grad_longitud - COALESCE(PG.longitud_vendida,0)) AS disponibles,
+            (GS.grad_resto - COALESCE(PG.longitud_vendida,0)) AS disponibles,
             COALESCE(PG.pago_nro_liquidacion, '') AS nro_liquidacion,
             COALESCE(PG.pago_importe_total,0) AS importe_total,
             COALESCE(CAST(PG.pago_fecha_hora_preliquidacion AS TEXT),'') AS fecha_hora_preliquidacion,
             COALESCE(PG.pago_id_user_preliquidacion, 0) AS id_user_preliquidacion, ZN.zona_nombre,
             (us.usua_nombres::text || ' '::text) || us.usua_apellidos::text AS liquidador
             FROM graderias_sillas GS
-            LEFT JOIN (
+            INNER JOIN (
             SELECT grad_id, pago_nro_liquidacion, pago_importe_total, pago_fecha_hora_preliquidacion,
                 pago_id_user_preliquidacion, SUM(pago_longitud_modificada) AS longitud_vendida
                 FROM pagos
-                WHERE pago_cobrado = 1 AND pago_anulado = 0
+                WHERE pago_cobrado = 1 AND pago_estado = 1 AND pago_anulado = 0
                 GROUP BY grad_id, pago_nro_liquidacion, pago_importe_total,
                 pago_fecha_hora_preliquidacion,
                 pago_id_user_preliquidacion) PG ON PG.grad_id = GS.grad_id
@@ -46,7 +46,6 @@
 	<field name="grad_direccion" class="java.lang.String"/>
 	<field name="grad_acera" class="java.lang.String"/>
 	<field name="grad_tipo_armado" class="java.lang.String"/>
-	<field name="grad_longitud" class="java.math.BigDecimal"/>
 	<field name="longitud_venta" class="java.math.BigDecimal"/>
 	<field name="disponibles" class="java.math.BigDecimal"/>
 	<field name="nro_liquidacion" class="java.lang.String"/>
@@ -55,15 +54,16 @@
 	<field name="id_user_preliquidacion" class="java.lang.Integer"/>
 	<field name="zona_nombre" class="java.lang.String"/>
 	<field name="liquidador" class="java.lang.String"/>
+	<field name="grad_resto" class="java.math.BigDecimal"/>
 	<variable name="sum_total_importe" class="java.math.BigDecimal" calculation="Sum">
 		<variableExpression><![CDATA[$F{importe_total}]]></variableExpression>
 	</variable>
 	<group name="zona_nombre">
 		<groupExpression><![CDATA[$F{zona_nombre}]]></groupExpression>
 		<groupHeader>
-			<band height="24">
+			<band height="20">
 				<textField>
-					<reportElement x="7" y="3" width="100" height="20" uuid="5ac7769b-3dd7-40b8-abd3-06b92b1f7158"/>
+					<reportElement x="7" y="1" width="100" height="18" uuid="5ac7769b-3dd7-40b8-abd3-06b92b1f7158"/>
 					<textFieldExpression><![CDATA[$F{zona_nombre}]]></textFieldExpression>
 				</textField>
 			</band>
@@ -73,53 +73,46 @@
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="79" splitType="Stretch">
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="83" splitType="Stretch">
 			<staticText>
-				<reportElement x="119" y="2" width="480" height="15" uuid="6dc30b53-5061-4203-beba-3b3a212e6e28"/>
+				<reportElement x="118" y="1" width="480" height="15" uuid="6dc30b53-5061-4203-beba-3b3a212e6e28"/>
 				<textElement textAlignment="Center">
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[FESTIVIDAD DE LA VIRGEN DE URKUPIÑA]]></text>
+				<text><![CDATA[FESTIVIDAD DE LA VIRGEN DE URKUPIÑA -]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="119" y="47" width="480" height="15" uuid="fa49d36e-237a-478f-984b-dfdacf144bc7"/>
+				<reportElement x="118" y="46" width="480" height="15" uuid="fa49d36e-237a-478f-984b-dfdacf144bc7"/>
 				<textElement textAlignment="Center">
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[	REPORTE DE ESPACIOS (MTS) DISPONIBLES POR ZONAS]]></text>
+				<text><![CDATA[	REPORTE DE ESPACIOS VENDIDOS Y DISPONIBLES EN METROS POR ZONAS]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="119" y="32" width="480" height="15" uuid="f91babfd-1914-4d57-8939-5658160ea944"/>
+				<reportElement x="118" y="31" width="480" height="15" uuid="f91babfd-1914-4d57-8939-5658160ea944"/>
 				<textElement textAlignment="Center"/>
 				<text><![CDATA[DIRECCION DE RECAUDACIONES]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="550" y="60" width="100" height="15" uuid="d3b1baab-ecb2-4204-8599-b6244f71f9f1"/>
-				<textElement>
-					<font size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Fecha y hora impresion:]]></text>
-			</staticText>
-			<textField pattern="dd/MM/yyyy h:mm a">
-				<reportElement x="651" y="60" width="100" height="15" uuid="7cc9ee18-a240-458a-b58b-f39f1cbb8d1f"/>
-				<textElement>
-					<font size="8" isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement x="119" y="17" width="480" height="15" uuid="8e3fd964-8ad3-494a-9af0-0fde03baad5f"/>
+				<reportElement x="118" y="16" width="480" height="15" uuid="8e3fd964-8ad3-494a-9af0-0fde03baad5f"/>
 				<textElement textAlignment="Center"/>
 				<text><![CDATA[GOBIERNO AUTONOMO MUNICIPAL DE QUILLACOLLO]]></text>
 			</staticText>
 			<image onErrorType="Blank">
-				<reportElement x="1" y="2" width="115" height="70" uuid="7ca01b19-9bc1-4864-bf86-0767a3c3bc3c"/>
+				<reportElement x="0" y="1" width="115" height="70" uuid="7ca01b19-9bc1-4864-bf86-0767a3c3bc3c"/>
 				<imageExpression><![CDATA[$P{logo_path} + "/logo/logo_gamq.jpg"]]></imageExpression>
 			</image>
+			<textField pattern="yyyy">
+				<reportElement x="467" y="1" width="100" height="14" uuid="7bc43346-ee83-463f-8a90-df0fdb9115f9"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
 		</band>
-	</title>
-	<pageHeader>
-		<band splitType="Stretch"/>
 	</pageHeader>
 	<columnHeader>
 		<band height="31" splitType="Stretch">
@@ -134,14 +127,14 @@
 			</staticText>
 			<staticText>
 				<reportElement x="31" y="0" width="90" height="30" uuid="6ec93ee7-21da-49a7-9353-b50f47cf77b2"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[CODIGO]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="122" y="0" width="200" height="30" uuid="d94af16a-a935-4bcd-9f88-55cec82bc23d"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[DIRECCION]]></text>
@@ -188,19 +181,22 @@
 				</textElement>
 				<text><![CDATA[IMPORTE TOTAL]]></text>
 			</staticText>
+			<line>
+				<reportElement x="0" y="29" width="750" height="1" uuid="1d1c59cc-02ea-45d4-84f1-7d445390b001"/>
+			</line>
 		</band>
 	</columnHeader>
 	<detail>
 		<band height="22" splitType="Stretch">
 			<textField>
-				<reportElement x="1" y="0" width="30" height="20" uuid="f8f84d45-7865-4034-9ba8-6c3f8e2e3544">
+				<reportElement x="1" y="0" width="30" height="20" isPrintWhenDetailOverflows="true" uuid="f8f84d45-7865-4034-9ba8-6c3f8e2e3544">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<textElement>
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$V{PAGE_COUNT}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="31" y="0" width="90" height="20" uuid="fd0b0580-5bbe-4893-b245-1273c7c23b04"/>
@@ -230,7 +226,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{disponibles}]]></textFieldExpression>
 			</textField>
-			<textField>
+			<textField pattern="#,##0.00">
 				<reportElement x="682" y="0" width="70" height="20" uuid="cb314d95-04fb-4bc0-9085-843e3d346f39"/>
 				<textElement textAlignment="Right">
 					<font size="8"/>
@@ -242,7 +238,7 @@
 				<textElement textAlignment="Right">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{grad_longitud}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{grad_resto}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="322" y="0" width="70" height="20" uuid="05eaaa72-4a85-4d77-8f8b-7977aec1939f"/>
@@ -258,6 +254,12 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{grad_direccion}]]></textFieldExpression>
 			</textField>
+			<line>
+				<reportElement x="2" y="20" width="748" height="1" uuid="deee5568-9a62-4bb4-ae50-1b09a46013ee"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
 		</band>
 	</detail>
 	<columnFooter>
@@ -269,17 +271,31 @@
 				<reportElement x="650" y="3" width="100" height="15" uuid="3fc00771-b8d8-443a-b476-2ee26933605f">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
-				<textElement textAlignment="Left">
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
 					<font size="7"/>
 				</textElement>
 				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="549" y="3" width="100" height="15" uuid="f0cf7428-2e45-42d5-920e-5a529e51f71e"/>
-				<textElement textAlignment="Right">
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
 					<font size="7"/>
 				</textElement>
 				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="6" y="3" width="85" height="15" uuid="75660dca-050d-4917-be86-35ad92e36034"/>
+				<textElement verticalAlignment="Bottom">
+					<font size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Fecha y hora impresion:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy h:mm a">
+				<reportElement x="96" y="3" width="100" height="15" uuid="8289765b-c630-4f4d-a8b0-10eaca2283c1"/>
+				<textElement verticalAlignment="Bottom">
+					<font size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageFooter>
@@ -287,14 +303,14 @@
 		<band height="22" splitType="Stretch">
 			<staticText>
 				<reportElement x="582" y="0" width="100" height="20" uuid="eb1be443-07ad-4757-ac5e-b88469feca7c"/>
-				<textElement textAlignment="Center">
+				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[TOTAL:]]></text>
 			</staticText>
-			<textField>
+			<textField pattern="#,##0.00">
 				<reportElement x="682" y="0" width="70" height="20" uuid="2f20d977-bf3b-4a56-9f47-b8516c229975"/>
-				<textElement textAlignment="Right">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{sum_total_importe}]]></textFieldExpression>

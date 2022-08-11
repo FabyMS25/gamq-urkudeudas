@@ -709,7 +709,7 @@ class PagosController extends Controller {
         $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
-        if ($request->isAjax) {
+        /*if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'title' => $titulo,
@@ -724,7 +724,8 @@ class PagosController extends Controller {
                 'url' => $url,
                 'size' => 'modal-xl',
             ]);
-        }
+        }*/
+        return $this->render('reporte-general', ['url' => $url]);
     }
 
     public function actionReporteEspaciosDisponibles() {
@@ -738,7 +739,7 @@ class PagosController extends Controller {
         $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
-        if ($request->isAjax) {
+        /*if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'title' => $titulo,
@@ -753,7 +754,8 @@ class PagosController extends Controller {
                 'url' => $url,
                 'size' => 'modal-xl',
             ]);
-        }
+        }*/
+        return $this->render('reporte-espacios-disponibles', ['url' => $url ]);
     }
 
     public function actionReporteDiferencias() {
@@ -767,7 +769,7 @@ class PagosController extends Controller {
         $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
-        if ($request->isAjax) {
+        /*if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'title' => $titulo,
@@ -781,7 +783,8 @@ class PagosController extends Controller {
             return $this->render('reporte-diferencias', [
                 'url' => $url,
             ]);
-        }
+        }*/
+        return $this->render('reporte-diferencias', ['url' => $url]);
     }
 
     public function actionReporteDiferenciasEventuales() {
@@ -795,7 +798,7 @@ class PagosController extends Controller {
         $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
-        if ($request->isAjax) {
+        /*if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'title' => $titulo,
@@ -810,7 +813,8 @@ class PagosController extends Controller {
                 'url' => $url,
                 'size' => 'modal-lg',
             ]);
-        }   
+        }*/   
+        return $this->render('reporte-diferencias-eventuales', ['url' => $url]);
     }
 
     public function actionReportePagosGraderiasCajeros() {
@@ -824,7 +828,7 @@ class PagosController extends Controller {
         $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
-        if ($request->isAjax) {
+        /*if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'title' => $titulo,
@@ -839,7 +843,8 @@ class PagosController extends Controller {
                 'url' => $url,
                 'size' => 'modal-lg',
             ]);
-        }
+        }*/
+        return $this->render('reporte-pagos-graderias-cajeros', ['url' => $url]);
     }
 
     public function actionReporteAnuladosGraderiasCajeros() {
@@ -853,7 +858,7 @@ class PagosController extends Controller {
         $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
-        if ($request->isAjax) {
+        /*if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'title' => $titulo,
@@ -868,7 +873,8 @@ class PagosController extends Controller {
                 'url' => $url,
                 'size' => 'modal-lg',
             ]);
-        }
+        }*/
+       return $this->render('reporte-anulados-graderias-cajeros', ['url' => $url]);
     }
 
     protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
