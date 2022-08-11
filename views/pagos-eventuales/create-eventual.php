@@ -101,7 +101,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         'onchange' => '
             var id = $(this).val();            
             var a=1;
-            var b=0;
+            var b=3;
             $("#' . Html::getInputId($model, 'eventual_cantidad_sitio') . '").val(a);
             $("#' . Html::getInputId($model, 'eventual_cantidad_dia') . '").val(b);                 
             if( id > 0){            
@@ -120,9 +120,9 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                                 if(cantidadSitio > 0){
                                     importeTotalPatente = cantidadSitio * patente;
                                     $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
-                                    $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(sentaje);
-                                    $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(aseo); 
-                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje)+parseFloat(aseo)+10;
+                                    $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(sentaje*b);
+                                    $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(aseo*b); 
+                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje*b)+parseFloat(aseo*b)+10;
                                     $("#' . Html::getInputId($model, 'eventual_importe_total') . '").val(impTotal); 
                                 }
                             }
@@ -140,17 +140,21 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                 'options' => ['class'=>'drp-container mb-2'],
                 
             ])->widget(DateRangePicker::classname(), [
-                'readonly' => true,
-                'useWithAddon'=>true,
-                'convertFormat' => true,   
+                
+                                
+                //'useWithAddon'=>true,
+                'convertFormat' => true, 
+                //'readonly' => true, 
+                'disabled' => true, 
+                'value'=> '2022-08-14 a 2022-08-16',
                 'pluginOptions' => [
                         'locale' => [
                         'format' => 'Y-m-d',
                         'separator' => ' a ',
                     ]
                     ],
-                'options' => [  'class'=>'form-control',
-                                'onchange' => 'calcDia();' ]   
+                //'options' => [  'class'=>'form-control',
+                //                'onchange' => 'calcDia();' ]   
                 
               ]         
             );
@@ -172,7 +176,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                 'readonly' => true,
                 'type'    =>'number', 
                 'min'     =>1, 
-                'max'     =>10, 
+                'max'     =>100, 
                 'step'    =>1,
                 'onchange'=>'calcPuestos();',
                 'onkeypress'=> 'return isNumber(event)',
@@ -289,6 +293,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         dif=f2-f1;
         var dias = (dif/86400).toFixed()/1000;
         dias++;
+        dias=3;
           console.log('dias es : ', dias);
         var importeTotalPatente  = $("#<?= Html::getInputId($model, 'eventual_importe_patente') ?>").val();
         var totalAseo = 0;
