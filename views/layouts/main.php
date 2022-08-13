@@ -44,7 +44,11 @@ AppAsset::register($this);
             'items' => [
         
                 ['label' => 'Principal', 'url' => ['/site/index']],
-                
+                [
+                    'label' => 'Comprobantes',
+                    'url' => ['/site/comprobante'],
+                    'visible' => Yii::$app->user->isGuest
+                ],
                 [
                     'label' => 'Parametros',
                     'visible' => !Yii::$app->user->isGuest && Usuario::getRolAdmin(),

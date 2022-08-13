@@ -7,6 +7,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
+use app\models\ComprobanteForm;
 use app\models\ContactForm;
 use \yii\web\Response;
 use app\models\CambioContrasenia;
@@ -288,4 +289,12 @@ class SiteController extends Controller
     {
         return $this->render('about');
     }
+
+    public function actionComprobante() {
+        $model = new ComprobanteForm();
+        return $this->render('comprobante', [
+            'model' => $model,
+        ]);
+    }
+
 }
