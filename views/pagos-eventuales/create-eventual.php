@@ -120,9 +120,9 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                                 if(cantidadSitio > 0){
                                     importeTotalPatente = cantidadSitio * patente;
                                     $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
-                                    $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(sentaje*b);
+                                    $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(sentaje);
                                     $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(aseo*b); 
-                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje*b)+parseFloat(aseo*b)+10;
+                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje)+parseFloat(aseo*b)+10;
                                     $("#' . Html::getInputId($model, 'eventual_importe_total') . '").val(impTotal); 
                                 }
                             }
@@ -139,13 +139,11 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                 'addon' => ['prepend' => ['content' => '<i class="glyphicon glyphicon-calendar"></i>']],
                 'options' => ['class'=>'drp-container mb-2'],
                 
-            ])->widget(DateRangePicker::classname(), [
-                
-                                
+            ])->widget(DateRangePicker::classname(), [                             
                 //'useWithAddon'=>true,
                 'convertFormat' => true, 
-                //'readonly' => true, 
-                'disabled' => true, 
+                'readonly' => true, 
+                //'disabled' => true, 
                 'value'=> '2022-08-14 a 2022-08-16',
                 'pluginOptions' => [
                         'locale' => [
@@ -153,8 +151,9 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                         'separator' => ' a ',
                     ]
                     ],
-                //'options' => [  'class'=>'form-control',
-                //                'onchange' => 'calcDia();' ]   
+                'options' => [  'class'=>'form-control',
+                        // 'onchange' => 'calcDia();'
+                 ]   
                 
               ]         
             );
@@ -305,7 +304,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
        
         
         if (cantidadDias > 0 && sentaje >= 0 && aseo>=0) {
-            totalSentaje = parseFloat(sentaje * dias);
+            totalSentaje = parseFloat(sentaje );
             //totalSentaje = totalSentaje.toFixed(0);
             
             totalAseo = parseFloat(aseo * dias);

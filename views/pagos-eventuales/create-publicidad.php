@@ -132,8 +132,8 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
             <?=
             $form->field($model, 'eventual_cantidad_sitio')->textInput(
                     [   'value'=> 1,
-                        'readonly' => true,
-                        'onchange' => ' importePublicidad();'
+                        //'readonly' => true,
+                        'onkeyup' => ' importePublicidad();'
                     ])->label("Cantidad de Puestos")
             ?>
         </div>
@@ -204,7 +204,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                     
         if(cantidadDias > 0 && cantidadPublicidad > 0){
             totalPatente = (cantidadPublicidad * precioPatente ) * cantidadDias;
-            totalAseo = cantidadDias * precioAseo;
+            totalAseo = cantidadDias * precioAseo*cantidadPublicidad ;
             
             totalImporte = parseFloat(totalPatente) + parseFloat(totalAseo) + parseFloat(comprobante);                       
             totalImporte = totalImporte.toFixed(2);
