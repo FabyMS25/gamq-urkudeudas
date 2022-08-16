@@ -7,7 +7,7 @@
         justify-content: center;
     }
 </style>
-<div class="container center">
+<!-- <div class="container center">
     <div class="row">
         <label for="ini" class="col-md-1 col-form-label">Fecha Inicio: </label>
         <div class="col-md-4">
@@ -22,7 +22,7 @@
     </div>
 </div>
 
-<br> <hr>
+<br> <hr> -->
 
  <div class="text-center">
         <object data="<?= $url ?>" type="application/pdf" name="comprobante" height="600" width="100%;">

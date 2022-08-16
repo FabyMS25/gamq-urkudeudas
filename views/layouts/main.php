@@ -159,7 +159,7 @@ AppAsset::register($this);
                 // SENTAJES               
                 [
                     'label' => 'Sentajes',
-                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()),
+                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli()),
                     'items' =>
                     [
                         ['label' => 'Razon social', 'url' => ['/razon-sociales/index'], 'visible' => !Yii::$app->user->isGuest,],
@@ -176,6 +176,11 @@ AppAsset::register($this);
                         '<li class="dropdown-header">Generales</li>',
                         ['label' => 'Pagos y anulados de graderia o sillas',
                         'url' => ['pagos/reporte-general'],
+                        //'linkOptions' => ['role' => 'modal-remote'],
+                        'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()),
+                        ],
+                        ['label' => 'Descargo de sentajes',
+                        'url' => ['pagos/reporte-sentajes'],
                         //'linkOptions' => ['role' => 'modal-remote'],
                         'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()),
                         ],

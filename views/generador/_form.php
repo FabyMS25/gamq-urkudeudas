@@ -1,4 +1,3 @@
-use yii\helpers\Html;
 <?php
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;

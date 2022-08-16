@@ -727,7 +727,20 @@ class PagosController extends Controller {
         }*/
         return $this->render('reporte-general', ['url' => $url]);
     }
-
+/*
+    public function actionReporteGeneralSentajes() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE GENERAL SENTAJES - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_descargo_sentajes;
+        $carpeta = "reportes/sentajes";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+        return $this->render('reporte-sentajes', ['url' => $url]);
+    }
+*/
     public function actionReporteEspaciosDisponibles() {
         $this->verificarSesion();
         $request = Yii::$app->request;
