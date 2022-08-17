@@ -5,7 +5,7 @@ use app\models\Descargos;
 
 $listaResponsablesDesc = (new Descargos())->listaResponsables();
 $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable');
-
+//var_dump($listaResponsablesDesc);
 ?>
 
 <div class="descargos-form">
@@ -65,9 +65,16 @@ function actualizar() {
   if(inicio > 0 && limite > 0) { 
     var totalCantidad = (parseFloat(limite) - parseFloat(inicio)) + 1;
     var totalImporte  = parseFloat(precio) * parseFloat(totalCantidad);
-        
+
+    if (limite <= inicio ) {
+        alert('NRO INICIO NO PUEDE SER MAYOR A NRO LIMITE');
+        document.getElementById("detalle_nro_inicio").setAttribute('value', '');
+        document.getElementById("detalle_nro_limite").setAttribute('value', ''); 
+    } else {
         document.getElementById("detalle_cantidad").setAttribute('value', totalCantidad);
-        document.getElementById("detalle_importe_bs").setAttribute('value', totalImporte);      
+        document.getElementById("detalle_importe_bs").setAttribute('value', totalImporte);
+    }
+
   }else {
         document.getElementById("detalle_cantidad").setAttribute('value', '');
         document.getElementById("detalle_importe_bs").setAttribute('value', '');  

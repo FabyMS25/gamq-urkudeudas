@@ -15,6 +15,7 @@ return [
     
     [
         'class'=>'\kartik\grid\DataColumn',
+        //'attribute'=>'rz.razon_nombre',
         'attribute'=>'razon_id',
     ],
     
@@ -22,10 +23,10 @@ return [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'desc_responsable',
     ],
-    [
+    /* [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'usua_id',
-    ],
+    ], */
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'desc_fecha_hora',
@@ -33,23 +34,7 @@ return [
     [
          'class'=>'\kartik\grid\DataColumn',
          'attribute'=>'desc_anulado',
-     ],
-    // [
-        // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'desc_anulado_justificacion',
-    // ],
-    // [
-        // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'desc_anulado_fecha_hora',
-    // ],
-    // [
-        // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'desc_impreso',
-    // ],
-    // [
-        // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'desc_estado',
-    // ],
+    ],
     [
         'class' => 'kartik\grid\ActionColumn',
         'dropdown' => false,

@@ -890,6 +890,34 @@ class PagosController extends Controller {
        return $this->render('reporte-anulados-graderias-cajeros', ['url' => $url]);
     }
 
+    public function actionReportePreliquidacionSentajes() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE PRELIQUIDACION DE SENTAJES - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_preliquidacion_sentajes";
+        $carpeta = "reportes/sentajes";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+       
+        return $this->render('reporte-preliquidacion-sentajes', ['url' => $url]);
+    }
+
+    public function actionReporteSentajesPagados() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE SENTAJES PAGADOS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_sentajes_pagados";
+        $carpeta = "reportes/sentajes";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-preliquidacion-sentajes', ['url' => $url]);
+    }
+
     protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
         $archivo = $file;
         Yii::setAlias('@ruta', $carpeta);

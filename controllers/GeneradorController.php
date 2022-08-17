@@ -11,6 +11,8 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
+use chrmorandi\jasper\Jasper;
+use app\models\Pagos;
 
 class GeneradorController extends Controller
 {
@@ -72,6 +74,60 @@ class GeneradorController extends Controller
         } 
     }*/
 
+    public function actionCobrar($id) {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $model = $this->findModel($id);
+        
+        //$model->scenario = "cobrar_graderias_sillas";
+        $titulo = "Cobrar sentaje";
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            if ($request->isGet) {
+                return [
+                    'title' => $titulo,
+                    'content' => $this->renderAjax('cobrar', ['model' => $model,]),
+                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                ];
+            } else if ($model->load($request->post()) && $model->validate()) {
+                $model->detalle_estado_pago=1;
+                $dir = $model->nro_comprobante;
+                
+                if ($model->save())
+                   $resultado= true;
+                else
+                  $resultado = false;
+                //$resultado =$this->actualizarDatosCobro($model);
+                $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
+                return [
+                    'forceReload' => '#crud-datatable-pjax',
+                    'title' => $titulo,
+                    'content' => '<span class="text-success">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->detalle_id .
+                    ' <br> Importe total Bs.: ' . $model->detalle_importe_bs . '  </span>',
+                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) 
+                    //. Html::a('Comprobante pago', ['comprobante-pago', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                ];
+            } else {
+                return [
+                    'title' => $titulo,
+                    'content' => $this->renderAjax('cobrar', ['model' => $model,]),
+                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                ];
+            }
+        } else {
+            if ($model->load($request->post()) && $model->save()) {
+                return $this->redirect(['view', 'id' => $model->detalle_id]);
+            } else {
+                return $this->render('cobrar', [
+                            'model' => $model,
+                ]);
+            }
+        }
+    }
+
     public function actionCreate()
     {
         $this->verificarSesion();
@@ -79,14 +135,16 @@ class GeneradorController extends Controller
         $model = new GeneradorDescargos();
         $model->detalle_fecha_entrega = date('Y-m-d H:m');
         $model->detalle_estado = 1;
-        $titulo ="Crear Descargo";
+        $model->detalle_estado_pago = 0;
+        $tituloMod ="Preliquidar Descargo";
+        $mensaje= 'Registro exitoso';
 
         if($request->isAjax){
             
             Yii::$app->response->format = Response::FORMAT_JSON;
             if($request->isGet){
                 return [
-                    'title'=> $titulo,
+                    'title'=> $tituloMod,
                     'content'=>$this->renderAjax('create', [
                         'model' => $model,
                     ]),
@@ -97,15 +155,16 @@ class GeneradorController extends Controller
             }else if($model->load($request->post()) && $model->save()){
                 return [
                     'forceReload'=>'#crud-datatable-pjax',
-                    'title'=> $titulo,
-                    'content'=>'<span class="text-success">Create Descargos success</span>',
+                    'title'=> $tituloMod,
+                    'content'=>'<span class="text-success">' . $mensaje . '</span>',
+                     
                     'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
                             Html::a('Crear mas',['create'],['class'=>'btn btn-primary','role'=>'modal-remote'])
         
                 ];         
             }else{           
                 return [
-                    'title'=> $titulo,
+                    'title'=> $tituloMod,
                     'content'=>$this->renderAjax('create', [
                         'model' => $model,
                     ]),
@@ -123,7 +182,53 @@ class GeneradorController extends Controller
                 ]);
             }
         }
-       
+    }
+
+    public function actionReciboLiquidacion($id) {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $model = $this->findModel($id);
+        $montoLiteral = $model->montoTotalLiteral();
+  
+        $titulo = "RECIBO COBRO SENTAJE";
+        $archivo = "preliquidacion_sentaje";
+        $carpeta = "reportes";
+        $logoImagePath = 'C:\laragon\www\proyecto-urkupina\web';//realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $monto_literal = $model->montoTotalLiteral();
+        $parametros = ['id_detalle' => $id, 'monto_literal' => '"'.$monto_literal.'"'];    
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);    
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            
+            return [
+                'title' => $titulo,
+                'content' => $this->renderAjax('recibo_liquidacion', [
+                    'url' => $url,
+                    'size' => 'modal-lg',
+                ]),
+                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return $this->render('recibo-liquidacion', [
+                        'url' => $url,
+            ]);
+        }
+        
+    }
+
+    protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
+        $archivo = $file;
+        Yii::setAlias('@ruta', $carpeta);
+
+        $jasper = Yii::$app->jasper;
+        $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
+        $jasper->process(
+                Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', $parametros, ['pdf'], false)->execute();
+        $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
+        
+        return $url;
     }
 
     /**

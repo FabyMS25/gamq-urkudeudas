@@ -57,15 +57,38 @@ return [
          'filter' =>false
     ],
     [
+        'class'=>'\kartik\grid\DataColumn',
+        'attribute'=>'nro_comprobante',
+        'filter' =>false
+    ],
+    [
         'class' => 'kartik\grid\ActionColumn',
+        'template' => '{delete} {cobro} {print}',
         'dropdown' => false,
+        'width' => '160px',
         'vAlign'=>'middle',
         'urlCreator' => function($action, $model, $key, $index) { 
                 return Url::to([$action,'id'=>$key]);
         },
         
-        'viewOptions'=>['role'=>'modal-remote','title'=>'View','data-toggle'=>'tooltip', 'hidden' => true],
-        'updateOptions'=>['role'=>'modal-remote','title'=>'Update', 'data-toggle'=>'tooltip', 'hidden' => true],
+        'buttons' => [
+            'cobro' => function ($url, $model, $key) {                            
+                return Html::a('<i class="glyphicon glyphicon-usd"></i>', ['cobrar', 'id'=>$model->detalle_id],
+                        ['title'=> 'Cobrar', 
+                              'class'=>'btn btn-primary btn-xs',
+                            'role'=>'modal-remote', 'data-toggle'=>'tooltip',]);                   
+            },
+            'print' => function ($url, $model, $key){                            
+                return Html::a('<i class="glyphicon glyphicon-print"></i>', ['recibo-liquidacion', 'id'=>$model->detalle_id],
+                        ['title'=> 'Recibo preliquidacion ',
+                             'class'=>'btn btn-primary btn-xs',
+                            'role'=>'modal-remote', 'data-toggle'=>'tooltip',]);                    
+            },
+            
+        ],
+
+        //'viewOptions'=>['role'=>'modal-remote','title'=>'View','data-toggle'=>'tooltip', 'hidden' => true],
+        //'updateOptions'=>['role'=>'modal-remote','title'=>'Update', 'data-toggle'=>'tooltip', 'hidden' => true],
         'deleteOptions'=>['role'=>'modal-remote','title'=>'Anular', 
                           'data-confirm'=>false, 'data-method'=>false,
                           'data-request-method'=>'post',

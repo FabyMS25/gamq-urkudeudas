@@ -94,7 +94,8 @@ class Descargos extends \yii\db\ActiveRecord
     }
 
     public function listaResponsables() {
-        /* $sql = 'SELECT * FROM descargos d, razon_sociales rz
+       /* $sql = 'SELECT d.*, rz.razon_nombre
+         FROM descargos d, razon_sociales rz
                 WHERE d.razon_id = rz.razon_id AND d.desc_estado=1';
         $command = Yii::$app->db->createCommand($sql)->queryAll();
         return $command; */

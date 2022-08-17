@@ -36,8 +36,8 @@ class GeneradorDescargos extends \yii\db\ActiveRecord
     {
         return [
             [['desc_id', 'detalle_precio', 'detalle_nro_inicio', 'detalle_nro_limite', 'detalle_cantidad', 'detalle_fecha_entrega', 'detalle_importe_bs', 'detalle_estado'], 'required'],
-            [['desc_id', 'detalle_nro_inicio', 'detalle_nro_limite', 'detalle_cantidad', 'detalle_estado'], 'integer'],
-            [['detalle_precio', 'detalle_importe_bs'], 'number'],
+            [['desc_id', 'detalle_nro_inicio', 'detalle_nro_limite', 'detalle_cantidad', 'detalle_estado', 'nro_comprobante', 'detalle_estado_pago'], 'integer'],
+            [['detalle_precio', 'detalle_importe_bs', 'nro_comprobante', 'detalle_estado_pago'], 'number'],
             [['detalle_fecha_entrega'], 'safe'],
         ];
     }
@@ -57,6 +57,7 @@ class GeneradorDescargos extends \yii\db\ActiveRecord
             'detalle_fecha_entrega' => 'Fecha entrega',
             'detalle_importe_bs' => 'Importe total Bs',
             'detalle_estado' => 'Estado',
+            'nro_comprobante' => 'Comprobante',
         ];
     }
 
@@ -68,5 +69,10 @@ class GeneradorDescargos extends \yii\db\ActiveRecord
         return $this->hasOne(Descargos::className(), ['desc_id' => 'desc_id']);
     } */
     
+    public function montoTotalLiteral(){
+        $montoTotal = $this->detalle_importe_bs;
+        $modelAux = new NumeroALetras();
+        return $modelAux->convertir($montoTotal);
+    }
     
 }
