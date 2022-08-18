@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_descargo_sentajes" language="groovy" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1a5f224c-62d6-4b08-9fea-ee5f013fa76d">
 	<property name="ireport.zoom" value="2.0"/>
-	<property name="ireport.x" value="231"/>
+	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<parameter name="logo_path" class="java.lang.String"/>
 	<queryString language="SQL">
-		<![CDATA[SELECT DE.desc_nro_comprobante,
+		<![CDATA[SELECT
+        DD.detalle_id,
+        DE.desc_nro_comprobante,
         RS.razon_nombre,
         DE.desc_responsable,
         DE.desc_impreso,
@@ -40,6 +42,7 @@
 	<field name="preliquidador" class="java.lang.String"/>
 	<field name="cantidad_saldo" class="java.lang.String"/>
 	<field name="total_importe_saldo" class="java.lang.String"/>
+	<field name="detalle_id" class="java.lang.String"/>
 	<variable name="importe_total_sentaje" class="java.math.BigDecimal" calculation="Sum">
 		<variableExpression><![CDATA[$F{detalle_importe_bs}]]></variableExpression>
 	</variable>
@@ -209,15 +212,7 @@
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="26" splitType="Stretch">
-			<textField>
-				<reportElement x="26" y="1" width="50" height="20" uuid="a85576d3-47da-4bb3-9ec0-0d460d898994"/>
-				<box rightPadding="5"/>
-				<textElement textAlignment="Right">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{desc_nro_comprobante}]]></textFieldExpression>
-			</textField>
+		<band height="24" splitType="Stretch">
 			<textField>
 				<reportElement x="79" y="1" width="132" height="20" uuid="2dd7afd9-5052-41a2-a59a-9150cda0b72e"/>
 				<textElement>
@@ -313,6 +308,12 @@
 					<font size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{total_importe_saldo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="26" y="1" width="50" height="20" uuid="ff08a4d1-5eb4-4dc5-b3be-16d6764bb2d8"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{detalle_id}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

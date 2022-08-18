@@ -51,11 +51,11 @@ return [
          'attribute'=>'detalle_importe_bs',
          'filter' =>false
      ],
-     [
+     /* [
          'class'=>'\kartik\grid\DataColumn',
          'attribute'=>'detalle_estado',
          'filter' =>false
-    ],
+    ], */
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'nro_comprobante',

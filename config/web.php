@@ -37,7 +37,7 @@ $config = [
                 'dsn' => 'pgsql:host=181.177.143.185;port=5432;dbname=db_urkupina?sslmode=disable',
                 //'dsn' => 'pgsql:host=181.177.143.185;port=5432;dbname=urkupinia?sslmode=disable',
                 //'dsn' => 'pgsql:host=localhost;dbname=urkupina',                
-                'username' => 'postgres',
+                'username' =>  'gamq',  //'postgres',
                 'password' => 'gamq.22',
                 //'port'     => '5432'
                 //'jdbcDir'  => 'D:\laragon\www\sistemaurkupina\vendor\chrmorandi\yii2-jasper\src\JasperStarter\jdbc\', 
