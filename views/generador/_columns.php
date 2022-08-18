@@ -13,13 +13,17 @@ return [
         'attribute'=>'detalle_id',
         'filter' =>false
     ],
-     
-    
     [
+        'class'=>'\kartik\grid\DataColumn',
+        'attribute'=>'generadores.desc_responsable',     
+        'filter' =>false
+    ],
+    
+    /* [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'desc_id',
         'filter' =>false
-    ],
+    ], */
     
     [
         'class'=>'\kartik\grid\DataColumn',

@@ -92,6 +92,10 @@ class Descargos extends \yii\db\ActiveRecord
     {
         return $this->hasMany(DetalleDescargos::className(), ['desc_id' => 'desc_id']);
     }
+    public function getGeneradores()
+    {
+        return $this->hasMany(GeneradorDescargos::className(), ['desc_id' => 'desc_id']);
+    }
 
     public function listaResponsables() {
        /* $sql = 'SELECT d.*, rz.razon_nombre

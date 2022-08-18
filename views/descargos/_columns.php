@@ -16,7 +16,8 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         //'attribute'=>'rz.razon_nombre',
-        'attribute'=>'razon_id',
+        //'attribute'=>'razon_id',
+        'attribute'=>'razon.razon_nombre',
     ],
     
     [
@@ -34,6 +35,7 @@ return [
     [
          'class'=>'\kartik\grid\DataColumn',
          'attribute'=>'desc_anulado',
+         'width' => '50px'
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
