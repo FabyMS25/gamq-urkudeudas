@@ -76,11 +76,13 @@ return [
         },
         
         'buttons' => [
-            'cobro' => function ($url, $model, $key) {                            
-                return Html::a('<i class="glyphicon glyphicon-usd"></i>', ['cobrar', 'id'=>$model->detalle_id],
+            'cobro' => function ($url, $model, $key) {    
+                if ($model->nro_comprobante == null) {                        
+                    return Html::a('<i class="glyphicon glyphicon-usd"></i>', ['cobrar', 'id'=>$model->detalle_id],
                         ['title'=> 'Cobrar', 
                               'class'=>'btn btn-primary btn-xs',
-                            'role'=>'modal-remote', 'data-toggle'=>'tooltip',]);                   
+                            'role'=>'modal-remote', 'data-toggle'=>'tooltip',]);  
+                }                  
             },
             'print' => function ($url, $model, $key){                            
                 return Html::a('<i class="glyphicon glyphicon-print"></i>', ['recibo-liquidacion', 'id'=>$model->detalle_id],
