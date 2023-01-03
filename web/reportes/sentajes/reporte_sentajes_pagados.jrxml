@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_descargo_sentajes" language="groovy" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1a5f224c-62d6-4b08-9fea-ee5f013fa76d">
-	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<parameter name="logo_path" class="java.lang.String"/>
@@ -15,6 +15,7 @@
         DD.detalle_precio,
         DD.detalle_cantidad,
         DD.detalle_importe_bs,
+        (DD.detalle_importe_bs - (COALESCE(DD.detalle_cantidad_anulado, 0) * DD.detalle_precio)) AS total_importe_bs,
 		(DE.desc_impreso - DD.detalle_cantidad) AS cantidad_saldo,
 		((DE.desc_impreso - DD.detalle_cantidad) * DD.detalle_precio) AS total_importe_saldo,
         DE.desc_fecha_hora,
@@ -28,6 +29,7 @@
         AND detalle_estado_pago = 1
 		AND nro_comprobante IS NOT NULL
         AND (desc_anulado IS NULL OR desc_anulado = 0)
+        AND RS.razon_nombre != 'SENTAJE DE MINGITORIOS'
         ORDER BY DD.nro_comprobante, RS.razon_nombre ASC]]>
 	</queryString>
 	<field name="desc_nro_comprobante" class="java.lang.Integer"/>
@@ -44,6 +46,7 @@
 	<field name="cantidad_saldo" class="java.lang.String"/>
 	<field name="total_importe_saldo" class="java.lang.String"/>
 	<field name="nro_comprobante" class="java.lang.String"/>
+	<field name="total_importe_bs" class="java.math.BigDecimal"/>
 	<variable name="importe_total_sentaje" class="java.math.BigDecimal" calculation="Sum">
 		<variableExpression><![CDATA[$F{detalle_importe_bs}]]></variableExpression>
 	</variable>
@@ -99,7 +102,7 @@
 		<band height="74" splitType="Stretch">
 			<image onErrorType="Blank">
 				<reportElement x="4" y="2" width="115" height="70" uuid="2b21e602-3b12-42fa-87fe-5c6367fe11c7"/>
-				<imageExpression><![CDATA[$P{logo_path} + "/logo/logo_gamq.jpg"]]></imageExpression>
+				<imageExpression><![CDATA[$P{logo_path} + "/proyecto-urkupina/web/logo/logo_gamq.jpg"]]></imageExpression>
 			</image>
 			<staticText>
 				<reportElement x="150" y="1" width="480" height="15" uuid="c66b1656-c27b-460e-93d4-78e494aee73f"/>

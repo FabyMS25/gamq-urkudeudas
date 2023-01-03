@@ -34,7 +34,7 @@ body {
 .p3 { box-shadow: 5px 10px 18px #274E13; }
 .padding {
   padding: 5px 5px 0 5px;
-  border-radius: 10%;
+  border-radius: 5%;
   box-shadow: 5px 10px 18px gray;
 }
 .amarillo { background: #FFFF00;  }
@@ -72,90 +72,17 @@ body {
             <div class="panel-heading"> <strong>Graderias y Sillas</strong> </div>
             <div class="panel-body">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-sm-12 col-md-12">
                     <?php  foreach ($graderias as $row ): ?>
-                    <div class="amarillo padding">
-                        <strong><?=$row['zona'] ?> </strong><br>
+                    <div class="">
+                        <strong><?=$row['zona_nombre'] ?> </strong><br>
                         <p>
-                            Totales: <?=$row['totales'] ?> <br>
-                            Reservados: <?=$row['reservados'] ?> <br>
-                            Vendidos: <?=$row['vendidos'] ?>  <br>
-                            Disponibles: <?=$row['disponibles'] ?>
-                    </p>
+                            Existente (mts.): <?=$row['existente'] ?> <br>
+                            Sobrante (mts.): <?=$row['sobrante'] ?> <br>
+                            Vendido (mts.): <?=$row['vendido'] ?>  <br>
+                        </p>
                     </div>
                     <?php endforeach ?>
-                    </div>
-
-                    <div class="col-md-4">
-                    <?php  foreach ($graderiasz2 as $row ): ?>
-                    <div class="verde padding">
-                        <strong><?=$row['zona'] ?> </strong><br>
-                        <p>
-                            Totales: <?=$row['totales'] ?> <br>
-                            Reservados: <?=$row['reservados'] ?> <br>
-                            Vendidos: <?=$row['vendidos'] ?>  <br>
-                            Disponibles: <?=$row['disponibles'] ?>
-                    </p>
-                    </div>
-                    <?php endforeach ?>
-                    </div>
-
-                    <div class="col-md-4">
-                    <?php  foreach ($graderiasz3 as $row ): ?>
-                    <div class="rojo padding">
-                        <strong><?=$row['zona'] ?> </strong><br>
-                        <p>
-                            Totales: <?=$row['totales'] ?> <br>
-                            Reservados: <?=$row['reservados'] ?> <br>
-                            Vendidos: <?=$row['vendidos'] ?>  <br>
-                            Disponibles: <?=$row['disponibles'] ?>
-                    </p>
-                    </div>
-                    <?php endforeach ?>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4">
-                    <?php  foreach ($graderiasz4 as $row ): ?>
-                        <div class="azul padding">
-                            <strong><?=$row['zona'] ?> </strong><br>
-                            <p>
-                                Totales: <?=$row['totales'] ?> <br>
-                                Reservados: <?=$row['reservados'] ?> <br>
-                                Vendidos: <?=$row['vendidos'] ?>  <br>
-                                Disponibles: <?=$row['disponibles'] ?>
-                        </p>
-                        </div>
-                        <?php endforeach ?>
-                    </div>
-
-                    <div class="col-md-4">
-                    <?php  foreach ($graderiasz5 as $row ): ?>
-                        <div class="naranja padding">
-                            <strong><?=$row['zona'] ?> </strong><br>
-                            <p>
-                                Totales: <?=$row['totales'] ?> <br>
-                                Reservados: <?=$row['reservados'] ?> <br>
-                                Vendidos: <?=$row['vendidos'] ?>  <br>
-                                Disponibles: <?=$row['disponibles'] ?>
-                        </p>
-                        </div>
-                        <?php endforeach ?>
-                    </div>
-
-                    <div class="col-md-4">
-                    <?php  foreach ($graderiasz6 as $row ): ?>
-                        <div class="celeste padding">
-                            <strong><?=$row['zona'] ?> </strong><br>
-                            <p>
-                                Totales: <?=$row['totales'] ?> <br>
-                                Reservados: <?=$row['reservados'] ?> <br>
-                                Vendidos: <?=$row['vendidos'] ?>  <br>
-                                Disponibles: <?=$row['disponibles'] ?>
-                        </p>
-                        </div>
-                        <?php endforeach ?>
                     </div>
                 </div>
                                         

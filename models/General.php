@@ -31,11 +31,11 @@ class General extends \yii\db\ActiveRecord{
             $diff = $date1->diff($date2);           
             $dias = $diff->days;            
             /*$hora = $diff->h;       $minuto = $diff->i;*/     
-            if($dias == 0):  // vigencia en el dia
-                $resultado = true;
-            endif;
+            /* if($dias == 0):  // vigencia en el dia
+                $resultado = true;  //para que salga el icono print
+            endif; */
         endif;
-        
+        $resultado = true;
         return $resultado;                     
     } 
 

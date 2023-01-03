@@ -1,12 +1,5 @@
 <?php
 ?>
-<style>
-    .center {
-        display: flex;
-        justify-content: center;
-    }
-</style>
-
 
 <div class="text-center">
     <object data="<?= $url ?>" type="application/pdf" name="sentajes" height="600" width="100%;">

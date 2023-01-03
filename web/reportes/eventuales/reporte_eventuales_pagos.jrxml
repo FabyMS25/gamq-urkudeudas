@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_eventuales_pagos" printOrder="Horizontal" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="087fe845-347f-48b5-b66e-69b79672acd4">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -14,41 +13,44 @@
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="74"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="926"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="GAMQ Urkupina"/>
-	<parameter name="del" class="java.util.Date"/>
-	<parameter name="al" class="java.util.Date"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="logo_path" class="java.lang.String"/>
 	<queryString language="plsql">
 		<![CDATA[-- solo pagados, sin anulados
-
-SELECT 
-  pe.eventual_fecha_hora_pago, 
-  pe.eventual_nro_comprobante, 
-  pe.eventual_nro_liquidacion, 
+SELECT
+  pe.eventual_fecha_hora_pago,
+  pe.eventual_nro_comprobante,
+  pe.eventual_nro_liquidacion,
   con.contri_nombres|| ' ' || con.contri_paterno || ' ' || con.contri_materno AS contribuyente,
-  con.contri_ci, 
-  ae.activi_descripcion, 
-  se.sitios_codigo, 
-  se.sitios_descripcion, 
-  se.sitios_numero_sitio, 
+  con.contri_ci,
+  ae.activi_descripcion,
+  se.sitios_codigo,
+  se.sitios_descripcion,
+  se.sitios_numero_sitio,
   liq.usua_ci AS ci_liquidador,
-  liq.usua_nombres || ' ' || liq.usua_apellidos AS liquidador, 
-  caj.usua_ci AS ci_cajero, 
+  liq.usua_nombres || ' ' || liq.usua_apellidos AS liquidador,
+  caj.usua_ci AS ci_cajero,
   caj.usua_nombres || ' ' || caj.usua_apellidos AS cajero,
   pe.eventual_cantidad_dia,
-  pe.eventual_importe_patente, 
-  pe.eventual_costo_comprobante, 
-  pe.eventual_costo_sentaje, 
-  pe.eventual_costo_aseo, 
+  pe.eventual_importe_patente,
+  pe.eventual_costo_comprobante,
+  pe.eventual_costo_sentaje,
+  pe.eventual_costo_aseo,
   pe.eventual_importe_total
-FROM 
-  public.pagos_eventuales pe 
+FROM
+  public.pagos_eventuales pe
   INNER JOIN public.usuario caj ON caj.usua_id = pe.usua_id
   INNER JOIN public.contribuyentes con ON pe.contri_id = con.contri_id
-  INNER JOIN public.sitios_eventuales se ON se.sitios_id = pe.sitios_id
+  LEFT JOIN public.sitios_eventuales se ON se.sitios_id = pe.sitios_id
   INNER JOIN public.actividades_economicas ae ON pe.activi_id = ae.activi_id
   INNER JOIN public.usuario liq ON liq.usua_id = pe.eventual_user_id_preliquidacion
-WHERE 
-   eventual_estado = 1 AND
-   pe.eventual_fecha_hora_pago::DATE BETWEEN $P{del} AND $P{al} 
+WHERE pe.eventual_nro_comprobante IS NOT NULL
+    AND se.sitios_es_alasita = false
+    AND pe.eventual_estado = 1
+   --AND pe.eventual_fecha_hora_pago::DATE BETWEEN '2022/08/05 00:00' AND '2022/09/19 23:59'
+
   -- AND caj.usua_id = 29
   --AND se.sitios_codigo LIKE 'PUENTE-%'
   --AND pe.eventual_nro_comprobante = 24755
@@ -189,19 +191,19 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 			</band>
 		</groupHeader>
 		<groupFooter>
-			<band height="16">
+			<band height="17">
 				<textField pattern="#,#00.00#;(#,#00.00#-)">
-					<reportElement x="650" y="2" width="60" height="13" uuid="fd4856c1-f2f9-4ad9-91a8-6899ead476b0"/>
-					<textElement textAlignment="Right">
+					<reportElement x="616" y="3" width="59" height="13" uuid="fd4856c1-f2f9-4ad9-91a8-6899ead476b0"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
 						<font size="8" isBold="true"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$V{eventual_importe_total2}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement x="420" y="3" width="164" height="12" uuid="b94a0af5-8758-44d2-864d-e59dbf8bf986">
+					<reportElement x="395" y="4" width="164" height="12" uuid="b94a0af5-8758-44d2-864d-e59dbf8bf986">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
-					<textElement>
+					<textElement verticalAlignment="Middle">
 						<font size="9"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{cajero}]]></textFieldExpression>
@@ -210,7 +212,7 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 					<reportElement positionType="FixRelativeToBottom" x="1" y="1" width="750" height="1" uuid="e43b01c4-f581-492e-b6e2-22067cd9dea7"/>
 				</line>
 				<staticText>
-					<reportElement x="584" y="3" width="69" height="12" uuid="570e274b-21ba-433f-9109-a2220c035ebc"/>
+					<reportElement x="561" y="4" width="52" height="12" uuid="570e274b-21ba-433f-9109-a2220c035ebc"/>
 					<textElement textAlignment="Right" verticalAlignment="Middle">
 						<font size="8" isBold="true"/>
 					</textElement>
@@ -243,7 +245,7 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<textElement textAlignment="Center">
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[FESTIVIDAD DE LA VIRGEN DE URKUPIÑA]]></text>
+				<text><![CDATA[FESTIVIDAD DE LA VIRGEN DE URKUPIÑA -]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="120" y="16" width="480" height="15" uuid="415585a6-aeec-4d66-aec0-67c27849b5aa"/>
@@ -260,8 +262,19 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<textElement textAlignment="Center">
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[	REPORTE DE PAGOS]]></text>
+				<text><![CDATA[REPORTE DE PAGOS SITIOS EVENTUALES]]></text>
 			</staticText>
+			<image onErrorType="Blank">
+				<reportElement x="2" y="2" width="115" height="70" uuid="0e3eab4a-8b96-4172-bd71-c556f7840901"/>
+				<imageExpression><![CDATA[$P{logo_path} + "/proyecto-urkupina/web/logo/logo_gamq.jpg"]]></imageExpression>
+			</image>
+			<textField pattern="yyyy">
+				<reportElement x="469" y="1" width="100" height="14" uuid="dfb6ec49-1fbe-4dce-8b71-23874cb82393"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
 		</band>
 	</pageHeader>
 	<columnHeader>
@@ -329,7 +342,7 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<text><![CDATA[REPO. COMPR. BS.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="617" y="0" width="54" height="30" uuid="ed9bc842-447f-4b8a-a4ec-5fd8b8d83574"/>
+				<reportElement x="616" y="0" width="59" height="30" uuid="ed9bc842-447f-4b8a-a4ec-5fd8b8d83574"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
@@ -418,14 +431,15 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<textFieldExpression><![CDATA[$F{eventual_costo_comprobante}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="616" y="1" width="54" height="12" uuid="c7f2b625-32ea-40d6-9712-521acdf94620"/>
+				<reportElement x="616" y="1" width="59" height="12" uuid="c7f2b625-32ea-40d6-9712-521acdf94620"/>
 				<textElement textAlignment="Right">
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{eventual_importe_total}]]></textFieldExpression>
 			</textField>
-			<textField pattern="dd/MM/yyyy h:mm a">
+			<textField pattern="dd/MM/yyyy">
 				<reportElement x="685" y="1" width="67" height="12" uuid="51578c8a-785e-43b1-92ca-7bf71514e367"/>
+				<box rightPadding="5"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Dialog" size="8"/>
 				</textElement>
@@ -464,7 +478,7 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 		</band>
 	</pageFooter>
 	<summary>
-		<band height="43" splitType="Stretch">
+		<band height="21" splitType="Stretch">
 			<textField pattern="#,#00.00#;#,#00.00#-">
 				<reportElement x="414" y="0" width="46" height="20" uuid="9ad42f51-d031-4c07-9651-f4b94523f6a8">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
@@ -476,21 +490,21 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<textFieldExpression><![CDATA[$V{eventual_importe_patente1}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,#00.00#;#,#00.00#-">
-				<reportElement x="560" y="0" width="50" height="20" uuid="e5376320-a7a9-4d4d-8505-30f25a9acef1"/>
+				<reportElement x="564" y="0" width="49" height="20" uuid="e5376320-a7a9-4d4d-8505-30f25a9acef1"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{eventual_costo_comprobante1}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,#00.00#;#,#00.00#-">
-				<reportElement x="510" y="0" width="50" height="20" uuid="53c6481d-ec9a-4d0b-9f98-62e807bc7974"/>
+				<reportElement x="510" y="0" width="53" height="20" uuid="53c6481d-ec9a-4d0b-9f98-62e807bc7974"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{eventual_costo_aseo1}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,#00.00#;#,#00.00#-">
-				<reportElement x="460" y="0" width="50" height="20" uuid="7c8413b2-adc2-4b3f-8d02-13d419b6df8f">
+				<reportElement x="460" y="0" width="52" height="20" uuid="7c8413b2-adc2-4b3f-8d02-13d419b6df8f">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
@@ -499,7 +513,7 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<textFieldExpression><![CDATA[$V{eventual_costo_sentaje1}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,#00.00#;#,#00.00#-">
-				<reportElement x="608" y="1" width="62" height="20" uuid="16c78e1e-ac2e-4766-949e-be9a9c4b7b12">
+				<reportElement x="616" y="0" width="59" height="20" uuid="16c78e1e-ac2e-4766-949e-be9a9c4b7b12">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>

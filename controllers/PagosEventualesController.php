@@ -591,13 +591,14 @@ class PagosEventualesController extends Controller
         $titulo = "COMPROBANTE DE PAGO";
         $url = "";
         //$qrImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        $qrImagePath = "C:\laragon\www\proyecto-urkupina\web";
+        //$qrImagePath = "C:\laragon\www\proyecto-urkupina\web";
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             // jasper init
             $archivo = "comprobante_eventuales2";
-            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"', 'image_path' => '"'.$qrImagePath.'"'];
+            //$parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"', 'image_path' => '"'.$qrImagePath.'"'];
+            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"'];
             $url = $this->generarURLReportePdf('reportes', $archivo, $parametros);
             //end jasper
             return [
@@ -701,6 +702,62 @@ class PagosEventualesController extends Controller
             Yii::$app->user->logout(true);
             return $this->goHome();
         }
+    }
+
+    public function actionReporteEventualesPagados() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE SITIOS EVENTUALES PAGADOS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_eventuales_pagos";
+        $carpeta = "reportes/eventuales";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-eventuales-pagados', ['url' => $url]);
+    }
+
+    public function actionReporteEventualesNopagados() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE SITIOS EVENTUALES NO PAGADOS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_eventuales_sin_pagos";
+        $carpeta = "reportes/eventuales";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-eventuales-nopagados', ['url' => $url]);
+    }
+
+    public function actionReporteAlasitasPagados() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE ALASITAS PAGADOS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_alasitas_pagos";
+        $carpeta = "reportes/eventuales";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-alasitas-pagados', ['url' => $url]);
+    }
+
+    public function actionReporteAlasitasNopagados() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE ALASITAS NO PAGADOS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_alasitas_sin_pagos";
+        $carpeta = "reportes/eventuales";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-alasitas-nopagados', ['url' => $url]);
     }
 
     protected function generarURLReportePdf($carpeta, $file, $parametros = []) {

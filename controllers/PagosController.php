@@ -727,6 +727,35 @@ class PagosController extends Controller {
         }*/
         return $this->render('reporte-general', ['url' => $url]);
     }
+
+    public function actionResumenGeneral() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "RESUMEN GENERAL DE RECAUDACIONES - FECHA " . date("d/m/Y H:m");
+        $archivo = "resumen_general_importes";
+        $carpeta = "reportes/resumen";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('resumen-general', ['url' => $url]);
+    }
+
+    public function actionReportePreliquidacionNopagados() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE PRELIQUIDACIONES NO PAGADOS (GRADERIAS/SILLAS) - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_graderias_no_pagados";
+        $carpeta = "reportes/graderias_sillas";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-preliquidacion-nopagados', ['url' => $url]);
+    }
+
 /*
     public function actionReporteGeneralSentajes() {
         $this->verificarSesion();
@@ -915,8 +944,78 @@ class PagosController extends Controller {
         $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
-        return $this->render('reporte-preliquidacion-sentajes', ['url' => $url]);
+        return $this->render('reporte-sentajes-pagados', ['url' => $url]);
     }
+
+    public function actionReporteEfectividadGraderias() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE SUFICIENCIA DE GRADERIAS O SILLAS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_efectividad_graderias";
+        $carpeta = "reportes/suficiencia";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-efectividad-graderias', ['url' => $url]);
+    }
+
+    public function actionReporteEfectividadEventuales() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE SUFICIENCIA DE GRADERIAS O SILLAS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_efectividad_eventuales";
+        $carpeta = "reportes/suficiencia";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-efectividad-eventuales', ['url' => $url]);
+    }
+
+    public function actionReporteEfectividadAlasitas() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE SUFICIENCIA DE GRADERIAS O SILLAS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_efectividad_alasitas";
+        $carpeta = "reportes/suficiencia";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-efectividad-alasitas', ['url' => $url]);
+    }
+
+    public function actionReporteEfectividadSentajes() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE SUFICIENCIA DE GRADERIAS O SILLAS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_efectividad_sentajes";
+        $carpeta = "reportes/suficiencia";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-efectividad-sentajes', ['url' => $url]);
+    }
+
+    public function actionReporteMingitoriosPagados() {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE DE MINGITIOS PAGADOS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_mingitorios_pagados";
+        $carpeta = "reportes/sentajes";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+
+        return $this->render('reporte-mingitorios-pagados', ['url' => $url]);
+    }    
 
     protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
         $archivo = $file;

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_descargo_sentajes" language="groovy" pageWidth="612" pageHeight="792" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1a5f224c-62d6-4b08-9fea-ee5f013fa76d">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="logo_path" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT RE.concepto,SUM(RE.total_importe) AS importe_total
+        --RE.total_importe
+        FROM
+        (SELECT 'Graderías y Sillas: ' AS concepto, SUM(pago_importe_total) AS total_importe
+        FROM pagos PG
+        INNER JOIN graderias_sillas GS ON GS.grad_id = PG.grad_id
+        WHERE PG.pago_cobrado = 1 AND PG.pago_nro_comprobante IS NOT NULL AND PG.pago_anulado = 0
+        UNION ALL
+        SELECT
+            CASE
+                WHEN SE.sitios_es_alasita THEN 'Alasitas: '
+            ELSE
+                'Sitios eventuales: '
+            END AS concepto,
+        SUM(eventual_importe_total) AS total_importe
+        FROM pagos_eventuales PE
+        INNER JOIN sitios_eventuales SE ON SE.sitios_id = PE.sitios_id
+        WHERE PE.eventual_nro_comprobante IS NOT NULL AND PE.eventual_estado = 1
+        AND PE.sitios_id != 9712
+        GROUP BY SE.sitios_es_alasita
+        UNION ALL
+		SELECT INITCAP(CA.categ_codigo) AS concepto,SUM(PE.eventual_importe_total) AS total_importe
+		FROM pagos_eventuales PE
+		INNER JOIN actividades_economicas AE ON AE.activi_id = PE.activi_id
+		INNER JOIN categorias CA ON CA.categ_id = AE.categ_id
+		WHERE sitios_id = 9712 AND eventual_nro_comprobante IS NOT NULL
+		GROUP BY CA.categ_codigo
+        UNION ALL
+        SELECT
+		 	CASE
+                WHEN RS.razon_nombre = 'SENTAJE DE MINGITORIOS' THEN 'Sentajes (Mingitorios): '
+            ELSE
+                'Sentajes (Puestos de venta, Recojo de residuos - EMAQ): '
+            END AS concepto,
+        SUM(DD.detalle_importe_bs) AS total_importe
+        FROM detalle_descargos DD
+        INNER JOIN descargos DE ON DE.desc_id = DD.desc_id
+		INNER JOIN razon_sociales RS ON RS.razon_id = DE.razon_id
+        WHERE DD.detalle_estado_pago = 1 AND DD.nro_comprobante IS NOT NULL
+        AND DD.detalle_estado = 1
+		GROUP BY RS.razon_nombre) AS RE
+        GROUP BY RE.concepto
+        ORDER BY importe_total ASC]]>
+	</queryString>
+	<field name="concepto" class="java.lang.String"/>
+	<field name="importe_total" class="java.math.BigDecimal"/>
+	<variable name="TOTAL_RESUMEN" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{importe_total}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="81" splitType="Stretch">
+			<image onErrorType="Blank">
+				<reportElement x="15" y="2" width="115" height="70" uuid="2b21e602-3b12-42fa-87fe-5c6367fe11c7"/>
+				<imageExpression><![CDATA[$P{logo_path} + "/logo/logo_gamq.jpg"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="142" y="1" width="350" height="15" uuid="c66b1656-c27b-460e-93d4-78e494aee73f"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[FESTIVIDAD DE LA VIRGEN DE URKUPIÑA - ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="142" y="30" width="350" height="15" uuid="cbfdaad7-223d-43bd-938b-3ab3825630b5"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[DIRECCION DE RECAUDACIONES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="142" y="56" width="350" height="15" uuid="e7c4df1e-f122-420a-9fbd-851f86f355d2"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE RESUMEN GENERAL DE RECAUDACIONES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="142" y="16" width="350" height="15" uuid="1592c62e-cef1-4b79-a974-355995e2bcc1"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[GOBIERNO AUTONOMO MUNICIPAL DE QUILLACOLLO]]></text>
+			</staticText>
+			<textField pattern="yyyy">
+				<reportElement x="424" y="1" width="100" height="14" uuid="5eb17ac1-9434-4d0d-bbe2-8e49ae3ab8f5"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<line>
+				<reportElement x="1" y="29" width="570" height="1" uuid="fb233adb-a874-4fb6-91c3-d3fe16c10f13"/>
+			</line>
+			<staticText>
+				<reportElement x="4" y="0" width="26" height="30" uuid="b9749c35-20b0-4702-90e4-da05d8dcbeac">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nº]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="39" y="0" width="250" height="30" uuid="8de8eb51-0125-411d-91ad-8d27f093e48e"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DETALLE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="446" y="0" width="100" height="30" uuid="a457cc22-bd12-48bd-9421-5ee6ea9a2d1c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[IMPORTE TOTAL BS.]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="22" splitType="Stretch">
+			<line>
+				<reportElement x="2" y="21" width="570" height="1" uuid="8d9b9ade-d4f4-4fb4-8830-55e7ac58f6ba"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="4" y="1" width="26" height="20" uuid="2757b698-6319-4abf-95df-a4cfc1fe44ab"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="39" y="1" width="405" height="20" uuid="c1bdcad3-531a-4f96-ad2a-181a846855b0"/>
+				<textFieldExpression><![CDATA["Recaudación por concepto de " + $F{concepto}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="446" y="-1" width="100" height="20" uuid="d567bcd1-fe95-4fd0-a52e-aec451ae4168"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{importe_total}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="470" y="3" width="100" height="15" uuid="c1325845-8e3a-4428-9ae5-e164661aa9cb">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" de " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="370" y="3" width="100" height="15" uuid="4c9ee992-6c2c-4075-93ae-bf7711814c90"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="4" y="4" width="100" height="15" uuid="46688c33-d4c9-4106-8caf-4db00bfe5844"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Fecha y hora impresion:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy h:mm a">
+				<reportElement x="102" y="4" width="86" height="15" uuid="178b8c3e-b602-4016-a383-b105cb4eea5c"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="349" splitType="Stretch">
+			<staticText>
+				<reportElement x="274" y="0" width="170" height="20" uuid="c8fc7a21-52a1-4167-946e-bae7b318121c"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL IMPORTE GENERAL BS.]]></text>
+			</staticText>
+			<textField pattern="#,##0.00">
+				<reportElement x="446" y="0" width="100" height="20" uuid="557764c4-a906-47b1-b670-f17bcac0cab8"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{TOTAL_RESUMEN}]]></textFieldExpression>
+			</textField>
+			<pieChart>
+				<chart>
+					<reportElement x="47" y="108" width="477" height="241" uuid="ff0f2e83-c390-4854-b1ca-5e3492a5705b"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<pieDataset>
+					<keyExpression><![CDATA[$F{concepto}]]></keyExpression>
+					<valueExpression><![CDATA[$F{importe_total}]]></valueExpression>
+					<labelExpression><![CDATA[$F{importe_total} + " Bs."]]></labelExpression>
+					<otherLabelExpression><![CDATA[(($F{importe_total}/$V{TOTAL_RESUMEN})*100) + " %"]]></otherLabelExpression>
+				</pieDataset>
+				<piePlot>
+					<plot/>
+					<itemLabel/>
+				</piePlot>
+			</pieChart>
+			<staticText>
+				<reportElement x="262" y="69" width="67" height="15" uuid="c967760a-2c0c-4e8c-82e8-aea031506401"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Grafico 1: ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="125" y="84" width="345" height="20" uuid="0608ce44-8d01-46a1-b0ac-155dfdeda2ba"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Distribución de recaudaciones por concepto]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

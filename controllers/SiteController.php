@@ -184,7 +184,19 @@ class SiteController extends Controller
         
         $modelGestion = (new \app\models\Gestiones())->gestionVigente();
         $gest_id = $modelGestion->gest_id;
-        $sql = "SELECT * FROM totales_graderillas_sillas(:id, :zona_id)";
+        $sql = "SELECT ZN.zona_nombre, 
+                SUM(GS.grad_resto) AS existente,
+                SUM(GS.grad_longitud) AS sobrante, 
+                SUM(GS.grad_resto - GS.grad_longitud) AS vendido
+                FROM graderias_sillas GS
+                INNER JOIN zonas ZN ON ZN.zona_id = GS.zona_id
+                WHERE GS.grad_estado=1
+                GROUP BY ZN.zona_nombre
+                ORDER BY ZN.zona_nombre";
+        $command = Yii::$app->db->createCommand($sql);
+        $graderias = $command->queryAll();
+
+        /*$sql = "SELECT * FROM totales_graderillas_sillas(:id, :zona_id)";
         $command = Yii::$app->db->createCommand($sql)
                                 ->bindValue(':id', $gest_id)
                                 ->bindValue(':zona_id', 1);
@@ -218,7 +230,7 @@ class SiteController extends Controller
         $command = Yii::$app->db->createCommand($sqlz6)
                                 ->bindValue(':id', $gest_id)
                                 ->bindValue(':zona_id', 6);
-        $graderiasz6 = $command->queryAll();
+        $graderiasz6 = $command->queryAll();*/
     
         $sql1 = "SELECT * FROM view_totales_alasitas";
         $command1 = Yii::$app->db->createCommand($sql1);
@@ -227,9 +239,11 @@ class SiteController extends Controller
         $command2 = Yii::$app->db->createCommand($sql2);
         $eventuales = $command2->queryAll();
         
-        return $this->render('index', ['graderias'=> $graderias, 'graderiasz2'=> $graderiasz2,
+        /*return $this->render('index', ['graderias'=> $graderias, 'graderiasz2'=> $graderiasz2,
         'graderiasz3'=> $graderiasz3, 'graderiasz4'=> $graderiasz4, 'graderiasz5'=> $graderiasz5,
-        'graderiasz6'=> $graderiasz6, 'alasitas'=> $alasitas, 'eventuales'=> $eventuales ] );
+        'graderiasz6'=> $graderiasz6, 'alasitas'=> $alasitas, 'eventuales'=> $eventuales ] );*/
+
+        return $this->render('index', ['graderias'=> $graderias, 'alasitas'=> $alasitas, 'eventuales'=> $eventuales ] );
     }
 
     /**

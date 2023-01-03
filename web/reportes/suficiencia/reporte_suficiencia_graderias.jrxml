@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporte_general_graderias" printOrder="Horizontal" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="087fe845-347f-48b5-b66e-69b79672acd4">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="navi"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="238"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="751"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="logo_path" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT VG.tip_arm_id,VG.zona_nombre,VG.grad_tipo_armado, VG.grad_codigo,
+            VG.grad_resto, SUM(pago_longitud_modificada) AS metros_vendidos,
+            VG.grad_longitud, VG.tip_arm_patente, VG.tip_arm_tasa_aseo,VG.pago_reposicion,
+            ((SUM(pago_longitud_modificada)*VG.tip_arm_patente) + (SUM(pago_longitud_modificada)*VG.tip_arm_tasa_aseo) + SUM(pago_reposicion)) AS calculo_importe
+            --SUM(pago_importe_total) AS importe_total
+            FROM view_graderias_sillas VG
+            WHERE  pago_estado = 1 AND (pago_anulado = 0  OR pago_anulado = 1)
+            AND pago_nro_comprobante IS NOT NULL
+            --AND (pago_fecha_hora_cobro BETWEEN '2022/08/05 00:00' AND '2022/09/30 23:59')
+            GROUP BY VG.tip_arm_id, VG.zona_nombre,VG.grad_tipo_armado, VG.grad_codigo,
+            VG.grad_resto,VG.grad_longitud, VG.tip_arm_patente, VG.tip_arm_tasa_aseo, VG.pago_reposicion
+            ORDER BY VG.zona_nombre, VG.grad_tipo_armado, VG.grad_codigo ASC]]>
+	</queryString>
+	<field name="tip_arm_id" class="java.lang.Integer"/>
+	<field name="zona_nombre" class="java.lang.String"/>
+	<field name="grad_tipo_armado" class="java.lang.String"/>
+	<field name="grad_codigo" class="java.lang.String"/>
+	<field name="grad_resto" class="java.math.BigDecimal"/>
+	<field name="metros_vendidos" class="java.math.BigDecimal"/>
+	<field name="grad_longitud" class="java.math.BigDecimal"/>
+	<field name="tip_arm_patente" class="java.math.BigDecimal"/>
+	<field name="tip_arm_tasa_aseo" class="java.math.BigDecimal"/>
+	<field name="calculo_importe" class="java.math.BigDecimal"/>
+	<field name="pago_reposicion" class="java.math.BigDecimal"/>
+	<variable name="total_importe_calculado" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{calculo_importe}]]></variableExpression>
+	</variable>
+	<group name="Grupo Zonas">
+		<groupExpression><![CDATA[$F{zona_nombre}]]></groupExpression>
+		<groupHeader>
+			<band height="21">
+				<textField>
+					<reportElement x="7" y="4" width="100" height="16" uuid="3b11531e-6ac9-4f0a-94b2-5084938b9ed4"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{zona_nombre}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="83" splitType="Stretch">
+			<staticText>
+				<reportElement x="120" y="1" width="480" height="15" uuid="243e1340-28c9-4234-a72a-cf01cdd2b7fa"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[FESTIVIDAD DE LA VIRGEN DE URKUPIÑA - ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="16" width="480" height="15" uuid="415585a6-aeec-4d66-aec0-67c27849b5aa"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[GOBIERNO AUTONOMO MUNICIPAL DE QUILLACOLLO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="31" width="480" height="15" uuid="b0004be6-210b-4cfc-83e4-40bd6a5679a9"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[DIRECCION DE RECAUDACIONES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="46" width="480" height="15" uuid="f6b98dbb-86bc-418e-a424-ba146fe17086"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[	REPORTE DE SUFICIENCIA DE COBROS EN GRADERIAS O SILLAS]]></text>
+			</staticText>
+			<image onErrorType="Blank">
+				<reportElement x="3" y="4" width="115" height="70" uuid="f2251c97-399b-4cf4-9998-39389106b1b4"/>
+				<imageExpression><![CDATA[$P{logo_path} + "/proyecto-urkupina/web/logo/logo_gamq.jpg"]]></imageExpression>
+			</image>
+			<textField pattern="yyyy">
+				<reportElement x="468" y="1" width="100" height="14" uuid="a4c13aab-5e16-4856-9a54-d023a61ae1ad"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="29" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="20" height="26" uuid="12dd8295-dfbd-4991-9d0e-f0b798203233">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nº]]></text>
+			</staticText>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="28" width="750" height="1" uuid="08ab89ae-a9c2-4017-84b8-d3e9e8a75f4a"/>
+			</line>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="90" y="0" width="106" height="26" uuid="9e85aca2-e79c-4477-b389-d13f7a1c7d2a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TIPO ARMADO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="22" y="0" width="68" height="26" uuid="9e654f36-b026-48d1-91d9-9ad93bbb3155"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CODIGO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="196" y="0" width="77" height="26" uuid="6f1d8d38-e9b4-4baa-93a4-e33e56e83893"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL METROS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="275" y="0" width="67" height="26" uuid="9322a2bb-e0f8-4673-9cf0-aa0e5eeade3b"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[METROS VENDIDOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="345" y="0" width="71" height="26" uuid="99c7b063-64c2-4e7a-87a1-777e019058e4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[METROS SOBRANTES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="419" y="0" width="73" height="26" uuid="0a66c835-1905-40a0-bbfa-68c69ecb845c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PATENTE BS.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="494" y="0" width="74" height="26" uuid="a929d9c1-2994-4362-8c42-925eaf35fd0c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TASA ASEO BS.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="569" y="0" width="70" height="26" uuid="3bfd7c6f-9405-42bb-97c9-76ef52cf0af9"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPOSICION BS.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="643" y="0" width="100" height="26" uuid="f153ed71-ec2d-4caa-b841-357c25615ac6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[IMPORTE CALCULADO]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="20" height="15" uuid="7a94d227-5c8a-4687-8434-3cf2942d2216">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="16" width="750" height="1" uuid="e43b01c4-f581-492e-b6e2-22067cd9dea7"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="90" y="0" width="106" height="15" uuid="5d7ce4c4-497c-419a-abff-7a29f20e1a06"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grad_tipo_armado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="22" y="0" width="68" height="15" uuid="fa2f11a0-4410-46d4-87bc-a50631759e55"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grad_codigo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="196" y="0" width="77" height="15" uuid="8b77d096-f63e-4627-9c0d-a325391a36ba"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grad_resto}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="275" y="0" width="67" height="15" uuid="cbb48b8b-fc37-403c-942f-3005ca9ea891"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{metros_vendidos}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="345" y="0" width="71" height="15" uuid="8bd63128-ee79-4aa8-9605-0f439b444004"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grad_longitud}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="418" y="0" width="74" height="15" uuid="bf7b9483-a3f3-4760-9550-7a1e3e3624b2"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tip_arm_patente}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="494" y="0" width="74" height="15" uuid="fb967942-c47d-42cd-b246-40d75136e9c3"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tip_arm_tasa_aseo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="569" y="0" width="70" height="15" uuid="407b396b-7899-4da3-936b-1e24e5136000"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pago_reposicion}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="643" y="0" width="100" height="15" uuid="8ceed38d-f519-4cce-a6e9-ed3ebacf0e23"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{calculo_importe}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="550" y="5" width="100" height="15" uuid="394b8f67-a008-4e9d-80f9-b2b71cdb3f81"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="650" y="5" width="100" height="15" uuid="a3a23c9c-4871-4dd4-8812-3fbc0a781744">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="2" y="5" width="100" height="15" uuid="7afa4076-ec57-48e4-9579-7a33813fd685"/>
+				<textElement verticalAlignment="Bottom">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Fecha y hora impresion:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy h:mm a">
+				<reportElement x="101" y="5" width="88" height="15" uuid="6dd687ba-51cc-4265-8bd0-8976d98a88ec"/>
+				<textElement verticalAlignment="Bottom">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="482" y="1" width="161" height="16" uuid="d8b39609-bb20-4c0a-8f01-b0859d4a3875">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL IMPORTE CALCULADO BS.:]]></text>
+			</staticText>
+			<textField pattern="#,##0.00">
+				<reportElement x="643" y="1" width="100" height="16" uuid="7c7f3ffa-670b-4909-aa2b-c51a1d03ccf5"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_importe_calculado}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>
