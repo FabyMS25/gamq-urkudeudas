@@ -140,11 +140,11 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                 'options' => ['class'=>'drp-container mb-2'],
                 
             ])->widget(DateRangePicker::classname(), [                             
-                //'useWithAddon'=>true,
+                'useWithAddon'=>true,
+                'value'=> '2023-08-14 a 2023-08-16',
                 'convertFormat' => true, 
                 'readonly' => true, 
                 //'disabled' => true, 
-                'value'=> '2022-08-14 a 2022-08-16',
                 'pluginOptions' => [
                         'locale' => [
                         'format' => 'Y-m-d',

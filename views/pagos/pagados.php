@@ -42,7 +42,7 @@ CrudAsset::register($this);
             'condensed' => true,
             'responsive' => true,          
             'panel' => [
-                'type' => 'primary', 
+                'type' => 'pestadorimary', 
                 'heading' => '<i class="glyphicon glyphicon-list"></i> '.$this->title,
                 'before'=>'',
                 'after'=>                   

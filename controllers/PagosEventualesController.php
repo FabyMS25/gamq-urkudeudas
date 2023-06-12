@@ -43,7 +43,7 @@ class PagosEventualesController extends Controller
         
         $searchModel = new SearchPagosEventuales();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-         $dataProvider->query->andWhere(['IS ', 'eventual_fecha_hora_pago',  NULL]);
+        $dataProvider->query->andWhere(['IS ', 'eventual_fecha_hora_pago',  NULL]);
         $dataProvider->query->andFilterWhere(['eventual_estado'=>1]);
        
 
@@ -167,7 +167,7 @@ class PagosEventualesController extends Controller
             }else if($model->load($request->post()) && $model->validate()){
                 $model->eventual_fecha_hora_pago = date('Y-m-d H:m:s');
                 $model->usua_id = Yii::$app->user->id;
-
+                $model->estado=2;
                 $dir=$model->eventual_nro_comprobante;
                 //$codigos= (new QrCode())-> Generar($dir,$model->pago_nro_comprobante);
                 $llamada=Yii::$app->generadorQR->TEXT($siteUrl);
