@@ -35,7 +35,7 @@ class PagosEventualesController extends Controller
 
     /**
      * Lists all PagosEventuales models.
-     * @return mixed
+     *  @return mixed
      */
     public function actionIndex()
     {   
@@ -167,7 +167,7 @@ class PagosEventualesController extends Controller
             }else if($model->load($request->post()) && $model->validate()){
                 $model->eventual_fecha_hora_pago = date('Y-m-d H:m:s');
                 $model->usua_id = Yii::$app->user->id;
-                $model->estado=2;
+                //$model->estado=2;
                 $dir=$model->eventual_nro_comprobante;
                 //$codigos= (new QrCode())-> Generar($dir,$model->pago_nro_comprobante);
                 $llamada=Yii::$app->generadorQR->TEXT($siteUrl);
@@ -240,7 +240,7 @@ class PagosEventualesController extends Controller
             }else if($model->load($request->post()) && $model->validate()){
                
                 $porciones = explode(" a ", $model->rango_fechas);
-                $model->eventual_fecha_inicio=$porciones[0];
+                $model->eventual_fecha_inicio=$porciones[0];   //aqui partimos la fecha
                 $model->eventual_fecha_limite=$porciones[1];
                 if($model->save()):
                     return [
@@ -312,7 +312,7 @@ class PagosEventualesController extends Controller
                 ];         
             }else if($model->load($request->post()) && $model->validate()){               
                 $porciones = explode(" a ", $model->rango_fechas);
-                $model->eventual_fecha_inicio=$porciones[0];
+                $model->eventual_fecha_inicio=$porciones[0];//aqui partimos las fechas
                 $model->eventual_fecha_limite=$porciones[1];
                 if($model->save()):
                     return [
@@ -510,6 +510,7 @@ class PagosEventualesController extends Controller
        
         $request = Yii::$app->request;
         $model = $this->findModel($id);
+        $model->eventual_anulado= 1;
         $model->eventual_estado = 0;
         $resultado = $model->save(false);
         $mensaje = $resultado? "<span class='text-success'>Se anulo la liquidacion con exito.</span>": "<span class='text-danger'>Error no se pudo anular la liquidacion.</span>";

@@ -152,7 +152,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                     ]
                     ],
                 'options' => [  'class'=>'form-control',
-                        // 'onchange' => 'calcDia();'
+                                'onchange' => 'calcDia();'
                  ]   
                 
               ]         

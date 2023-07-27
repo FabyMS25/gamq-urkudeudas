@@ -160,7 +160,7 @@ return [
                                     'data-request-method'=>'post',
                                     'data-toggle'=>'tooltip',
                                     'data-confirm-title'=>'ADVERTENCIA',
-                                    'data-confirm-message'=>'¿Esta seguro de anula la liquidacion: <strong>'.$model->eventual_nro_liquidacion.'</strong>?'
+                                    'data-confirm-message'=>'¿Esta seguro de anular la liquidacion: <strong>'.$model->eventual_nro_liquidacion.'</strong>?'
                                 ]);                    
                 },
                 'cobrar' => function ($url, $model, $key){ //glyphicon glyphicon-user                           
@@ -175,6 +175,7 @@ return [
             
             'anular' => function ($model, $key, $index) {                                     
                     $modelGeneral = new app\models\General;
+                    $model->eventual_anulado=1;
                     $dia_vigente = $modelGeneral->verificarFechaVigente($model->eventual_fecha_hora_liquidacion);
                         return (Usuario::getRolPreli() && $dia_vigente) ; 
             },

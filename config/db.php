@@ -2,11 +2,12 @@
 <?php
 
 return [
-    'class' => 'yii\db\Connection',
-    'dsn' => 'pgsql:host=181.177.143.185;dbname=db_urkupina',
-    //'dsn' => 'pgsql:host=181.177.143.185;dbname=urkupinia',
-    //'dsn' => 'pgsql:host=localhost;dbname=urkupina',
+    //'dsn' => 'pgsql:host=localhost;dbname=db_urkupina',
+    //'dsn' => 'pgsql:host=localhost;dbname=sys_urkupina',
+    
+    'class' =>   'yii\db\Connection',
+    'dsn'   =>   'pgsql:host=181.177.143.185;dbname=test_urku',
     'username' => 'gamq',
-    'password' => 'gamq.22',
+    'password' => 'gamq',
     'charset' => 'utf8',
 ];

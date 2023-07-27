@@ -117,24 +117,8 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 
     <div class="row">    
                   
-         <div  class="col-md-7 col-sm-7">            
-            <?php
-            echo $form->field($model, 'rango_fechas', ['addon' => ['prepend' => ['content' => '<i class="glyphicon glyphicon-calendar"></i>']],
-                'options' => ['class' => 'drp-container form-group']
-            ])->widget(DateRangePicker::classname(), [
-                'readonly' => true,
-                'useWithAddon' => true,
-                'convertFormat' => true,
-                'pluginOptions' => [
-                    'locale' => [
-                        'format' => 'Y-m-d',
-                        'separator' => ' a ',
-                    ]
-                    ],
-                    'options' => [  'class'=>'form-control',
-                    'onchange' => 'calcDia();' ]   
-            ]);
-            ?>
+    <div  class="col-md-6 col-sm-6">            
+            <?php  echo $form->field($model, 'rango_fechas')->textInput(['value'=>'2023-08-14 a 2023-08-16','readonly' => true])?>
         </div> 
         <div class="col-md-3 col-sm-3">
             <?=
