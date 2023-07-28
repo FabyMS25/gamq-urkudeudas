@@ -292,7 +292,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
         dif=f2-f1;
         var dias = (dif/86400).toFixed()/1000;
         dias++;
-        dias=3;
+       // dias=3;
           console.log('dias es : ', dias);
         var importeTotalPatente  = $("#<?= Html::getInputId($model, 'eventual_importe_patente') ?>").val();
         var totalAseo = 0;
