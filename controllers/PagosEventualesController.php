@@ -167,7 +167,7 @@ class PagosEventualesController extends Controller
             }else if($model->load($request->post()) && $model->validate()){
                 $model->eventual_fecha_hora_pago = date('Y-m-d H:m:s');
                 $model->usua_id = Yii::$app->user->id;
-                //$model->estado=2;
+                $model->eventual_cobrado=1;
                 $dir=$model->eventual_nro_comprobante;
                 //$codigos= (new QrCode())-> Generar($dir,$model->pago_nro_comprobante);
                 $llamada=Yii::$app->generadorQR->TEXT($siteUrl);
@@ -219,6 +219,7 @@ class PagosEventualesController extends Controller
         $model->aseo =0;
         $model->sitios_id = $id;
         $model->eventual_preliquidacion = 1;
+
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
         $model->eventual_costo_comprobante=$model::COMPROBANTE; 
         $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
@@ -288,7 +289,8 @@ class PagosEventualesController extends Controller
         $model->sitios_id = $id;
         $model->patente =0;
         $model->sentaje =0;
-        $model->aseo =0;        
+        $model->aseo =0;      
+        $model->eventual_cobrado = 0;  
         $model->eventual_preliquidacion = 1;
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
         $model->eventual_costo_comprobante=$model::COMPROBANTE; 
@@ -510,7 +512,7 @@ class PagosEventualesController extends Controller
        
         $request = Yii::$app->request;
         $model = $this->findModel($id);
-        $model->eventual_anulado= 1;
+        //$model->eventual_anulado= 1;
         $model->eventual_estado = 0;
         $resultado = $model->save(false);
         $mensaje = $resultado? "<span class='text-success'>Se anulo la liquidacion con exito.</span>": "<span class='text-danger'>Error no se pudo anular la liquidacion.</span>";
@@ -588,6 +590,7 @@ class PagosEventualesController extends Controller
         
         $request = Yii::$app->request;
         $model = $this->findModel($id);
+        //$model->eventual_cobrado=1;
         $montoLiteral = $model->montoTotalLiteral();
         $titulo = "COMPROBANTE DE PAGO";
         $url = "";
