@@ -11,6 +11,8 @@ use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
 use chrmorandi\jasper\Jasper;
+use yii\httpclient\Client;
+Use yii\helpers\VarDumper;
 /**
  * PagosController implements the CRUD actions for Pagos model.
  */
@@ -250,8 +252,9 @@ class PagosController extends Controller {
 
                 if ($model->save())
                    $resultado= true;
-                   else
-                  $resultado = false;
+                    //$this->llamar();
+                   ////proceso de taza
+                   
                 //$resultado =$this->actualizarDatosCobro($model);
                 $mensaje = ($resultado ? "Transaccion Exitosa,  " : " Error al realizar el cobro NO");
                 return [
@@ -1053,5 +1056,32 @@ class PagosController extends Controller {
         }
     }
 
+    public function llamar()
+    {
+        //$BASE_URL = 'https://consolidacionjboss.ruat.gob.bo/ServiciosRuatJEE-web/api/autentificacion';
+        $BASE_URL ='http://181.177.143.185:8080/api/auth/signin';
+        //$_token = null;
+        $client =  new Client();
+        $response = $client->createRequest()
+        ->setMethod('POST')
+        ->setUrl($BASE_URL)
+        ->setData(['username' => 'erodriguez', 'password' => '12345678'])
+        /*->addHeaders([
+            'Usuario' => 'SWTASASQUILLACOLLO',
+            'Clave' => '1234567',
+        ])*/
+         ->send();
+        if ($response->isOk) {
+            //$this->_token = $response->data['token'];
+            //Yii::app()->clientScript->registerScript(1, 'alert("entro!!")');
+            VarDumper::dump('Ingreso al EndPoint');
+
+         }
+         else
+         { 
+           VarDumper::dump('No entra al EndPoint');
+          }
+
+    }
 
 }
