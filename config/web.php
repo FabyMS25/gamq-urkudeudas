@@ -58,6 +58,9 @@ $config = [
         'generadorQR' => [
             'class' => 'app\components\Qrcodetest',
         ],
+        'httpClient' => [
+            'class' => 'yii\httpclient\Client'
+        ],
 
         
         /*'mailer' => [
