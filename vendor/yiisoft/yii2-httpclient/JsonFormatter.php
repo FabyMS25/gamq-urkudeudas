@@ -7,7 +7,7 @@
 
 namespace yii\httpclient;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\helpers\Json;
 
 /**

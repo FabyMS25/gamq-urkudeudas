@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controllers;
 
 use Yii;
@@ -12,15 +13,18 @@ use yii\helpers\Html;
 use app\models\Usuario;
 use chrmorandi\jasper\Jasper;
 use yii\httpclient\Client;
-Use yii\helpers\VarDumper;
+use yii\helpers\VarDumper;
+
 /**
  * PagosController implements the CRUD actions for Pagos model.
  */
-class PagosController extends Controller {
+class PagosController extends Controller
+{
     /**
      * @inheritdoc
      */
-    public function behaviors() {
+    public function behaviors()
+    {
         return [
             'verbs' => [
                 'class' => VerbFilter::className(),
@@ -36,21 +40,23 @@ class PagosController extends Controller {
      * Lists all Pagos models.
      * @return mixed
      */
-    public function actionIndex() {
+    public function actionIndex()
+    {
         $this->verificarSesion();
         $listaGraderia = (new Pagos())->listaIdGraderiasSillasPreliquidados();
         $searchModel = new \app\models\SearchGraderiasSillas();
         $dataProvider = $searchModel->searchPreliquidaciones(Yii::$app->request->queryParams);
         $dataProvider->query->andFilterWhere(['grad_estado' => 1]);
-        $dataProvider->query->andFilterWhere(['grad_vendido'=> 0]);
+        $dataProvider->query->andFilterWhere(['grad_vendido' => 0]);
 
         return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
-    public function actionGeneral() {
+    public function actionGeneral()
+    {
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -59,55 +65,58 @@ class PagosController extends Controller {
         //'pago_cobrado' => 1, 'pago_anulado' => 0
 
         return $this->render('general', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
-    public function actionPreliquidaciones() {
+    public function actionPreliquidaciones()
+    {
         $this->verificarSesion();
-        
+
         //
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado'=> 1,'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
-        if(Usuario::getRolPreli()){
+        $dataProvider->query->andFilterWhere(['pago_estado' => 1, 'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
+        if (Usuario::getRolPreli()) {
             $dataProvider->query->andFilterWhere(['pago_id_user_preliquidacion' => \Yii::$app->user->id]);
         }
 
         return $this->render('preliquidaciones', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
-    public function actionPagados() {
+    public function actionPagados()
+    {
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->query->andFilterWhere(['pago_estado' => 1, 'pago_cobrado' => 1, 'pago_anulado' => 0]);
-        if(Usuario::getRolCajero()){
+        if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
 
         return $this->render('pagados', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
-    public function actionAnulados() {
+    public function actionAnulados()
+    {
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado' => 1,'pago_preliquidacion' => 1, 'pago_anulado' => 1,]);
-        if(Usuario::getRolCajero()){
+        $dataProvider->query->andFilterWhere(['pago_estado' => 1, 'pago_preliquidacion' => 1, 'pago_anulado' => 1,]);
+        if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
 
         return $this->render('anulados', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -116,7 +125,8 @@ class PagosController extends Controller {
      * @param integer $id
      * @return mixed
      */
-    public function actionCobrar($id) {
+    public function actionCobrar($id)
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $model = $this->findModel($id);
@@ -124,8 +134,8 @@ class PagosController extends Controller {
         $titulo = "Cobrar preliquidacion de " . $model->graderiaSilla->grad_codigo;
 
         //$siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
-        $siteUrl = 'http://181.177.143.186/proyecto-urkupina/web/index.php?r=pagos%2Fview&id='.$id;
-        
+        $siteUrl = 'http://181.177.143.186/proyecto-urkupina/web/index.php?r=pagos%2Fview&id=' . $id;
+
         if ($request->isAjax) {
             /*           Process for ajax request            */
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -134,37 +144,37 @@ class PagosController extends Controller {
                     'title' => $titulo,
                     'content' => $this->renderAjax('cobrar', ['model' => $model,]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
                 $model->usua_id = Yii::$app->user->id;
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
-                $model->pago_cobrado=1;
+                $model->pago_cobrado = 1;
                 $dir = $model->pago_nro_comprobante;
-                
-                $llamada=Yii::$app->generadorQR->TEXT($siteUrl);
-                $llamada=Yii::$app->generadorQR->QRCODE(400,$dir);
-                
+
+                $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
+                $llamada = Yii::$app->generadorQR->QRCODE(400, $dir);
+
                 if ($model->save())
-                   $resultado= true;
+                    $resultado = true;
                 else
-                  $resultado = false;
+                    $resultado = false;
                 //$resultado =$this->actualizarDatosCobro($model);
                 $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
                     'content' => '<span class="text-success">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
-                    ' <br> Importe total Bs.: ' . $model->pago_importe_total . '  </span>',
+                        ' <br> Importe total Bs.: ' . $model->pago_importe_total . '  </span>',
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::a('Comprobante pago', ['comprobante-pago', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                        Html::a('Comprobante pago', ['comprobante-pago', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                 ];
             } else {
                 return [
                     'title' => $titulo,
                     'content' => $this->renderAjax('cobrar', ['model' => $model,]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             }
         } else {
@@ -175,13 +185,14 @@ class PagosController extends Controller {
                 return $this->redirect(['view', 'id' => $model->pago_id]);
             } else {
                 return $this->render('cobrar', [
-                            'model' => $model,
+                    'model' => $model,
                 ]);
             }
         }
     }
 
-    public function actionView($id) {
+    public function actionView($id)
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "Detalle";
@@ -196,7 +207,7 @@ class PagosController extends Controller {
             ];
         } else {
             return $this->render('view', [
-                        'model' => $this->findModel($id),
+                'model' => $this->findModel($id),
             ]);
         }
     }
@@ -207,7 +218,8 @@ class PagosController extends Controller {
      * and for non-ajax request if creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionPreliquidar($id) {
+    public function actionPreliquidar($id)
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
 
@@ -232,37 +244,45 @@ class PagosController extends Controller {
                         'modelSitio' => $modelSitio,
                     ]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
-                $codigo=$model->grad_id;
-                $resto=$modelSitio->grad_longitud - $model->pago_longitud_modificada;
+                $codigo = $model->grad_id;
+                $resto = $modelSitio->grad_longitud - $model->pago_longitud_modificada;
                 $model->pago_cobrado = 0;
-                $val=0;
-                if ($resto==0) 
-                {
-                    $val=1; 
+                $val = 0;
+                if ($resto == 0) {
+                    $val = 1;
                 }
-                $sql='UPDATE graderias_sillas SET grad_vendido=:val, grad_longitud=:rest WHERE grad_id=:id';
-                $command= Yii::$app->db->createCommand($sql)
-                                 ->bindValue(':id', $codigo)
-                                 ->bindValue(':val', $val)
-                                 ->bindValue(':rest',$resto)
-                                 ->queryOne();
+                $sql = 'UPDATE graderias_sillas SET grad_vendido=:val, grad_longitud=:rest WHERE grad_id=:id';
+                $command = Yii::$app->db->createCommand($sql)
+                    ->bindValue(':id', $codigo)
+                    ->bindValue(':val', $val)
+                    ->bindValue(':rest', $resto)
+                    ->queryOne();
 
-                if ($model->save())
-                   $resultado= true;
-                    //$this->llamar();
-                   ////proceso de taza
-                   
+                $token =  $this->llamar();
+                if ($token) {
+                    $contribuyente = $this->getContribuyentePorCi($token, '12618853');
+                    VarDumper::dump($contribuyente);
+                }
+                $model->pago_observaciones = $token;
+                if ($model->save()) {
+                    $resultado = true;
+                } else {
+                    $resultado = false;
+                }
+                ////proceso de taza
+
                 //$resultado =$this->actualizarDatosCobro($model);
                 $mensaje = ($resultado ? "Transaccion Exitosa,  " : " Error al realizar el cobro NO");
+
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
-                    'content' => '<span class="text-success">'. $mensaje . 'Se registro los datos de la preliquidacion. </span>',
+                    'content' => '<span class="text-success">' . $mensaje . 'Se registro los datos de la preliquidacion. </span>',
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::a('recibo preliquidacion', ['recibo-liquidacion', 'id' => $model->pago_id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                        Html::a('recibo preliquidacion', ['recibo-liquidacion', 'id' => $model->pago_id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                 ];
             } else {
                 return [
@@ -272,7 +292,7 @@ class PagosController extends Controller {
                         'modelSitio' => $modelSitio,
                     ]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             }
         } else {
@@ -283,13 +303,14 @@ class PagosController extends Controller {
                 return $this->redirect(['view', 'id' => $model->pago_id]);
             } else {
                 return $this->render('create', [
-                            'model' => $model,
+                    'model' => $model,
                 ]);
             }
         }
     }
 
-    public function actionCreate() {
+    public function actionCreate()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $model = new Pagos();
@@ -306,7 +327,7 @@ class PagosController extends Controller {
                         'model' => $model,
                     ]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->save()) {
                 return [
@@ -314,7 +335,7 @@ class PagosController extends Controller {
                     'title' => $titulo,
                     'content' => '<span class="text-success">Create Pagos success</span>',
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::a('Create More', ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                        Html::a('Create More', ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                 ];
             } else {
                 return [
@@ -323,7 +344,7 @@ class PagosController extends Controller {
                         'model' => $model,
                     ]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             }
         } else {
@@ -334,7 +355,7 @@ class PagosController extends Controller {
                 return $this->redirect(['view', 'id' => $model->pago_id]);
             } else {
                 return $this->render('create', [
-                            'model' => $model,
+                    'model' => $model,
                 ]);
             }
         }
@@ -347,7 +368,8 @@ class PagosController extends Controller {
      * @param integer $id
      * @return mixed
      */
-    public function actionAnularPago($id) {
+    public function actionAnularPago($id)
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $model = $this->findModel($id);
@@ -362,7 +384,7 @@ class PagosController extends Controller {
                         'model' => $model,
                     ]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
                 $res = $this->habilitarDatosPreliquidacion($model);
@@ -379,7 +401,7 @@ class PagosController extends Controller {
                         'model' => $model,
                     ]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             }
         } else {
@@ -394,7 +416,8 @@ class PagosController extends Controller {
     }
 
     // funcion para habilitar datos de preliquidacion porq se anulo su pago
-    protected function habilitarDatosPreliquidacion($model) {
+    protected function habilitarDatosPreliquidacion($model)
+    {
 
         $model->pago_anulado = 1;
         $model->pago_anulado_fecha_hora = date('Y-m-d H:m:s');
@@ -426,7 +449,7 @@ class PagosController extends Controller {
                 //$transaction->commit();
                 $resultado = true;
             } else {
-               // $transaction->rollBack();
+                // $transaction->rollBack();
             }
         } catch (Exception $e) {
             //$transaction->rollBack();
@@ -441,7 +464,8 @@ class PagosController extends Controller {
      * @param integer $id
      * @return mixed
      */
-    public function actionAnularPreliquidacion($id) {
+    public function actionAnularPreliquidacion($id)
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $model = $this->findModel($id); //var_dump($model);
@@ -452,8 +476,8 @@ class PagosController extends Controller {
         // modelo graderias y sillas
         $modelGraderia = \app\models\GraderiasSillas::findOne($model->grad_id);
         $modelGraderia->grad_vendido = 0;
-        $modelGraderia->grad_longitud = $modelGraderia->grad_longitud + $pago_longitud_modificada; 
-         $resultado = false;
+        $modelGraderia->grad_longitud = $modelGraderia->grad_longitud + $pago_longitud_modificada;
+        $resultado = false;
 
         //$transaction = Yii::$app->db->beginTransaction();
         try {
@@ -485,7 +509,8 @@ class PagosController extends Controller {
         }
     }
 
-    public function actionReciboLiquidacion($id) {
+    public function actionReciboLiquidacion($id)
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $model = $this->findModel($id);
@@ -502,8 +527,12 @@ class PagosController extends Controller {
             $jasper = Yii::$app->jasper;
             $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
             $jasper->process(
-                            Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"'], ['pdf'], false)
-                    ->execute();
+                Yii::getAlias('@ruta') . '/' . $archivo . '.jasper',
+                ['id_pago' => $id, 'monto_literal' => '"' . $montoLiteral . '"'],
+                ['pdf'],
+                false
+            )
+                ->execute();
             $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
 
             //end jasper
@@ -517,14 +546,15 @@ class PagosController extends Controller {
             ];
         } else {
             return $this->render('recibo-liquidacion', [
-                        'url' => $url,
+                'url' => $url,
             ]);
         }
     }
 
-    public function actualizarDatosCobro($model) {
+    public function actualizarDatosCobro($model)
+    {
         $modelGraderia = new \app\models\GraderiasSillas();
-        
+
         $auxGraderia = $modelGraderia->findOne($model->grad_id);
         $auxGraderia->grad_vendido = 1; //modifica estado de vendido
         $model->usua_id = Yii::$app->user->id;
@@ -534,17 +564,14 @@ class PagosController extends Controller {
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            if ($auxGraderia->save(false)) 
-            {
-                $resultado=true;
-            }
-            else
-            {
+            if ($auxGraderia->save(false)) {
+                $resultado = true;
+            } else {
                 //echo "MODEL1 NOT SAVED";
                 print_r($auxGraderia->getAttributes());
                 print_r($auxGraderia->getErrors());
             }
-            
+
             if ($model->save(false)) {
                 $transaction->commit();
                 $resultado = true;
@@ -561,7 +588,8 @@ class PagosController extends Controller {
     }
 
     // reportes en jasper
-    public function actionComprobantePago($id) {
+    public function actionComprobantePago($id)
+    {
 
         $this->verificarSesion();
         $request = Yii::$app->request;
@@ -576,7 +604,7 @@ class PagosController extends Controller {
             Yii::$app->response->format = Response::FORMAT_JSON;
             // jasper init
             $archivo = "comprobante_graderia_silla";
-            $parametros = ['id_pago' => $id, 'monto_literal' => '"'.$montoLiteral.'"', 'image_path' => '"'.$qrImagePath.'"'];
+            $parametros = ['id_pago' => $id, 'monto_literal' => '"' . $montoLiteral . '"', 'image_path' => '"' . $qrImagePath . '"'];
             $url = $this->generarURLReportePdf('reportes', $archivo, $parametros);
             //end jasper
             return [
@@ -594,13 +622,14 @@ class PagosController extends Controller {
         }
     }
 
-    public function actionReportePagoCajero() {
+    public function actionReportePagoCajero()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DE PAGO DEL CAJERO - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_pagos_graderias_sillas";
         $carpeta = "reportes/graderias_sillas";
-        
+
         $parametros = ['id_cajero' => Yii::$app->user->id];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
@@ -615,18 +644,19 @@ class PagosController extends Controller {
             ];
         } else {
             return $this->render('reporte-pago-cajero', [
-                        'url' => $url,
+                'url' => $url,
             ]);
         }
     }
-    
-    public function actionReporteAnuladoCajero() {
+
+    public function actionReporteAnuladoCajero()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DE COMPROBANTES ANULADOS DEL CAJERO - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_anulados_graderias_sillas";
         $carpeta = "reportes/graderias_sillas";
-        
+
         $parametros = ['id_cajero' => Yii::$app->user->id];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
@@ -641,13 +671,13 @@ class PagosController extends Controller {
             ];
         } else {
             return $this->render('reporte-anulado-cajero', [
-                        'url' => $url,
+                'url' => $url,
             ]);
         }
     }
-    
+
     // funcion para generar reportes del cajero (individual)
-   /* public function actionReporteFormPago() {
+    /* public function actionReporteFormPago() {
         $this->verificarSesion();
         
         $request = Yii::$app->request;
@@ -701,15 +731,16 @@ class PagosController extends Controller {
     }
     */
 
-    public function actionReporteGeneral() {
+    public function actionReporteGeneral()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE COMPROBANTES PAGADOS Y ANULADOS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_general_graderias_sillas";
         $carpeta = "reportes/graderias_sillas";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         /*if ($request->isAjax) {
@@ -731,35 +762,37 @@ class PagosController extends Controller {
         return $this->render('reporte-general', ['url' => $url]);
     }
 
-    public function actionResumenGeneral() {
+    public function actionResumenGeneral()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "RESUMEN GENERAL DE RECAUDACIONES - FECHA " . date("d/m/Y H:m");
         $archivo = "resumen_general_importes";
         $carpeta = "reportes/resumen";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         return $this->render('resumen-general', ['url' => $url]);
     }
 
-    public function actionReportePreliquidacionNopagados() {
+    public function actionReportePreliquidacionNopagados()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE PRELIQUIDACIONES NO PAGADOS (GRADERIAS/SILLAS) - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_graderias_no_pagados";
         $carpeta = "reportes/graderias_sillas";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         return $this->render('reporte-preliquidacion-nopagados', ['url' => $url]);
     }
 
-/*
+    /*
     public function actionReporteGeneralSentajes() {
         $this->verificarSesion();
         $request = Yii::$app->request;
@@ -773,15 +806,16 @@ class PagosController extends Controller {
         return $this->render('reporte-sentajes', ['url' => $url]);
     }
 */
-    public function actionReporteEspaciosDisponibles() {
+    public function actionReporteEspaciosDisponibles()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE ESPACIOS DISPONIBLES - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_espacios_vendidos_disponibles";
         $carpeta = "reportes/graderias_sillas";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         /*if ($request->isAjax) {
@@ -800,18 +834,19 @@ class PagosController extends Controller {
                 'size' => 'modal-xl',
             ]);
         }*/
-        return $this->render('reporte-espacios-disponibles', ['url' => $url ]);
+        return $this->render('reporte-espacios-disponibles', ['url' => $url]);
     }
 
-    public function actionReporteDiferencias() {
+    public function actionReporteDiferencias()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DIFERENCIA COBROS GRADERIAS SILLAS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_diferencias_graderias_sillas";
         $carpeta = "reportes/graderias_sillas";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         /*if ($request->isAjax) {
@@ -832,15 +867,16 @@ class PagosController extends Controller {
         return $this->render('reporte-diferencias', ['url' => $url]);
     }
 
-    public function actionReporteDiferenciasEventuales() {
+    public function actionReporteDiferenciasEventuales()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DIFERENCIA COBROS EVENTUALES - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_diferencias_eventuales";
         $carpeta = "reportes/eventuales";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         /*if ($request->isAjax) {
@@ -858,19 +894,20 @@ class PagosController extends Controller {
                 'url' => $url,
                 'size' => 'modal-lg',
             ]);
-        }*/   
+        }*/
         return $this->render('reporte-diferencias-eventuales', ['url' => $url]);
     }
 
-    public function actionReportePagosGraderiasCajeros() {
+    public function actionReportePagosGraderiasCajeros()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE GRADERIAS PAGADAS POR CAJERO - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_pagos_graderias_cajeros";
         $carpeta = "reportes/cajeros";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         /*if ($request->isAjax) {
@@ -892,15 +929,16 @@ class PagosController extends Controller {
         return $this->render('reporte-pagos-graderias-cajeros', ['url' => $url]);
     }
 
-    public function actionReporteAnuladosGraderiasCajeros() {
+    public function actionReporteAnuladosGraderiasCajeros()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE GRADERIAS ANULADAS POR CAJERO - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_anulados_graderias_cajeros";
         $carpeta = "reportes/cajeros";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         /*if ($request->isAjax) {
@@ -919,117 +957,129 @@ class PagosController extends Controller {
                 'size' => 'modal-lg',
             ]);
         }*/
-       return $this->render('reporte-anulados-graderias-cajeros', ['url' => $url]);
+        return $this->render('reporte-anulados-graderias-cajeros', ['url' => $url]);
     }
 
-    public function actionReportePreliquidacionSentajes() {
+    public function actionReportePreliquidacionSentajes()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE PRELIQUIDACION DE SENTAJES - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_preliquidacion_sentajes";
         $carpeta = "reportes/sentajes";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-       
+
         return $this->render('reporte-preliquidacion-sentajes', ['url' => $url]);
     }
 
-    public function actionReporteSentajesPagados() {
+    public function actionReporteSentajesPagados()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DE SENTAJES PAGADOS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_sentajes_pagados";
         $carpeta = "reportes/sentajes";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         return $this->render('reporte-sentajes-pagados', ['url' => $url]);
     }
 
-    public function actionReporteEfectividadGraderias() {
+    public function actionReporteEfectividadGraderias()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DE SUFICIENCIA DE GRADERIAS O SILLAS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_efectividad_graderias";
         $carpeta = "reportes/suficiencia";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         return $this->render('reporte-efectividad-graderias', ['url' => $url]);
     }
 
-    public function actionReporteEfectividadEventuales() {
+    public function actionReporteEfectividadEventuales()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DE SUFICIENCIA DE GRADERIAS O SILLAS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_efectividad_eventuales";
         $carpeta = "reportes/suficiencia";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         return $this->render('reporte-efectividad-eventuales', ['url' => $url]);
     }
 
-    public function actionReporteEfectividadAlasitas() {
+    public function actionReporteEfectividadAlasitas()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DE SUFICIENCIA DE GRADERIAS O SILLAS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_efectividad_alasitas";
         $carpeta = "reportes/suficiencia";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         return $this->render('reporte-efectividad-alasitas', ['url' => $url]);
     }
 
-    public function actionReporteEfectividadSentajes() {
+    public function actionReporteEfectividadSentajes()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DE SUFICIENCIA DE GRADERIAS O SILLAS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_efectividad_sentajes";
         $carpeta = "reportes/suficiencia";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         return $this->render('reporte-efectividad-sentajes', ['url' => $url]);
     }
 
-    public function actionReporteMingitoriosPagados() {
+    public function actionReporteMingitoriosPagados()
+    {
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "REPORTE DE MINGITIOS PAGADOS - FECHA " . date("d/m/Y H:m");
         $archivo = "reporte_mingitorios_pagados";
         $carpeta = "reportes/sentajes";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
         return $this->render('reporte-mingitorios-pagados', ['url' => $url]);
-    }    
+    }
 
-    protected function generarURLReportePdf($carpeta, $file, $parametros = []) {
+    protected function generarURLReportePdf($carpeta, $file, $parametros = [])
+    {
         $archivo = $file;
         Yii::setAlias('@ruta', $carpeta);
 
         $jasper = Yii::$app->jasper;
         $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
         $jasper->process(
-                Yii::getAlias('@ruta') . '/' . $archivo . '.jasper', $parametros, ['pdf'], false)->execute();
+            Yii::getAlias('@ruta') . '/' . $archivo . '.jasper',
+            $parametros,
+            ['pdf'],
+            false
+        )->execute();
         $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
-        
+
         return $url;
     }
 
@@ -1040,7 +1090,8 @@ class PagosController extends Controller {
      * @return Pagos the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id) {
+    protected function findModel($id)
+    {
         if (($model = Pagos::findOne($id)) !== null) {
             return $model;
         } else {
@@ -1049,7 +1100,8 @@ class PagosController extends Controller {
     }
 
     // funcion que verifica la existencia de una sesion activa
-    public function verificarSesion() {
+    public function verificarSesion()
+    {
         if (Yii::$app->user->isGuest) {
             Yii::$app->user->logout(true);
             return $this->goHome();
@@ -1058,30 +1110,50 @@ class PagosController extends Controller {
 
     public function llamar()
     {
-        //$BASE_URL = 'https://consolidacionjboss.ruat.gob.bo/ServiciosRuatJEE-web/api/autentificacion';
-        $BASE_URL ='http://181.177.143.185:8080/api/auth/signin';
-        //$_token = null;
-        $client =  new Client();
-        $response = $client->createRequest()
-        ->setMethod('POST')
-        ->setUrl($BASE_URL)
-        ->setData(['username' => 'erodriguez', 'password' => '12345678'])
-        /*->addHeaders([
-            'Usuario' => 'SWTASASQUILLACOLLO',
-            'Clave' => '1234567',
-        ])*/
-         ->send();
+        $client = new Client();
+        $request = $client->createRequest()
+            ->setMethod('POST')
+            ->setFormat(Client::FORMAT_JSON)
+            ->setUrl('https://consolidacionjboss.ruat.gob.bo/ServiciosRuatJEE-web/api/autentificacion')
+            ->setHeaders(['content-type' => 'application/json'])
+            ->addHeaders(['usuario' => 'SWTASASQUILLACOLLO'])
+            ->addHeaders(['clave' => 'S1234567']);
+
+        $response = $request->send();
         if ($response->isOk) {
-            //$this->_token = $response->data['token'];
-            //Yii::app()->clientScript->registerScript(1, 'alert("entro!!")');
-            VarDumper::dump('Ingreso al EndPoint');
-
-         }
-         else
-         { 
-           VarDumper::dump('No entra al EndPoint');
-          }
-
+            $data = json_decode($response->content);
+            return $data->token;
+        } else {
+            return 'no token';
+        }
     }
 
+    public function getContribuyentePorCi($token, $ci)
+    {
+        VarDumper::dump($token);
+        VarDumper::dump($ci);
+        $client = new Client();
+        $request = $client->createRequest()
+            ->setMethod('POST')
+            ->setFormat(Client::FORMAT_JSON)
+            ->setUrl('https://consolidacionjboss.ruat.gob.bo/RuatServiciosWebContribuyentes/contribuyentes/comun/busquedaContribuyente')
+            ->setHeaders([
+                'Authorization' => "Bearer $token"
+            ])
+            ->setData([
+                'codigoAlcaldia' => 'QUI',
+                'numeroDocumento' => $ci,
+                'tipoDocumento' => 'ci',
+                'expedido' => '',
+            ]);
+
+        $response = $request->send();
+        if ($response->isOk) {
+            $data = json_decode($response->content);
+            return $data;
+        } else {
+            $data = json_decode($response->content);
+            return $data;
+        }
+    }
 }
