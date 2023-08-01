@@ -61,8 +61,10 @@ $config = [
         'httpClient' => [
             'class' => 'yii\httpclient\Client'
         ],
+        'ruatServices' => [
+            'class' => 'app\components\RuatServices'
+        ],
 
-        
         /*'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             // send all mails to a file by default. You have to set

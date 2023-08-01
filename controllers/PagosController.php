@@ -15,6 +15,8 @@ use chrmorandi\jasper\Jasper;
 use yii\httpclient\Client;
 use yii\helpers\VarDumper;
 
+use app\models\Contribuyentes;
+
 /**
  * PagosController implements the CRUD actions for Pagos model.
  */
@@ -220,6 +222,7 @@ class PagosController extends Controller
      */
     public function actionPreliquidar($id)
     {
+        //VarDumper::dump($id);
         $this->verificarSesion();
         $request = Yii::$app->request;
 
@@ -260,11 +263,24 @@ class PagosController extends Controller
                     ->bindValue(':val', $val)
                     ->bindValue(':rest', $resto)
                     ->queryOne();
-
-                $token =  $this->llamar();
+                $token = Yii::$app->ruatServices->login('SWTASASQUILLACOLLO', 'S1234567');
                 if ($token) {
-                    $contribuyente = $this->getContribuyentePorCi($token, '12618853');
-                    VarDumper::dump($contribuyente);
+                    $id = $model->contri_id;
+                    $contri = Contribuyentes::findOne($id);
+                    $ci_contribuyente = $contri->contri_ci;
+                    VarDumper::dump($ci_contribuyente);
+                    $contribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
+                    if ($contribuyente->contribuyente) {
+                        //Verificar si contribuyete tiene deudas
+                        /*if (tieneDeuda()) {
+                            # code...
+                        }*/
+                        //Si no tiene deudas
+                        $tasa = $this->createTasa($token, 'PRUEBA.QUI', '0A025F03001B0807140E565453');
+                        VarDumper::dump($tasa);
+                    } else {
+                        VarDumper::dump('No existe contribuyente');
+                    }
                 }
                 $model->pago_observaciones = $token;
                 if ($model->save()) {
@@ -1105,55 +1121,6 @@ class PagosController extends Controller
         if (Yii::$app->user->isGuest) {
             Yii::$app->user->logout(true);
             return $this->goHome();
-        }
-    }
-
-    public function llamar()
-    {
-        $client = new Client();
-        $request = $client->createRequest()
-            ->setMethod('POST')
-            ->setFormat(Client::FORMAT_JSON)
-            ->setUrl('https://consolidacionjboss.ruat.gob.bo/ServiciosRuatJEE-web/api/autentificacion')
-            ->setHeaders(['content-type' => 'application/json'])
-            ->addHeaders(['usuario' => 'SWTASASQUILLACOLLO'])
-            ->addHeaders(['clave' => 'S1234567']);
-
-        $response = $request->send();
-        if ($response->isOk) {
-            $data = json_decode($response->content);
-            return $data->token;
-        } else {
-            return 'no token';
-        }
-    }
-
-    public function getContribuyentePorCi($token, $ci)
-    {
-        VarDumper::dump($token);
-        VarDumper::dump($ci);
-        $client = new Client();
-        $request = $client->createRequest()
-            ->setMethod('POST')
-            ->setFormat(Client::FORMAT_JSON)
-            ->setUrl('https://consolidacionjboss.ruat.gob.bo/RuatServiciosWebContribuyentes/contribuyentes/comun/busquedaContribuyente')
-            ->setHeaders([
-                'Authorization' => "Bearer $token"
-            ])
-            ->setData([
-                'codigoAlcaldia' => 'QUI',
-                'numeroDocumento' => $ci,
-                'tipoDocumento' => 'ci',
-                'expedido' => '',
-            ]);
-
-        $response = $request->send();
-        if ($response->isOk) {
-            $data = json_decode($response->content);
-            return $data;
-        } else {
-            $data = json_decode($response->content);
-            return $data;
         }
     }
 }
