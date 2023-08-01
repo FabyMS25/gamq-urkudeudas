@@ -30,7 +30,7 @@ use Yii;
  * @property string $pago_fecha_hora_cobro
  * @property integer $pago_cobrado
  * @property integer $pago_estado
- *
+ * @property integer $pago_tasa
  * @property Contribuyentes $contri
  * @property GraderiasSillas $grad
  * @property TipoArmados $tipArm
@@ -125,6 +125,7 @@ class Pagos extends \yii\db\ActiveRecord
             'paterno' => 'Ap. paterno',
             'materno' => 'Ap. materno',
             'ci' => 'Doc. identidad',
+            'pago_tasa' => 'Tasa de ruat',
         ];
     }
 

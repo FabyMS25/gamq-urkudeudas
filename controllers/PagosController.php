@@ -12,8 +12,10 @@ use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
 use chrmorandi\jasper\Jasper;
-use yii\httpclient\Client;
 use yii\helpers\VarDumper;
+
+use app\models\Contribuyentes;
+use app\models\GraderiasSillas;
 
 /**
  * PagosController implements the CRUD actions for Pagos model.
@@ -222,6 +224,9 @@ class PagosController extends Controller
     {
         $this->verificarSesion();
         $request = Yii::$app->request;
+        $idUsuarioAutenticado = Yii::$app->user->id;
+        $datos = Usuario::findOne($idUsuarioAutenticado);
+        $ci_usuarioAutenticado = $datos->usua_cuenta;
 
         $model = new Pagos();
         $model->grad_id = $id;
@@ -230,12 +235,11 @@ class PagosController extends Controller
         $model->pago_estado = 1;
         $model->pago_fecha_hora_preliquidacion = date('Y-m-d H:m:s');
         $model->pago_preliquidacion = 1;
-        $modelSitio = \app\models\GraderiasSillas::findOne($id);
+        $modelSitio = GraderiasSillas::findOne($id);
         $titulo = "Preliquidacion para el codigo <strong> " . $modelSitio->grad_codigo . "</strong>";
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-
             if ($request->isGet) {
                 return [
                     'title' => $titulo,
@@ -260,13 +264,48 @@ class PagosController extends Controller
                     ->bindValue(':val', $val)
                     ->bindValue(':rest', $resto)
                     ->queryOne();
-
-                $token =  $this->llamar();
+                $token = Yii::$app->ruatServices->login('SWTASASQUILLACOLLO', 'S1234567');
                 if ($token) {
-                    $contribuyente = $this->getContribuyentePorCi($token, '12618853');
-                    VarDumper::dump($contribuyente);
+                    $id = $model->contri_id;
+                    $contri = Contribuyentes::findOne($id);
+                    $ci_contribuyente = $contri->contri_ci;
+                    $contribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
+                    if ($contribuyente->contribuyente) {
+                        $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
+                        if ($tieneDeudas) {
+                            return [
+                                'forceReload' => '#crud-datatable-pjax',
+                                'title' => $titulo,
+                                'content' => '<span class="text-warning">' . 'El contribuyente seleccionado tiene deudad pendientes, no podemos registrar la tasa. </span>',
+                            ];
+                        } else {
+                            $montoTotal = $model->pago_importe_total;
+                            $tasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $contribuyente->codigoContribuyente, '24976', $montoTotal, 'datos contribuyente, datos graderia');
+                            $model->pago_tasa = $tasa->numeroTasa;
+                            if ($model->save()) {
+                                $resultado = true;
+                            } else {
+                                $resultado = false;
+                            }
+                            //$resultado =$this->actualizarDatosCobro($model);
+                            $mensaje = ($resultado ? "Transaccion Exitosa,  " : " Error al realizar el cobro NO");
+                            return [
+                                'forceReload' => '#crud-datatable-pjax',
+                                'title' => $titulo,
+                                'content' => '<span class="text-success">' . $mensaje . 'Se registro los datos de la preliquidacion. </span>',
+                                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                                    Html::a('recibo preliquidacion', ['recibo-liquidacion', 'id' => $model->pago_id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                            ];
+                        }
+                    } else {
+                        return [
+                            'forceReload' => '#crud-datatable-pjax',
+                            'title' => $titulo,
+                            'content' => '<span class="text-warning">' . 'El contribuyente seleccionado no se encuentra registrado en RUAT. </span>',
+                        ];
+                    }
                 }
-                $model->pago_observaciones = $token;
+                /*
                 if ($model->save()) {
                     $resultado = true;
                 } else {
@@ -283,7 +322,7 @@ class PagosController extends Controller
                     'content' => '<span class="text-success">' . $mensaje . 'Se registro los datos de la preliquidacion. </span>',
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                         Html::a('recibo preliquidacion', ['recibo-liquidacion', 'id' => $model->pago_id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
-                ];
+                ];*/
             } else {
                 return [
                     'title' => $titulo,
@@ -296,9 +335,7 @@ class PagosController extends Controller
                 ];
             }
         } else {
-            /*
-             *   Process for non-ajax request
-             */
+            /*Process for non-ajax request*/
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->pago_id]);
             } else {
@@ -1105,55 +1142,6 @@ class PagosController extends Controller
         if (Yii::$app->user->isGuest) {
             Yii::$app->user->logout(true);
             return $this->goHome();
-        }
-    }
-
-    public function llamar()
-    {
-        $client = new Client();
-        $request = $client->createRequest()
-            ->setMethod('POST')
-            ->setFormat(Client::FORMAT_JSON)
-            ->setUrl('https://consolidacionjboss.ruat.gob.bo/ServiciosRuatJEE-web/api/autentificacion')
-            ->setHeaders(['content-type' => 'application/json'])
-            ->addHeaders(['usuario' => 'SWTASASQUILLACOLLO'])
-            ->addHeaders(['clave' => 'S1234567']);
-
-        $response = $request->send();
-        if ($response->isOk) {
-            $data = json_decode($response->content);
-            return $data->token;
-        } else {
-            return 'no token';
-        }
-    }
-
-    public function getContribuyentePorCi($token, $ci)
-    {
-        VarDumper::dump($token);
-        VarDumper::dump($ci);
-        $client = new Client();
-        $request = $client->createRequest()
-            ->setMethod('POST')
-            ->setFormat(Client::FORMAT_JSON)
-            ->setUrl('https://consolidacionjboss.ruat.gob.bo/RuatServiciosWebContribuyentes/contribuyentes/comun/busquedaContribuyente')
-            ->setHeaders([
-                'Authorization' => "Bearer $token"
-            ])
-            ->setData([
-                'codigoAlcaldia' => 'QUI',
-                'numeroDocumento' => $ci,
-                'tipoDocumento' => 'ci',
-                'expedido' => '',
-            ]);
-
-        $response = $request->send();
-        if ($response->isOk) {
-            $data = json_decode($response->content);
-            return $data;
-        } else {
-            $data = json_decode($response->content);
-            return $data;
         }
     }
 }

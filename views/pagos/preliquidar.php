@@ -9,9 +9,10 @@ use vova07\select2\Widget;
 /* @var $model app\models\Pagos */
 /* @var $form yii\widgets\ActiveForm */
 /* * ************************* */
+
 if (Yii::$app->user->isGuest) {
     Yii::$app->user->logout(true);
-    Yii::app()->session->clear();
+    Yii::$app()->session->clear();
     return $this->goHome();
 }
 
@@ -28,11 +29,11 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
     <div class="row alert alert-info">
         <div class="col-sm-4"><label><?= $modelSitio->zona->zona_nombre; ?></label></div>
         <div class="col-sm-4" id="txt_patente">Patente Bs.: 0</div>
-        <div class="col-sm-4" id="txt_aseo">Aseo Bs.: 0</div>       
-    </div>    
-    <?php $form = ActiveForm::begin(); ?>    
+        <div class="col-sm-4" id="txt_aseo">Aseo Bs.: 0</div>
+    </div>
+    <?php $form = ActiveForm::begin(); ?>
 
-    <?=  $form->field($model, 'pago_con_exencion')->dropDownList([0 => 'No', 1 => 'Si'], [//'prompt'=>'*** Seleccione una opcion ***',
+    <?= $form->field($model, 'pago_con_exencion')->dropDownList([0 => 'No', 1 => 'Si'], [ //'prompt'=>'*** Seleccione una opcion ***',
         'onchange' => 'precioGraderiasSilla(); '
     ]);
     ?>
@@ -51,9 +52,11 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
                 'settings' => ['width' => '100%',],
                 'items' => $listaContribuyentes,
             ]);
-            ?>            
-        </div><div class="col-md-4 col-sm-4">
-            <label>Sindicato:</label><div id="txt_sindicato"></div>                   
+            ?>
+        </div>
+        <div class="col-md-4 col-sm-4">
+            <label>Sindicato:</label>
+            <div id="txt_sindicato"></div>
         </div>
 
     </div>
@@ -64,7 +67,7 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
         'prompt' => ' *** Seleccione una opcion ***',
         'onchange' => 'precioGraderiasSilla();'
     ]);
-    ?> 
+    ?>
 
     <div class="row">
         <div class="col-sm-6">
@@ -74,11 +77,11 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
             <?=
             $form->field($model, 'pago_longitud_modificada')->textInput([
                 'value' => $model->graderiaSilla->grad_longitud,
-                'type'    =>'number', 
-                'min'     =>0.5, 
-                'max'     =>$model->graderiaSilla->grad_longitud, 
-                'step'    =>0.1,
-                'onkeypress'=> 'return isNumber(event)',               
+                'type'    => 'number',
+                'min'     => 0.5,
+                'max'     => $model->graderiaSilla->grad_longitud,
+                'step'    => 0.1,
+                'onkeypress' => 'return isNumber(event)',
                 'onkeyup' => 'actualizar()',
                 'onChange' => 'actualizar()'
             ])
@@ -89,26 +92,28 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
     <div class="row">
         <div class="col-md-3 col-sm-3">
             <?= $form->field($model, 'pago_importe_patente')->textInput(['readonly' => true]) ?>
-        </div><div class="col-md-3 col-sm-3">
-            <?= $form->field($model, 'pago_aseo')->textInput(['readonly' => true]) ?>
-        </div><div class="col-md-3 col-sm-3">
-<?= $form->field($model, 'pago_reposicion')->textInput(['readonly' => true]) ?>
         </div>
         <div class="col-md-3 col-sm-3">
-        <?= $form->field($model, 'pago_importe_total')->textInput(['readonly' => true]) ?>   
+            <?= $form->field($model, 'pago_aseo')->textInput(['readonly' => true]) ?>
+        </div>
+        <div class="col-md-3 col-sm-3">
+            <?= $form->field($model, 'pago_reposicion')->textInput(['readonly' => true]) ?>
+        </div>
+        <div class="col-md-3 col-sm-3">
+            <?= $form->field($model, 'pago_importe_total')->textInput(['readonly' => true]) ?>
         </div>
     </div>
     <?php if (!Yii::$app->request->isAjax) { ?>
         <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+            <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
         </div>
-<?php } ?>
-    
-     <?= $form->field($model, 'pago_observaciones')->textarea(['rows' => 2, 'maxlength' => true,]) ?>  
-   
-    
+    <?php } ?>
 
-<?php ActiveForm::end(); ?>
+    <?= $form->field($model, 'pago_observaciones')->textarea(['rows' => 2, 'maxlength' => true,]) ?>
+
+
+
+    <?php ActiveForm::end(); ?>
 </div>
 
 
@@ -117,42 +122,40 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
 
 
 <script type="text/javascript">
+    function isNumber(evt) {
 
-function isNumber(evt) {
-   
-      evt = (evt) ? evt : window.event;
-      var getNumCd = (evt.which) ? evt.which : evt.keyCode;
-     
-    if ((getNumCd <=57 && getNumCd >= 48)){
-        
-      return true;
+        evt = (evt) ? evt : window.event;
+        var getNumCd = (evt.which) ? evt.which : evt.keyCode;
 
-       }
-    else
-    {
-        
-    return false;
-    } 
-}
+        if ((getNumCd <= 57 && getNumCd >= 48)) {
 
- function sindicatoComprador(idContribuyente) {
+            return true;
+
+        } else {
+
+            return false;
+        }
+    }
+
+    function sindicatoComprador(idContribuyente) {
         if (idContribuyente > 0) {
             $.post("index.php?r=sindicatos/ajax-sindicato&id=" + idContribuyente,
-                    function (data) {
-                        $("#txt_sindicato").text(data);
-                    }
+                function(data) {
+                    $("#txt_sindicato").text(data);
+                }
             );
         }
+
 
     }
 
     function precioGraderiasSilla() {
 
         var longitud = $("#<?= Html::getInputId($model, 'pago_longitud_modificada') ?>").val();
-        
+
         var comprobante = $("#<?= Html::getInputId($model, 'pago_reposicion') ?>").val();
         var exencion = parseInt($("#<?= Html::getInputId($model, 'pago_con_exencion') ?>").val());
-        var longi =$("#<?= Html::getInputId($model, 'longitud') ?>").val();
+        var longi = $("#<?= Html::getInputId($model, 'longitud') ?>").val();
 
         var totalPatente = 0;
         var totalAseo = 0;
@@ -160,100 +163,101 @@ function isNumber(evt) {
 
         if (longitud > 0 && id > 0 && exencion >= 0) {
             $.post("index.php?r=tipo-armados/ajax-tipo-precios&id=" + id,
-                    function (data) {
-                        lista = data.split(" - ");
-                        patente = lista[0];
-                        aseo = lista[1];
+                function(data) {
+                    lista = data.split(" - ");
+                    patente = lista[0];
+                    aseo = lista[1];
 
-                        if (exencion === 0) {  // igual a NO
-                            totalPatente = patente * longitud;                            
-                            totalAseo = aseo * longitud;                            
-                        }
-
-                        totalPatente = totalPatente.toFixed(2);
-                        totalAseo = totalAseo.toFixed(2);
-  
-                        total = parseFloat(totalPatente) + parseFloat(totalAseo) + parseFloat(comprobante);
-                        total = total.toFixed(2);
-                       // print( '$totalPatente - $totalAseo - $comprobante');
-                        $("#txt_patente").text("Patente Bs.:" + patente);
-                        $("#txt_aseo").text("Tasa de aseo Bs.:" + aseo);
-
-                        $("#<?= Html::getInputId($model, 'pago_importe_patente') ?>").val(totalPatente);
-                        $("#<?= Html::getInputId($model, 'pago_aseo') ?>").val(totalAseo);
-                        $("#<?= Html::getInputId($model, 'pago_importe_total') ?>").val(total);
-
+                    if (exencion === 0) { // igual a NO
+                        totalPatente = patente * longitud;
+                        totalAseo = aseo * longitud;
                     }
+
+                    totalPatente = totalPatente.toFixed(2);
+                    totalAseo = totalAseo.toFixed(2);
+
+                    total = parseFloat(totalPatente) + parseFloat(totalAseo) + parseFloat(comprobante);
+                    total = total.toFixed(2);
+                    // print( '$totalPatente - $totalAseo - $comprobante');
+                    $("#txt_patente").text("Patente Bs.:" + patente);
+                    $("#txt_aseo").text("Tasa de aseo Bs.:" + aseo);
+
+                    $("#<?= Html::getInputId($model, 'pago_importe_patente') ?>").val(totalPatente);
+                    $("#<?= Html::getInputId($model, 'pago_aseo') ?>").val(totalAseo);
+                    $("#<?= Html::getInputId($model, 'pago_importe_total') ?>").val(total);
+
+                }
             );
         } else {
             $("#<?= Html::getInputId($model, 'pago_importe_patente') ?>").val(null);
             $("#<?= Html::getInputId($model, 'pago_aseo') ?>").val(null);
             $("#<?= Html::getInputId($model, 'pago_importe_total') ?>").val(null);
         }
-    
-  
+
+
     }
 
-    function actualizar()
-    {
+    function actualizar() {
         var longitud = $("#<?= Html::getInputId($model, 'pago_longitud_modificada') ?>").val();
-        if (longitud=='') longitud=1;
-        if ((parseFloat(longitud)==0)||(parseFloat(longitud)<=0)) { alert('longitud no puede ser igual o menor a 0');
-                                             longitud=(1/2);  }
-        console.log('Longitud es =>', longitud,'porra');
-        
+        if (longitud == '') longitud = 1;
+        if ((parseFloat(longitud) == 0) || (parseFloat(longitud) <= 0)) {
+            alert('longitud no puede ser igual o menor a 0');
+            longitud = (1 / 2);
+        }
+        console.log('Longitud es =>', longitud, 'porra');
+
         var comprobante = $("#<?= Html::getInputId($model, 'pago_reposicion') ?>").val();
         var exencion = parseInt($("#<?= Html::getInputId($model, 'pago_con_exencion') ?>").val());
-        var longi =$("#<?= Html::getInputId($model, 'longitud') ?>").val();
-        if (parseFloat(longitud)>parseFloat(longi)) { alert('Longitud no puede ser mayor a la Longitud Disponible');
-                              longitud=longi; }
+        var longi = $("#<?= Html::getInputId($model, 'longitud') ?>").val();
+        if (parseFloat(longitud) > parseFloat(longi)) {
+            alert('Longitud no puede ser mayor a la Longitud Disponible');
+            longitud = longi;
+        }
         var totalPatente = 0;
         var totalAseo = 0;
         $("#<?= Html::getInputId($model, 'pago_longitud_modificada') ?>").val(longitud);
         var id = $("#<?= Html::getInputId($model, 'tip_arm_id') ?>").val();
         if (longitud > 0 && id > 0 && exencion >= 0) {
             $.post("index.php?r=tipo-armados/ajax-tipo-precios&id=" + id,
-                    function (data) {
-                        lista = data.split(" - ");
-                        patente = lista[0];
-                        aseo = lista[1];
+                function(data) {
+                    lista = data.split(" - ");
+                    patente = lista[0];
+                    aseo = lista[1];
 
-                        if (exencion === 0) {  // igual a NO
-                            totalPatente = patente * longitud;                            
-                            totalAseo = aseo * longitud;                            
-                        }
-
-                        totalPatente = totalPatente.toFixed(2);
-                        totalAseo = totalAseo.toFixed(2);
-  
-                        total = parseFloat(totalPatente) + parseFloat(totalAseo) + parseFloat(comprobante);
-                        total = total.toFixed(2);
-                       // print( '$totalPatente - $totalAseo - $comprobante');
-                        $("#txt_patente").text("Patente Bs.:" + patente);
-                        $("#txt_aseo").text("Tasa de aseo Bs.:" + aseo);
-
-                        $("#<?= Html::getInputId($model, 'pago_importe_patente') ?>").val(totalPatente);
-                        $("#<?= Html::getInputId($model, 'pago_aseo') ?>").val(totalAseo);
-                        $("#<?= Html::getInputId($model, 'pago_importe_total') ?>").val(total);
-
+                    if (exencion === 0) { // igual a NO
+                        totalPatente = patente * longitud;
+                        totalAseo = aseo * longitud;
                     }
+
+                    totalPatente = totalPatente.toFixed(2);
+                    totalAseo = totalAseo.toFixed(2);
+
+                    total = parseFloat(totalPatente) + parseFloat(totalAseo) + parseFloat(comprobante);
+                    total = total.toFixed(2);
+                    // print( '$totalPatente - $totalAseo - $comprobante');
+                    $("#txt_patente").text("Patente Bs.:" + patente);
+                    $("#txt_aseo").text("Tasa de aseo Bs.:" + aseo);
+
+                    $("#<?= Html::getInputId($model, 'pago_importe_patente') ?>").val(totalPatente);
+                    $("#<?= Html::getInputId($model, 'pago_aseo') ?>").val(totalAseo);
+                    $("#<?= Html::getInputId($model, 'pago_importe_total') ?>").val(total);
+
+                }
             );
 
-        
+
         }
-    
-  
+
+
 
     }
 
-    $(document).ready(function () {
-        $("form").keypress(function (e) {
+    $(document).ready(function() {
+        $("form").keypress(function(e) {
             var codigoTecla = parseInt(e.keyCode);
             if (codigoTecla === 13) {
                 return false;
             }
         });
     });
-
-
 </script>
