@@ -62,8 +62,10 @@ class RuatServices extends Component
         }
     }
 
-    public function getDeudaContributente($token, $ci)
+    public function getTieneDeudaContribuyente($token, $ci)
     {
+        return false;
+        /*
         $client = new Client();
         $request = $client->createRequest()
             ->setMethod('POST')
@@ -86,10 +88,10 @@ class RuatServices extends Component
         } else {
             $data = json_decode($response->content);
             return $data;
-        }
+        }*/
     }
 
-    public function createTasa($token, $codigoUsuario, $codigoContribuyente, $codigoClasificador, $monto)
+    public function createTasa($token, $codigoUsuario, $codigoContribuyente, $codigoClasificador, $monto, $obsercaciones)
     {
         $client = new Client();
         $request = $client->createRequest()
@@ -112,7 +114,7 @@ class RuatServices extends Component
                         "monto" => $monto
                     ]
                 ],
-                "observacion" => "NINGUNA"
+                "observacion" => $obsercaciones
             ]);
 
         $response = $request->send();

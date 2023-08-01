@@ -12,7 +12,7 @@ use vova07\select2\Widget;
 
 if (Yii::$app->user->isGuest) {
     Yii::$app->user->logout(true);
-    Yii::app()->session->clear();
+    Yii::$app()->session->clear();
     return $this->goHome();
 }
 
@@ -145,6 +145,7 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreC
                 }
             );
         }
+
 
     }
 
