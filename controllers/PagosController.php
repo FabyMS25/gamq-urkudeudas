@@ -3,20 +3,21 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Pagos;
-use app\models\SearchPagos;
+use Exception;
+
+use yii\web\Response;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use \yii\web\Response;
-use yii\helpers\Html;
-use app\models\Usuario;
-use chrmorandi\jasper\Jasper;
-use yii\helpers\VarDumper;
 
 use app\models\Zonas;
+use app\models\Pagos;
+use app\models\Usuario;
+use app\models\SearchPagos;
 use app\models\Contribuyentes;
 use app\models\GraderiasSillas;
+
+use yii\helpers\Html;
+use yii\filters\VerbFilter;
 
 /**
  * PagosController implements the CRUD actions for Pagos model.
@@ -307,7 +308,7 @@ class PagosController extends Controller
                                     $mensaje = 'No se pudo registrar la tasa en RUAT';
                                 }
                             } else {
-                                $mensaje = 'No se pudor registra la tasa en Urkupiña';
+                                $mensaje = 'No se pudo registrar la tasa en Urkupiña';
                             }
                         }
                     } else {
@@ -357,6 +358,7 @@ class PagosController extends Controller
 
     public function actionCreate()
     {
+        $titulo = '';
         $this->verificarSesion();
         $request = Yii::$app->request;
         $model = new Pagos();
