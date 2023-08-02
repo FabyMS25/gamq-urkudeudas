@@ -12,6 +12,7 @@ use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
 use chrmorandi\jasper\Jasper;
+use yii\helpers\VarDumper;
 
 /**
  * PagosEventualesController implements the CRUD actions for PagosEventuales model.
@@ -354,13 +355,13 @@ class PagosEventualesController extends Controller
     }
     
      // liquidacion de act. economicas eventuales
-    public async function actionCreateEspectaculo()
+    public function actionCreateEspectaculo()
     {
         $this->verificarSesion();
         /**Get CI auth user */
         $idUsuarioAutenticado = Yii::$app->user->id;
         $datos = Usuario::findOne($idUsuarioAutenticado);
-        $ci_usuarioAutenticado = $datos->usua_cuenta;
+        $codigoUsuario = $datos->usua_cuenta;
 
         $request = Yii::$app->request;
         $model = new PagosEventuales();    
@@ -384,7 +385,6 @@ class PagosEventualesController extends Controller
                     ]),
                     'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
                                 Html::button('Guardar',['class'=>'btn btn-primary','type'=>"submit"])
-        
                 ];         
             }else if($model->load($request->post()) && $model->validate()){               
                 $porciones = explode(" a ", $model->rango_fechas);
@@ -406,30 +406,22 @@ class PagosEventualesController extends Controller
                             ];
                         } else {
                             $montoTotal = $model->eventual_importe_total;
-                            $tasa = await Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $contribuyente->codigoContribuyente, '24979', $montoTotal, 'datos generales');
-                            if ($tasa->continuarFlujo) {
-                                $model->eventual_tasa = $tasa->numeroTasa;
-                                if ($model->save()) {
-                                    $resultado = true;
-                                } else {
-                                    $resultado = false;
-                                }
-                                //$resultado =$this->actualizarDatosCobro($model);
-                                $mensaje = ($resultado ? "Transaccion Exitosa,  " : " Error al realizar el cobro NO");
-                                return [
-                                    'forceReload'=>'#crud-datatable-pjax',
-                                    'title'=> $titulo,
-                                    'content'=>'<span class="text-success">Se registro con exito los datos de la act. economica  eventual</span>',
-                                    'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                            Html::a('Recibo preliquidacion',['preliquidacion-actividades', 'id'=>$model->eventual_id],['class'=>'btn btn-primary','role'=>'modal-remote'])
-                                ];
-                            }else{
-                                return [
-                                    'forceReload'=>'#crud-datatable-pjax',
-                                    'title'=> $titulo,
-                                    'content'=>'<span class="text-success">No se pudo registrar la tasa en RUAT</span>',
-                                ];
+                            $tasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $contribuyente->codigoContribuyente, '24979', $montoTotal, 'datos generales');
+                            $model->eventual_tasa = $tasa->numeroTasa;
+                            if ($model->save()) {
+                                $resultado = true;
+                            } else {
+                                $resultado = false;
                             }
+                            //$resultado =$this->actualizarDatosCobro($model);
+                            $mensaje = ($resultado ? "Transaccion Exitosa,  " : " Error al realizar el cobro NO");
+                            return [
+                                'forceReload'=>'#crud-datatable-pjax',
+                                'title'=> $titulo,
+                                'content'=>'<span class="text-success">Se registro con exito los datos de la act. economica  eventual</span>',
+                                'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
+                                        Html::a('Recibo preliquidacion',['preliquidacion-actividades', 'id'=>$model->eventual_id],['class'=>'btn btn-primary','role'=>'modal-remote'])
+                            ];
                         }
                     } else {
                         return [

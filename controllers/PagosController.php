@@ -269,8 +269,8 @@ class PagosController extends Controller
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
                     $ci_contribuyente = $contri->contri_ci;
-                    $contribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
-                    if ($contribuyente->contribuyente) {
+                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
+                    if ($codigoContribuyente) {
                         $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
                         if ($tieneDeudas) {
                             return [
@@ -280,7 +280,7 @@ class PagosController extends Controller
                             ];
                         } else {
                             $montoTotal = $model->pago_importe_total;
-                            $tasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $contribuyente->codigoContribuyente, '24976', $montoTotal, 'datos contribuyente, datos graderia');
+                            $tasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24976', $montoTotal, 'datos contribuyente, datos graderia');
                             $model->pago_tasa = $tasa->numeroTasa;
                             if ($model->save()) {
                                 $resultado = true;
