@@ -55,40 +55,15 @@ class RuatServices extends Component
         $response = $request->send();
         if ($response->isOk) {
             $data = json_decode($response->content);
-            return $data;
+            return $data->codigoContribuyente;
         } else {
-            $data = json_decode($response->content);
-            return $data;
+            return null;
         }
     }
 
     public function getTieneDeudaContribuyente($token, $ci)
     {
         return false;
-        /*
-        $client = new Client();
-        $request = $client->createRequest()
-            ->setMethod('POST')
-            ->setFormat(Client::FORMAT_JSON)
-            ->setUrl($this->baseUrl . '/RuatServiciosWebContribuyentes/contribuyentes/comun/busquedaContribuyente')
-            ->setHeaders([
-                'Authorization' => "Bearer $token"
-            ])
-            ->setData([
-                'codigoAlcaldia' => 'QUI',
-                'numeroDocumento' => $ci,
-                'tipoDocumento' => 'CI',
-                'expedido' => '',
-            ]);
-
-        $response = $request->send();
-        if ($response->isOk) {
-            $data = json_decode($response->content);
-            return $data;
-        } else {
-            $data = json_decode($response->content);
-            return $data;
-        }*/
     }
 
     public function createTasa($token, $codigoUsuario, $codigoContribuyente, $codigoClasificador, $monto, $obsercaciones)
@@ -120,10 +95,10 @@ class RuatServices extends Component
         $response = $request->send();
         if ($response->isOk) {
             $data = json_decode($response->content);
-            return $data;
+            return $data->numeroTasa;
         } else {
             $data = json_decode($response->content);
-            return $data;
+            return null;
         }
     }
 }
