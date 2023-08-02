@@ -59,7 +59,8 @@ $config = [
             'class' => 'app\components\Qrcodetest',
         ],
         'httpClient' => [
-            'class' => 'yii\httpclient\Client'
+            'class' => 'yii\httpclient\Client',
+            'timeout' => 20
         ],
         'ruatServices' => [
             'class' => 'app\components\RuatServices'
