@@ -13,27 +13,25 @@
 	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
-	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="162"/>
+	<property name="ireport.y" value="19"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT pago_id, grad_id, usua_id, contri_id, tip_arm_id,
-lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
-       pago_longitud_modificada,  pago_descuento_porcentaje,
-       pago_descuento_monto, pago_importe_patente, pago_aseo, pago_reposicion,
-       pago_importe_total,
-       pago_id_user_preliquidacion, pago_preliquidacion, pago_fecha_hora_preliquidacion,
-
-       contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit,
-       liquidador, grad_codigo, grad_direccion, grad_longitud, grad_acera,
-       grad_tipo_armado, grad_tipo_sitio, grad_vendido, grad_reservado,
-       grad_estado,
-       tip_arm_descricpion, tip_arm_patente, tip_arm_tasa_aseo,
-       tip_arm_unidad_medida,  zona_nombre, zona_color, zona_descripcion
-  FROM view_graderias_sillas
-  WHERE pago_id = $P{id_pago}]]>
+        lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion,
+        pago_longitud_modificada, pago_descuento_porcentaje,
+        pago_descuento_monto, pago_importe_patente, pago_aseo, pago_reposicion,
+        pago_importe_total, pago_id_user_preliquidacion,
+        pago_preliquidacion, pago_fecha_hora_preliquidacion, pago_tasa,
+        contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit,
+        liquidador, grad_codigo, grad_direccion, grad_longitud, grad_acera,
+        grad_tipo_armado, grad_tipo_sitio, grad_vendido, grad_reservado,
+        grad_estado, tip_arm_descricpion, tip_arm_patente, tip_arm_tasa_aseo,
+        tip_arm_unidad_medida, zona_nombre, zona_color, zona_descripcion
+        FROM view_graderias_sillas
+        WHERE pago_id = $P{id_pago}]]>
 	</queryString>
 	<field name="pago_id" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="pago_id"/>
@@ -149,11 +147,12 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 	<field name="zona_descripcion" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="zona_descripcion"/>
 	</field>
+	<field name="pago_tasa" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="60" splitType="Stretch">
+		<band height="65" splitType="Stretch">
 			<staticText>
 				<reportElement x="90" y="45" width="360" height="15" uuid="563bef1e-6666-46fd-a5a6-14acc4b97e90"/>
 				<textElement textAlignment="Center">
@@ -183,7 +182,7 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 	<pageHeader>
 		<band height="20" splitType="Stretch">
 			<textField>
-				<reportElement x="23" y="0" width="254" height="20" uuid="c9ef4d78-ed49-4098-ab94-37f44d9ab638"/>
+				<reportElement x="21" y="0" width="130" height="20" uuid="c9ef4d78-ed49-4098-ab94-37f44d9ab638"/>
 				<box leftPadding="5">
 					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
@@ -196,19 +195,33 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 				<textFieldExpression><![CDATA["N° : " + $F{pago_nro_liquidacion}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy h:mm a">
-				<reportElement x="425" y="4" width="100" height="15" uuid="76402e2f-c105-4854-8c71-3eecc4d7ced7"/>
+				<reportElement x="432" y="4" width="93" height="15" uuid="76402e2f-c105-4854-8c71-3eecc4d7ced7"/>
 				<textElement>
 					<font size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="326" y="4" width="100" height="15" uuid="3dd3785c-8767-47eb-ab16-e52cb6c47b24"/>
+				<reportElement x="345" y="4" width="87" height="15" uuid="3dd3785c-8767-47eb-ab16-e52cb6c47b24"/>
 				<textElement>
 					<font size="8"/>
 				</textElement>
 				<text><![CDATA[Fecha y hora impresion:]]></text>
 			</staticText>
+			<textField>
+				<reportElement x="155" y="0" width="120" height="20" uuid="f5e2f9b5-3b51-4e1e-9f96-41c472e91618"/>
+				<box leftPadding="5">
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Tasa: " + $F{pago_tasa}]]></textFieldExpression>
+			</textField>
 		</band>
 	</pageHeader>
 	<detail>
@@ -465,12 +478,15 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 				<text><![CDATA[Señor(a) contribuyentes verifique sus datos antes de realizar el pago a caja.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="75" y="291" width="388" height="28" uuid="57117e35-2925-4619-850c-b2226efb0c36"/>
-				<textElement textAlignment="Center"/>
+				<reportElement x="3" y="287" width="522" height="14" uuid="57117e35-2925-4619-850c-b2226efb0c36"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
 				<text><![CDATA["LA PRESENTE PRE-LIQUIDACION TIENE VALIDEZ HASTA LA 18:00 HRS. DEL PRESENTE DIA Y FIRMA EN CONFORMIDAD"]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="79" y="343" width="139" height="13" uuid="ec7b01f4-1cf2-4e5c-8884-de6ba399454e"/>
+				<textElement textAlignment="Center"/>
 				<text><![CDATA[.................................................]]></text>
 			</staticText>
 			<staticText>
@@ -479,6 +495,7 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 			</staticText>
 			<textField>
 				<reportElement x="98" y="356" width="100" height="17" uuid="c1afab65-13f8-4469-b785-2909280075e1"/>
+				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA[$F{liquidador}]]></textFieldExpression>
 			</textField>
 			<textField>
@@ -503,6 +520,13 @@ lpad(pago_nro_liquidacion,8,'0') AS pago_nro_liquidacion ,
 				<reportElement x="3" y="216" width="312" height="20" uuid="3a323f04-bacb-4af8-8883-a944a7f582f6"/>
 				<textFieldExpression><![CDATA[$P{monto_literal}]]></textFieldExpression>
 			</textField>
+			<staticText>
+				<reportElement x="3" y="303" width="522" height="14" uuid="fb5d3b6f-c784-4741-a7bd-657daed1c749"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[COMPROMISO DE RESGUARDAR EL CUIDADO DEL HORNATO PUBLICO (ACERAS, JARDINERAS, PLANTAS, ETC.)]]></text>
+			</staticText>
 		</band>
 	</detail>
 </jasperReport>
