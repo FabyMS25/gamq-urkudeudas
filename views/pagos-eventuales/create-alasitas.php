@@ -12,7 +12,7 @@ use app\models\SitiosEventuales;
 /****************************/
 if (Yii::$app->user->isGuest) {
     Yii::$app->user->logout(true);
-    Yii::app()->session->clear();
+    Yii::$app->session->clear();
     return $this->goHome();
 }
 /****************************/

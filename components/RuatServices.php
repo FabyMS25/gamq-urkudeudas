@@ -31,7 +31,7 @@ class RuatServices extends Component
             $data = json_decode($response->content);
             return $data->token;
         } else {
-            return 'no token';
+            return null;
         }
     }
 
@@ -49,7 +49,6 @@ class RuatServices extends Component
                 'codigoAlcaldia' => 'QUI',
                 'numeroDocumento' => $ci,
                 'tipoDocumento' => 'CI',
-                'expedido' => '',
             ]);
 
         $response = $request->send();
@@ -83,7 +82,6 @@ class RuatServices extends Component
                 "servicioMunicipal" => "2174",
                 "datosConcepto" => [
                     [
-                        "numero" => "1",
                         "codigoClasificador" => $codigoClasificador,
                         "tipoArancel" => "DI",
                         "monto" => $monto
