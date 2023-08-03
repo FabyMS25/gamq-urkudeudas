@@ -60,7 +60,6 @@ $config = [
         ],
         'httpClient' => [
             'class' => 'yii\httpclient\Client',
-            'timeout' => 20
         ],
         'ruatServices' => [
             'class' => 'app\components\RuatServices'
