@@ -1,7 +1,6 @@
 <?php
 namespace app\controllers;
 
-use app\models\Contribuyentes;
 use Yii;
 use app\models\PagosEventuales;
 use app\models\SearchPagosEventuales;
@@ -11,7 +10,8 @@ use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
-use chrmorandi\jasper\Jasper;
+use app\models\ActividadesEconomicas;
+use app\models\Contribuyentes;
 use yii\helpers\VarDumper;
 
 /**
@@ -454,7 +454,7 @@ class PagosEventualesController extends Controller
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio=$porciones[0];
                 $model->eventual_fecha_limite=$porciones[1];
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S12345678');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -466,22 +466,22 @@ class PagosEventualesController extends Controller
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
                         } else {
                             $montoTotal = $model->eventual_importe_total;
-                            //$model->eventual_tasa = $tasa->numeroTasa;
                             if ($model->save()) {
                                 $pagoEventual = PagosEventuales::findOne($model->eventual_id);
                                 $obs = 'Datos espectáculo => ' .
                                     ' Nro liquidación: ' . $pagoEventual->eventual_nro_liquidacion .
                                     ' Nro tasa RUAT: ' . $pagoEventual->eventual_importe_total;
-                                $nroTasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24976', $montoTotal, $obs);
+                                $obsTest = 'Datos espectaculo ';
+                                $nroTasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24976', $montoTotal, $obsTest);
                                 if ($nroTasa) {
                                     $resultado = true;
-                                    $mensaje = 'Se registro los datos de la preliquidación con exito en RUAT';
-                                    $id = $model->pago_id;
+                                    $id = $model->eventual_id;
                                     $sql = 'UPDATE pagos_eventuales SET eventual_tasa=:tasa WHERE eventual_id=:id';
                                     $command = Yii::$app->db->createCommand($sql)
-                                        ->bindValue(':id', $id)
-                                        ->bindValue(':tasa', $nroTasa)
-                                        ->queryOne();
+                                    ->bindValue(':id', $id)
+                                    ->bindValue(':tasa', $nroTasa)
+                                    ->queryOne();
+                                    $mensaje = 'Se registro los datos de la preliquidación con exito en RUAT';
                                 } else {
                                     $mensaje = 'No se pudo registrar la preliquidacion en RUAT';
                                 }
@@ -540,18 +540,25 @@ class PagosEventualesController extends Controller
      // liquidacion de act. economicas eventuales
     public function actionCreatePublicidad()
     {
-         $this->verificarSesion();
+        $this->verificarSesion();
         $request = Yii::$app->request;
+        $idUsuario = Yii::$app->user->id;
+        
+        $datos = Usuario::findOne($idUsuario);
+        $username = $datos->usua_cuenta;
+
         $model = new PagosEventuales(); 
         $model->scenario = "crear_publicidad_liquidacion";
-        
+        //////////Auth
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+        /////////
         $model->eventual_preliquidacion = 1;
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
         $model->eventual_costo_comprobante=$model::COMPROBANTE; 
         $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
         $model->eventual_cantidad_dia = 1;
         $model->eventual_costo_sentaje= 0;
-        
+        //$model->usua_id = $idUsuario;
         $titulo = "Preliquidacion de publicidad";
 
         if($request->isAjax){
@@ -574,14 +581,57 @@ class PagosEventualesController extends Controller
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio=$porciones[0];
                 $model->eventual_fecha_limite=$porciones[1];
+               //////////////////////////////////AUTH Inicio///////////////////////////////
+              
+                if ($token) {
+                    $id = $model->contri_id;
+                    $contri = Contribuyentes::findOne($id);
+                    $ci_contribuyente = $contri->contri_ci;
+                    $acti= ActividadesEconomicas::findOne($model->activi_id);
+                    $contribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
+                    //VarDumper::dump($contribuyente);
+                    if ($contribuyente) {
+                        $tieneDeudas = false; //Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
+                        
+                        if ($tieneDeudas) {
+                            return [
+                                'forceReload' => '#crud-datatable-pjax',
+                                'title' => $titulo,
+                                'content' => '<span class="text-warning">' . 'El contribuyente seleccionado tiene deudad pendientes, no podemos registrar la tasa. </span>',
+                            ];
+                       
+                        }
+                    }
+                }
+               
+               
+               ////////////////////////////////////FIn de Autht////////////////////////////
                 if($model->save()):
+                    
+                    $pagoE = PagosEventuales::findOne($model->eventual_id);
+                    $id=$pagoE->eventual_id;
+                    $montoTotal=$pagoE->eventual_importe_total;
+                    $plq= $pagoE->eventual_nro_liquidacion;
+                    $obs = 'Publicidad Actividad Economica ' .$acti->activi_descripcion .' NroPreliquidacion ' .$plq;
+                    ///$obs = $obs  .' Por ' .$pagoE->eventual_cantidad_dia  .' Dias EN FECHAS ' .$pagoE->eventual_fecha_inicio;
+                    //$obs = $obs  .' a ' .$pagoE->eventual_fecha_limite .' Para ' .$pagoE->eventual_cantidad_sitio .' Puestos';
+
+                    $tasa = Yii::$app->ruatServices->createTasa($token, $username, $contribuyente, '24976', $montoTotal, $obs);
+                     if($tasa){
+                            $sql = 'UPDATE pagos_eventuales SET eventual_tasa=:tasa WHERE eventual_id=:id';
+                            $command = Yii::$app->db->createCommand($sql)
+                                ->bindValue(':id', $id)
+                                ->bindValue(':tasa',$tasa)
+                                ->queryOne();
+                    }    
                     return [
                     'forceReload'=>'#crud-datatable-pjax',
                     'title'=> $titulo,
                     'content'=>'<span class="text-success">Se registro con exito los datos de la act. economica  eventual</span>',
                     'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
                             Html::a('Recibo preliquidacion',['preliquidacion-actividades', 'id'=>$model->eventual_id],['class'=>'btn btn-primary','role'=>'modal-remote'])
-                ];   
+                    ];   
+             
                 endif;
                       
             }else{           
