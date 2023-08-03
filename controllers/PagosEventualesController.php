@@ -12,6 +12,7 @@ use yii\helpers\Html;
 use app\models\Usuario;
 use app\models\ActividadesEconomicas;
 use app\models\Contribuyentes;
+use app\models\SitiosEventuales;
 use yii\helpers\VarDumper;
 
 /**
@@ -213,6 +214,11 @@ class PagosEventualesController extends Controller
     {
          $this->verificarSesion();
         $request = Yii::$app->request;
+
+        $idUsuarioAutenticado = Yii::$app->user->id;
+        $datos = Usuario::findOne($idUsuarioAutenticado);
+        $ci_usuarioAutenticado = $datos->usua_cuenta;
+
         $model = new PagosEventuales(); 
        
         $model->scenario = "crear_eventual_liquidacion";
@@ -245,16 +251,79 @@ class PagosEventualesController extends Controller
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio=$porciones[0];   //aqui partimos la fecha
                 $model->eventual_fecha_limite=$porciones[1];
-                if($model->save()):
+
+   
+                $montoTotal = $model->eventual_importe_total;
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                if($token) { 
+                    $id = $model->contri_id;
+                    $contri = Contribuyentes::findOne($id);
+                    $ci_contribuyente = $contri->contri_ci;
+                    $contribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);  
+                    if ($contribuyente) {
+                      $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $contribuyente);
+                      if ($tieneDeudas) {
+                        return [
+                            'forceReload' => '#crud-datatable-pjax',
+                            'title' => $titulo,
+                            'content' => '<span class="text-warning">' . 'El contribuyente seleccionado tiene deudas pendientes, no es posible registrar la TASA. </span>',
+                        ];
+                      }  
+                      else {
+                        $ideventual = $model->eventual_id;
+                        
+                        $idactividad = $model->activi_id;
+                        $acti = ActividadesEconomicas::findOne($idactividad);
+
+                        $idsitio = $model->sitios_id;
+                        $sitio = SitiosEventuales::findOne($idsitio);
+                        
+                        $obs = 'Actividades economicas eventuales'.
+                               ' actividad economica '. $acti->activi_descripcion . 
+                               ' Ubicacion '. $sitio->sitios_descripcion .
+                               ' Nro de Puesto '. $sitio->sitios_numero_sitio ;
+                              // ' fecha inicio '. $event->eventual_fecha_inicio .
+                              // ' fecha fin '. $event->eventual_fecha_limite;
+                              // ' CodigoSitio: '. $sitio->sitios_codigo .
+                         
+                        $tasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $contribuyente, '24977', $montoTotal, $obs);     
+                        if ($tasa) {
+                            if($model->save()):
+                                $id=$model->eventual_id;
+                                // VarDumper::dump($tasa);    
+                                $sql = 'UPDATE pagos_eventuales SET eventual_tasa=:tasa WHERE eventual_id=:id';
+                                $command = Yii::$app->db->createCommand($sql)
+                                    ->bindValue(':id', $id)
+                                    ->bindValue(':tasa', $tasa)
+                                    ->queryOne();
+   
+                                return [
+                                'forceReload'=>'#crud-datatable-pjax',
+                                'title'=> $titulo,
+                                'content'=>'<span class="text-success">Se registro con exito los datos de la act. economica  eventual</span>',
+                                'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
+                                        Html::a('Recibo preliquidacion',['preliquidacion-sitios', 'id'=>$model->eventual_id],['class'=>'btn btn-primary','role'=>'modal-remote'])
+                            ];   
+                            endif;
+                        }
+                        else {
+                            return [
+                                'forceReload' => '#crud-datatable-pjax',
+                                'title' => $titulo,
+                                'content' => '<span class="text-warning">' . 'no se ha registrado la tasa en RUAT. Verifique por favor </span>',
+                                'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"])
+                            ];
+                        }
+                    }
+                } else {
                     return [
-                    'forceReload'=>'#crud-datatable-pjax',
-                    'title'=> $titulo,
-                    'content'=>'<span class="text-success">Se registro con exito los datos de la act. economica  eventual</span>',
-                    'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                            Html::a('Recibo preliquidacion',['preliquidacion-sitios', 'id'=>$model->eventual_id],['class'=>'btn btn-primary','role'=>'modal-remote'])
-                ];   
-                endif;
-                      
+                        'forceReload' => '#crud-datatable-pjax',
+                        'title' => $titulo,
+                        'content' => '<span class="text-warning">' . 'El contribuyente seleccionado no se encuentra registrado en RUAT. Verifique por favor </span>',
+                        'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"])
+                    ];
+                 }
+                }
             }else{           
                 return [
                     'title'=> $titulo,
@@ -263,7 +332,6 @@ class PagosEventualesController extends Controller
                     ]),
                     'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
                                 Html::button('Guardar',['class'=>'btn btn-primary','type'=>"submit"])
-        
                 ];         
             }
         }else{
