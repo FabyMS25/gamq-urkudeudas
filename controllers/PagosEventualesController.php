@@ -394,7 +394,7 @@ class PagosEventualesController extends Controller
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio=$porciones[0];
                 $model->eventual_fecha_limite=$porciones[1];
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S12345678');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -406,22 +406,22 @@ class PagosEventualesController extends Controller
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
                         } else {
                             $montoTotal = $model->eventual_importe_total;
-                            //$model->eventual_tasa = $tasa->numeroTasa;
                             if ($model->save()) {
                                 $pagoEventual = PagosEventuales::findOne($model->eventual_id);
                                 $obs = 'Datos espectáculo => ' .
                                     ' Nro liquidación: ' . $pagoEventual->eventual_nro_liquidacion .
                                     ' Nro tasa RUAT: ' . $pagoEventual->eventual_importe_total;
-                                $nroTasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24976', $montoTotal, $obs);
+                                $obsTest = 'Datos espectaculo ';
+                                $nroTasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24976', $montoTotal, $obsTest);
                                 if ($nroTasa) {
                                     $resultado = true;
-                                    $mensaje = 'Se registro los datos de la preliquidación con exito en RUAT';
-                                    $id = $model->pago_id;
+                                    $id = $model->eventual_id;
                                     $sql = 'UPDATE pagos_eventuales SET eventual_tasa=:tasa WHERE eventual_id=:id';
                                     $command = Yii::$app->db->createCommand($sql)
-                                        ->bindValue(':id', $id)
-                                        ->bindValue(':tasa', $nroTasa)
-                                        ->queryOne();
+                                    ->bindValue(':id', $id)
+                                    ->bindValue(':tasa', $nroTasa)
+                                    ->queryOne();
+                                    $mensaje = 'Se registro los datos de la preliquidación con exito en RUAT';
                                 } else {
                                     $mensaje = 'No se pudo registrar la preliquidacion en RUAT';
                                 }
