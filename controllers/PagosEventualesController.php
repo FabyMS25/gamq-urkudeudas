@@ -1,7 +1,6 @@
 <?php
 namespace app\controllers;
 
-use app\models\Contribuyentes;
 use Yii;
 use app\models\PagosEventuales;
 use app\models\SearchPagosEventuales;
@@ -13,7 +12,6 @@ use yii\helpers\Html;
 use app\models\Usuario;
 use app\models\ActividadesEconomicas;
 use app\models\Contribuyentes;
-use chrmorandi\jasper\Jasper;
 use yii\helpers\VarDumper;
 
 /**

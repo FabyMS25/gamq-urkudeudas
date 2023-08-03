@@ -99,4 +99,33 @@ class RuatServices extends Component
             return null;
         }
     }
+
+    public function anularTasa($token, $codigoUsuario, $nroTasa, $motivo, $obsercaciones)
+    {
+        $client = new Client();
+        $request = $client->createRequest()
+            ->setMethod('POST')
+            ->setFormat(Client::FORMAT_JSON)
+            ->setUrl($this->baseUrl . '/RuatServiciosWebTasasOI/tasasOI/anulacionTasa')
+            ->setHeaders([
+                'Authorization' => "Bearer $token"
+            ])
+            ->setData([
+                "codigoAlcaldia" => "QUI",
+                "codigoUsuario" => $codigoUsuario,
+                "numeroTasa" => $nroTasa,
+                "tipoTasa" => 'TO',
+                "motivoTasa" => $motivo,
+                "observacion" => $obsercaciones
+            ]);
+
+        $response = $request->send();
+        if ($response->isOk) {
+            $data = json_decode($response->content);
+            return $data->continuarFlujo;
+        } else {
+            $data = json_decode($response->content);
+            return $data->continuarFlujo;;
+        }
+    }
 }
