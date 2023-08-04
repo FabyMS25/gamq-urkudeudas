@@ -275,7 +275,7 @@ class PagosEventualesController extends Controller
                         $sitio = SitiosEventuales::findOne($idsitio);
                         $categoria =Categorias:: findOne($model->categoria);
                         
-                        $obs = 'DATOS DE ACTIVIDAD: EVENTUALES   '.
+                        $obs = 'DATOS DE ACTIVIDAD: EVENTUALES  '.
                                 ', Categoria: '.$categoria->categ_nombre.
                                 ', Actividad economica: '. $acti->activi_descripcion . 
                                 ', Codigo Puesto: '.$sitio->sitios_codigo.
@@ -369,7 +369,6 @@ class PagosEventualesController extends Controller
         $model->patente = 0;
         $model->sentaje = 0;
         $model->aseo = 0;
-        $model->eventual_descripcion = "ALASITAS " . date('Y');
         $model->eventual_cobrado = 0;
         $model->eventual_preliquidacion = 1;
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
@@ -413,7 +412,7 @@ class PagosEventualesController extends Controller
                             $actividad= ActividadesEconomicas::findOne($model->activi_id);                                                     
                             $sitio= SitiosEventuales::findOne($model->sitios_id); 
                             $montoTotal = $model->eventual_importe_total;
-                            $obs = 'DATOS ACTIVIDAD: ' .$model->eventual_descripcion.
+                            $obs = 'DATOS ACTIVIDAD: ' ."ALASITAS " . date('Y').
                                     ', Clasificador: ' .$codigoClasificador.
                                     ', Descripcion Act:' .$actividad->activi_descripcion .
                                     ', Fechas de Act: ' .$porciones[0]." a " .$porciones[1].
