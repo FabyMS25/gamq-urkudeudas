@@ -739,14 +739,40 @@ class PagosEventualesController extends Controller
     
     public function actionAnularLiquidacion($id)
     {
-       $this->verificarSesion();
+        $this->verificarSesion();
        
         $request = Yii::$app->request;
         $model = $this->findModel($id);
         //$model->eventual_anulado= 1;
-        $model->eventual_estado = 0;
-        $resultado = $model->save(false);
-        $mensaje = $resultado? "<span class='text-success'>Se anulo la liquidacion con exito.</span>": "<span class='text-danger'>Error no se pudo anular la liquidacion.</span>";
+         
+        $idUsuarioAutenticado = Yii::$app->user->id;
+        $datos = Usuario::findOne($idUsuarioAutenticado);
+        $ci_usuarioAutenticado = $datos->usua_cuenta;
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+        if($token) { 
+            $nrotasa = $model->eventual_tasa;
+            if ($nrotasa)
+            { 
+                $observacion = 'A SOLICITUD DEL CONTRIBUYENTE';
+                $anulartasa = Yii::$app->ruatServices->anularTasa($token, $ci_usuarioAutenticado, $nrotasa, 'A SOLICITUD DEL CONTRIBUYENTE', $observacion);
+                if ($anulartasa)
+                {
+                    $model->eventual_estado = 0;
+                    $resultado = $model->save(false);
+                    $mensaje = $resultado? "<span class='text-success'>Se anulo la liquidacion con exito.</span>": "<span class='text-danger'>Error no se pudo anular la liquidacion.</span>";
+                }
+                else {
+                    $mensaje = '<span class="text-warning">' . 'no se pudo eliminar la tasa en RUAT. </span>';
+                }
+            }
+            else {
+                $mensaje = '<span class="text-warning">' . 'es necesario el numero de tasa para eliminar. </span>';
+            }
+        }
+        else {
+            $mensaje = '<span class="text-warning">' . 'verifique no existe acceso a RUAT. </span>';
+        }
+
         if($request->isAjax){
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
@@ -758,7 +784,6 @@ class PagosEventualesController extends Controller
         }else{
             return $this->render('index');
         }
-
     }
 
     public function actionDelete($id)
