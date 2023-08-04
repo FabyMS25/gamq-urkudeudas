@@ -105,13 +105,13 @@ return [
                         return Html::a('<i class="glyphicon  glyphicon-remove-circle"></i>', ['anular-preliquidacion', 'id'=>$model->pago_id],
                                 ['title'=> 'Anular preliquidacion ',
                                      'class'=>'btn btn-primary btn-xs',
-                                    'role'=>'modal-remote', 
-                                    'data-confirm'=>false, 'data-method'=>false,// for overide yii data api
-                          'data-request-method'=>'post',
-                          'data-toggle'=>'tooltip',
-                          'data-confirm-title'=>'ADVERTENCIA',
-                          'data-confirm-message'=>'¿Esta seguro de anular la preliquidacion '.$model->pago_nro_liquidacion.'?'
-                        ]);
+                                    'role'=>'modal-remote', 'data-toggle'=>'tooltip', ]);
+                                  //  'data-confirm'=>false, 'data-method'=>false,// for overide yii data api
+                          //'data-request-method'=>'post',
+                          
+                          //'data-confirm-title'=>'ADVERTENCIA',
+                          //'data-confirm-message'=>'¿Esta seguro de anular la preliquidacion '.$model->pago_nro_liquidacion.'?'
+                        
                     
                 },
                 

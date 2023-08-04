@@ -528,9 +528,58 @@ class PagosController extends Controller
         $modelGraderia->grad_vendido = 0;
         $modelGraderia->grad_longitud = $modelGraderia->grad_longitud + $pago_longitud_modificada;
         $resultado = false;
+        $titulo = "Anular preliquidacion de " . $model->graderiaSilla->grad_codigo;
 
+        if ($request->isAjax) {
+            /*           Process for ajax request            */
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            if ($request->isGet) {
+                return [
+                    'title' => $titulo,
+                    'content' => $this->renderAjax('anular', ['model' => $model,]),
+                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                ];
+            } else if ($model->load($request->post()) && $model->validate() && $modelGraderia->save(false)) {
+                $model->usua_id = Yii::$app->user->id;
+                //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
+                
+
+                if ($model->save())
+                    $resultado = true;
+                else
+                    $resultado = false;
+                //$resultado =$this->actualizarDatosCobro($model);
+                $mensaje = ($resultado ? "Se Anulo correctamente" : " Error al realizar la Anulacion");
+                return [
+                    'forceReload' => '#crud-datatable-pjax',
+                    'title' => $titulo,
+                    'content' => '<span class="text-success">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
+                        ' <br> Importe total Bs.: ' . $model->pago_importe_total . '  </span>',
+                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+                ];
+            } else {
+                return [
+                    'title' => $titulo,
+                    'content' => $this->renderAjax('anular', ['model' => $model,]),
+                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                        Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
+                ];
+            }
+        } else {
+            /*
+             *   Process for non-ajax request
+             */
+            if ($model->load($request->post()) && $model->save() ) {
+                return $this->redirect(['view', 'id' => $model->pago_id]);
+            } else {
+                return $this->render('anular', [
+                    'model' => $model,
+                ]);
+            }
+        }
         //$transaction = Yii::$app->db->beginTransaction();
-        try {
+      /*  try {
             if ($modelGraderia->save(false) && $model->save(false)) {
                 //$transaction->commit();
                 $resultado = true;
@@ -545,7 +594,7 @@ class PagosController extends Controller
 
 
         if ($request->isAjax) {
-            /*   Process for ajax request             */
+            
             Yii::$app->response->format = Response::FORMAT_JSON;
             // return ['forceCerrar' => true, 'forceReload' => '#crud-datatable-pjax'];
             return [
@@ -556,7 +605,7 @@ class PagosController extends Controller
             ];
         } else {
             return $this->redirect(['preliquidaciones']);
-        }
+        }*/
     }
 
     public function actionReciboLiquidacion($id)

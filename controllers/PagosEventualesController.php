@@ -12,7 +12,6 @@ use \yii\web\Response;
 use yii\helpers\Html;
 use app\models\Usuario;
 use app\models\ActividadesEconomicas;
-use app\models\Contribuyentes;
 use chrmorandi\jasper\Jasper;
 use yii\helpers\VarDumper;
 
@@ -616,24 +615,45 @@ class PagosEventualesController extends Controller
        $this->verificarSesion();
        
         $request = Yii::$app->request;
+        $idUsuario = Yii::$app->user->id;
+        $datos = Usuario::findOne($idUsuario);
+        $username = $datos->usua_cuenta;
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
         $model = $this->findModel($id);
-        //$model->eventual_anulado= 1;
-        $model->eventual_estado = 0;
-        $resultado = $model->save(false);
-        $mensaje = $resultado? "<span class='text-success'>Se anulo la liquidacion con exito.</span>": "<span class='text-danger'>Error no se pudo anular la liquidacion.</span>";
-        if($request->isAjax){
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return [
-                    'forceReload'=>'#crud-datatable-pjax',
-                    'title'=> "Anular liquidacion nro. ".$model->eventual_nro_liquidacion,
-                    'content'=> $mensaje,
-                    'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"])
-                ];    
-        }else{
-            return $this->render('index');
-        }
+        $model->eventual_anulado= 1;
+        $motivo=$model->eventual_descripcion;
+        $tasa= $model->eventual_tasa;
+        $anulado =false; //Yii::$app->ruatServices->anulartasa($token,$username,$tasa,'','La preliquidacion no se pago');
 
-    }
+        if($anulado){
+                    $resultado = $model->save(false);
+                    $mensaje = $resultado? "<span class='text-success'>Se anulo la liquidacion con exito.</span>": "<span class='text-danger'>Error no se pudo anular la liquidacion.</span>";
+                    if($request->isAjax){
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [
+                                'forceReload'=>'#crud-datatable-pjax',
+                                'title'=> "Anular liquidacion nro. ".$model->eventual_nro_liquidacion,
+                                'content'=> $mensaje,
+                                'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"])
+                            ];    
+                    }else{
+                        return $this->render('index');
+                    }
+
+                }
+                else{
+                    $mensaje = $motivo; // "<span class='text-danger'> Error no se pudo anular la liquidacion.</span>" ;
+                    if($request->isAjax){
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [
+                                'forceReload'=>'#crud-datatable-pjax',
+                                'title'=> "Error al Anular liquidacion nro. ".$model->eventual_nro_liquidacion,
+                                'content'=> $mensaje,
+                                'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"])
+                        ];
+                    }
+                }
+    }         
 
     public function actionDelete($id)
     {
