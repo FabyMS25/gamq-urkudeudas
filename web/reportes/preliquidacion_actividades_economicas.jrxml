@@ -15,7 +15,7 @@
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="166"/>
+	<property name="ireport.y" value="165"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
 	<queryString>
@@ -246,7 +246,7 @@
 				<textFieldExpression><![CDATA[$F{contri_nit}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="21" y="74" width="92" height="15" uuid="802a1add-084d-43c1-a953-ad8978484f1f">
+				<reportElement positionType="FixRelativeToBottom" x="21" y="89" width="92" height="15" uuid="802a1add-084d-43c1-a953-ad8978484f1f">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 				</reportElement>
 				<box leftPadding="4"/>
@@ -256,7 +256,7 @@
 				<text><![CDATA[TOTAL PUESTOS:]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="113" y="74" width="80" height="15" uuid="8d91b444-8f45-4348-92c5-42083d347cb2">
+				<reportElement positionType="FixRelativeToBottom" x="113" y="89" width="80" height="15" uuid="8d91b444-8f45-4348-92c5-42083d347cb2">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
@@ -472,6 +472,46 @@
 				</textElement>
 				<text><![CDATA[COMPROMISO DE RESGUARDAR EL CUIDADO DEL HORNATO PUBLICO (ACERAS, JARDINERAS, PLANTAS, ETC.)]]></text>
 			</staticText>
+			<staticText>
+				<reportElement x="21" y="73" width="92" height="15" uuid="25fc9db0-673f-45c5-bfff-587f39178147"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL DIAS: ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="113" y="73" width="107" height="15" uuid="d034ea64-22ab-4eff-bb77-9a5c282cb247"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_cantidad_dia}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="241" y="73" width="24" height="15" uuid="7486f72f-8f29-4dde-9046-5bebd29f62f0"/>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="271" y="73" width="75" height="15" uuid="03052b7d-11f0-48b0-8146-71a308d8dec4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_fecha_inicio}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="350" y="73" width="20" height="15" uuid="c1953d16-d231-4249-9acc-5f2161b87ef8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[AL]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="374" y="73" width="75" height="15" uuid="92b06bdb-51e6-4ee0-a706-cf71c13477ca"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{eventual_fecha_limite}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 </jasperReport>

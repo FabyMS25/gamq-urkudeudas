@@ -15,7 +15,7 @@
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="19"/>
+	<property name="ireport.y" value="211"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
 	<queryString>
@@ -182,7 +182,7 @@
 	<pageHeader>
 		<band height="20" splitType="Stretch">
 			<textField>
-				<reportElement x="21" y="0" width="130" height="20" uuid="c9ef4d78-ed49-4098-ab94-37f44d9ab638"/>
+				<reportElement x="23" y="0" width="130" height="20" uuid="c9ef4d78-ed49-4098-ab94-37f44d9ab638"/>
 				<box leftPadding="5">
 					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
@@ -209,7 +209,7 @@
 				<text><![CDATA[Fecha y hora impresion:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="155" y="0" width="120" height="20" uuid="f5e2f9b5-3b51-4e1e-9f96-41c472e91618"/>
+				<reportElement x="156" y="0" width="120" height="20" uuid="f5e2f9b5-3b51-4e1e-9f96-41c472e91618"/>
 				<box leftPadding="5">
 					<pen lineWidth="1.0"/>
 					<topPen lineWidth="1.0"/>
