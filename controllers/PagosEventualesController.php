@@ -743,9 +743,9 @@ class PagosEventualesController extends Controller
        
         $request = Yii::$app->request;
         $idUsuario = Yii::$app->user->id;
-        $datos = Usuario::findOne($idUsuario);
-        $username = $datos->usua_cuenta;
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+       // $datos = Usuario::findOne($idUsuario);
+        //$username = $datos->usua_cuenta;
+        //$token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
         $model = $this->findModel($id);
         //$model->eventual_anulado= 1;
          

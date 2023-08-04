@@ -542,15 +542,27 @@ class PagosController extends Controller
                 ];
             } else if ($model->load($request->post()) && $model->validate() && $modelGraderia->save(false)) {
                 $model->usua_id = Yii::$app->user->id;
+                $idUsuario = $model->usua_id;
+                $datos = Usuario::findOne($idUsuario);
+                $username = $datos->usua_cuenta;
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
                 //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
-                
+                if($token)
+                {   $motivo= $model->pago_anulado_detalle;
+                    $observacion = $model->pago_observaciones;
+                    $nrotasa= $model->pago_tasa;
+                    $anulartasa = Yii::$app->ruatServices->anularTasa($token, $username, $nrotasa, $motivo, $observacion);
+
+                }
+                else 
+                    $anulartasa=false;
 
                 if ($model->save())
                     $resultado = true;
                 else
                     $resultado = false;
                 //$resultado =$this->actualizarDatosCobro($model);
-                $mensaje = ($resultado ? "Se Anulo correctamente" : " Error al realizar la Anulacion");
+                $mensaje = ($resultado && $anulartasa ? "Se Anulo correctamente" : " Error al realizar la Anulacion");
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
