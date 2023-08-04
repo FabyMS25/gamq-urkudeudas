@@ -12,7 +12,7 @@ use app\models\SitiosEventuales;
 /****************************/
 if (Yii::$app->user->isGuest) {
     Yii::$app->user->logout(true);
-    Yii::app()->session->clear();
+    Yii::$app->session->clear();
     return $this->goHome();
 }
 /****************************/
@@ -25,6 +25,7 @@ $modelContribuyente = new app\models\Contribuyentes();
 $listaModelContri = $modelContribuyente->ListaContribuyentesModel();
 $listaContribuyentes = ArrayHelper::map($listaModelContri, 'contri_id', 'nombreCompletoCiContribuyente');
 
+$datoCont = $modelContribuyente->findOne($model->contri_id);
 // actividades economicas
 
 $modelActividadesEconomicas = new \app\models\ActividadesEconomicas();
@@ -68,14 +69,19 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                 'settings' => [ 'width' => '100%',],
                 'items' => $listaContribuyentes,
             ]);
-            ?>            
+            ?>  
+              
         </div><div class="col-md-4 col-sm-4">
             <label>Sindicato:</label><div id="txt_sindicato"></div>                   
         </div>
         
     </div>
-   
     
+    <div id="messageContribuyenteExist" class="text-success" style="display:none;">El contribuyente esta registrado en RUAT.</div>
+    <div id="messageContribuyenteNotExist" class="text-warning" style="display:none;">El contribuyente no esta registradoen el RUAT.</div>
+
+
+<!-- <div class="row" id="mensajeContainer"></div> -->
     
     
 
@@ -163,6 +169,8 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 </div>
 
 <script type="text/javascript">
+    
+
 
 function calcDia()
     {
@@ -201,17 +209,20 @@ function preciosAlasitas()
 
 }
     
-function sindicatoComprador(idContribuyente){                         
+    function sindicatoComprador(idContribuyente){                         
         if( idContribuyente> 0){ 
             $.post("index.php?r=sindicatos/ajax-sindicato&id="+idContribuyente,
                 function(data){ 
                     $("#txt_sindicato").text(data);
                 }
             );
-        }  
-        
+
+        } 
     }
-    
+
+
+
+
     
     
 $(document).ready(function() {
