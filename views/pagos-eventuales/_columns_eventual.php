@@ -153,14 +153,18 @@ return [
                                     'role'=>'modal-remote', 'data-toggle'=>'tooltip',]);                    
                 },
                 'anular' => function ($url, $model, $key){ //glyphicon glyphicon-user                           
+                        $items=['A SOLICITUD DEL CONTRIBUYENTE','NO SE EFECTUO EL PAGO EN EL DIA DEL REGISTRO','REGISTRO DE DATOS INCONSISTENTES'];
+                        
                         return Html::a('<i class="glyphicon glyphicon-remove-sign"></i>', ['anular-liquidacion', 'id'=>$model->eventual_id],
                                 ['title'=> 'Anular preliquidacion ', 'class'=>'btn btn-primary btn-xs',
                                     'role'=>'modal-remote', 
-                                    'data-confirm'=>false, 'data-method'=>false,// for overide yii data api
+                                    'data-confirm'=>false, 
+                                    'data-method'=> false,// for overide yii data api
                                     'data-request-method'=>'post',
                                     'data-toggle'=>'tooltip',
                                     'data-confirm-title'=>'ADVERTENCIA',
-                                    'data-confirm-message'=>'¿Esta seguro de anular la liquidacion: <strong>'.$model->eventual_nro_liquidacion.'</strong>?'
+                                    'data-confirm-message'=>'Motivo: <br>' .Html::activeDropDownList($model,'eventual_descripcion',$items) .'<br> ¿Esta seguro de anular la liquidacion: <strong>'.$model->eventual_nro_liquidacion.'</strong>?',
+                                    
                                 ]);                    
                 },
                 'cobrar' => function ($url, $model, $key){ //glyphicon glyphicon-user                           
@@ -176,6 +180,7 @@ return [
             'anular' => function ($model, $key, $index) {                                     
                     $modelGeneral = new app\models\General;
                     $model->eventual_anulado=1;
+                    $model->eventual_anulado_detalle="Noda"; 
                     $dia_vigente = $modelGeneral->verificarFechaVigente($model->eventual_fecha_hora_liquidacion);
                         return (Usuario::getRolPreli() && $dia_vigente) ; 
             },

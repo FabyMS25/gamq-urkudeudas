@@ -32,6 +32,7 @@ use Yii;
  * @property integer $eventual_nro_liquidacion
  * @property integer $eventual_cobrado
  * @property string $eventual_tasa
+ * @property integer $eventual_tasa
  * @property ActividadesEconomicas $activi
  * @property Contribuyentes $contri
  * @property SitiosEventuales $sitios
@@ -119,6 +120,7 @@ class PagosEventuales extends \yii\db\ActiveRecord
             'eventual_cantidad_sitio' => 'Cantidad puestos',
             'eventual_nro_liquidacion' => 'N° preliquidacion',
             'eventual_cobrado' => 'Cobrado',
+            'eventual_tasa' => 'Eventual tasa',
             'eventual_tasa' => 'Eventual tasa',
             //PERSONALIZADO
             'categoria' =>'Categoria',

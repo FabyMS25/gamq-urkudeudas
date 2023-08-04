@@ -31,7 +31,7 @@ class RuatServices extends Component
             $data = json_decode($response->content);
             return $data->token;
         } else {
-            return 'no token';
+            return null;
         }
     }
 
@@ -49,7 +49,6 @@ class RuatServices extends Component
                 'codigoAlcaldia' => 'QUI',
                 'numeroDocumento' => $ci,
                 'tipoDocumento' => 'CI',
-                'expedido' => '',
             ]);
 
         $response = $request->send();
@@ -83,7 +82,6 @@ class RuatServices extends Component
                 "servicioMunicipal" => "2174",
                 "datosConcepto" => [
                     [
-                        "numero" => "1",
                         "codigoClasificador" => $codigoClasificador,
                         "tipoArancel" => "DI",
                         "monto" => $monto
@@ -99,6 +97,35 @@ class RuatServices extends Component
         } else {
             $data = json_decode($response->content);
             return null;
+        }
+    }
+
+    public function anularTasa($token, $codigoUsuario, $nroTasa, $motivo, $obsercaciones)
+    {
+        $client = new Client();
+        $request = $client->createRequest()
+            ->setMethod('POST')
+            ->setFormat(Client::FORMAT_JSON)
+            ->setUrl($this->baseUrl . '/RuatServiciosWebTasasOI/tasasOI/anulacionTasa')
+            ->setHeaders([
+                'Authorization' => "Bearer $token"
+            ])
+            ->setData([
+                "codigoAlcaldia" => "QUI",
+                "codigoUsuario" => $codigoUsuario,
+                "numeroTasa" => $nroTasa,
+                "tipoTasa" => 'TO',
+                "motivoTasa" => $motivo,
+                "observacion" => $obsercaciones
+            ]);
+
+        $response = $request->send();
+        if ($response->isOk) {
+            $data = json_decode($response->content);
+            return $data->continuarFlujo;
+        } else {
+            $data = json_decode($response->content);
+            return $data->continuarFlujo;;
         }
     }
 }
