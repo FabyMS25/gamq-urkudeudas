@@ -13,12 +13,13 @@ use app\models\Zonas;
 use app\models\Pagos;
 use app\models\Usuario;
 use app\models\SearchPagos;
+use app\models\TipoArmados;
 use app\models\Contribuyentes;
 use app\models\GraderiasSillas;
 
 use yii\helpers\Html;
-use yii\filters\VerbFilter;
 use yii\helpers\VarDumper;
+use yii\filters\VerbFilter;
 
 /**
  * PagosController implements the CRUD actions for Pagos model.
@@ -232,7 +233,7 @@ class PagosController extends Controller
         $request = Yii::$app->request;
         $idUsuarioAutenticado = Yii::$app->user->id;
         $usuarioAutenticado = Usuario::findOne($idUsuarioAutenticado);
-        $ci_usuarioAutenticado = $usuarioAutenticado->usua_cuenta;
+        $codigoUsuario = $usuarioAutenticado->usua_cuenta;
 
         /**Pagos */
         $model = new Pagos();
@@ -278,43 +279,37 @@ class PagosController extends Controller
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la tasa';
                         } else {
                             $montoTotal = $model->pago_importe_total;
-                            if ($model->save()) {
-                                $zona = Zonas::findOne($modelSitio->zona_id);
-                                $pago = Pagos::findOne($model->pago_id);
-                                $obs = 'DATOS GRADERIA SILLA' .
-                                    ' Nro liquidacion ' . $pago->pago_nro_liquidacion .
-                                    ' Zona ' . $zona->zona_nombre .
-                                    ' Codigo: ' . $modelSitio->grad_codigo .
-                                    ' Dirección ' . $modelSitio->grad_direccion .
-                                    ' Tipo armado ' . $modelSitio->grad_tipo_armado .
-                                    ' Tipo sitio ' . $modelSitio->grad_tipo_sitio;
-                                $obsTest = 'DATOS GRADERIA SILLA' .
-                                    ' Tipo sitio ' . $modelSitio->grad_tipo_sitio;
-                                $nroTasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24976', $montoTotal, $obsTest);
-                                if ($nroTasa != null) {
-                                    $resultado = true;
-                                    $id = $model->pago_id;
-                                    $sql = 'UPDATE pagos SET pago_tasa=:tasa WHERE pago_id=:id';
-                                    $command = Yii::$app->db->createCommand($sql)
-                                        ->bindValue(':id', $id)
-                                        ->bindValue(':tasa', $nroTasa)
-                                        ->queryOne();
+                            $zona = Zonas::findOne($modelSitio->zona_id);
+                            $tipoArmado = TipoArmados::findOne($model->tip_arm_id);
+                            $obs = 'Datos graderia silla: ' .
+                                ' Zona: ' . $zona->zona_nombre .
+                                ', Tipo armado: ' . $tipoArmado->tip_arm_descricpion .
+                                ', Codigo: ' . $modelSitio->grad_codigo .
+                                ', Direccion: ' . $modelSitio->grad_direccion .
+                                ', Tipo armado: ' . $modelSitio->grad_tipo_armado .
+                                ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio;
+                            $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24976', $montoTotal, $obs);
+                            if ($nroTasa != null) {
+                                $model->pago_tasa = $nroTasa;
+                                if ($model->save()) {
                                     $sql = 'UPDATE graderias_sillas SET grad_vendido=:val, grad_longitud=:rest WHERE grad_id=:id';
                                     $command = Yii::$app->db->createCommand($sql)
                                         ->bindValue(':id', $codigo)
                                         ->bindValue(':val', $val)
                                         ->bindValue(':rest', $resto)
                                         ->queryOne();
-                                    $mensaje = 'Se registro los datos de la preliquidación con exito en RUAT';
+                                    $resultado = true;
+                                    $mensaje = 'Se registro los datos de la preliquidación con exito';
                                 } else {
-                                    $mensaje = 'No se pudo registrar la tasa en RUAT';
+                                    $resultado = false;
+                                    $mensaje = 'No se pudo registrar registrar los datos de la preliquidación';
                                 }
                             } else {
-                                $mensaje = 'No se pudo registrar la tasa en Urkupiña';
+                                $mensaje = 'No se pudo registrar la tasa en RUAT';
                             }
                         }
                     } else {
-                        $mensaje = 'No podemos registrar la preliquidación, porque el contribuyente seleccionado no se encuentra registrado en RUAT, por favor registrar contribuyente.';
+                        $mensaje = 'No se pudo registrar la preliquidación, porque el contribuyente seleccionado no se encuentra registrado en RUAT, por favor registrar contribuyente.';
                     }
                 } else {
                     $mensaje = 'No se pudo iniciar sesión en RUAT';
