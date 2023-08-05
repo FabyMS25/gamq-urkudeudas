@@ -775,6 +775,9 @@ class PagosEventualesController extends Controller
                          {  
                             $obs = $model->eventual_descripcion;
                             $motivo= $model->eventual_anulado_detalle;
+                            //VarDumper::dump($obs);
+                            //VarDumper::dump($motivo);
+                            
                             $anulartasa = Yii::$app->ruatServices->anularTasa($token, $ci_usuarioAutenticado, $nrotasa,$motivo , $obs);
                              
                         if ($anulartasa)
