@@ -547,17 +547,26 @@ class PagosController extends Controller
                     $observacion = $model->pago_observaciones;
                     $nrotasa= $model->pago_tasa;
                     $anulartasa = Yii::$app->ruatServices->anularTasa($token, $username, $nrotasa, $motivo, $observacion);
+                    $error1="";
+                    $error2="";
+                    if($anulartasa){
+                            if ($model->save() && $modelGraderia->save())
+                                {
+                                    $resultado = true;
+                                    $error1="";    
+                                }
+                            else
+                               { 
+                                $resultado = false;
+                                $error1="Preliquidacion no anulada";
+                                }
+                             $error2="";   
+                    }
+                    else
+                       $error2='No se anulo la tasa en RUAT';
 
-                }
-                else 
-                    $anulartasa=false;
-
-                if ($model->save())
-                    $resultado = true;
-                else
-                    $resultado = false;
-                //$resultado =$this->actualizarDatosCobro($model);
-                $mensaje = ($resultado && $anulartasa ? "Se Anulo correctamente" : " Error al realizar la Anulacion");
+                       
+                $mensaje = ($resultado && $anulartasa ? "Se Anulo correctamente" : " Error al realizar la Anulacion: " .$error2 .$error1);
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
@@ -573,16 +582,17 @@ class PagosController extends Controller
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             }
-        } else {
+            } else {
             /*
              *   Process for non-ajax request
              */
-            if ($model->load($request->post()) && $model->save() ) {
-                return $this->redirect(['view', 'id' => $model->pago_id]);
-            } else {
-                return $this->render('anular', [
-                    'model' => $model,
-                ]);
+                if ($model->load($request->post()) && $model->save() ) {
+                    return $this->redirect(['view', 'id' => $model->pago_id]);
+                } else {
+                    return $this->render('anular', [
+                        'model' => $model,
+                    ]);
+                }
             }
         }
         //$transaction = Yii::$app->db->beginTransaction();
@@ -613,8 +623,8 @@ class PagosController extends Controller
         } else {
             return $this->redirect(['preliquidaciones']);
         }*/
-    }
-
+     }
+    
     public function actionReciboLiquidacion($id)
     {
         $this->verificarSesion();

@@ -158,12 +158,12 @@ return [
                         return Html::a('<i class="glyphicon glyphicon-remove-sign"></i>', ['anular-liquidacion', 'id'=>$model->eventual_id],
                                 ['title'=> 'Anular preliquidacion ', 'class'=>'btn btn-primary btn-xs',
                                     'role'=>'modal-remote', 
-                                    'data-confirm'=>false, 
-                                    'data-method'=> false,// for overide yii data api
-                                    'data-request-method'=>'post',
+                                    //'data-confirm'=>false, 
+                                    //'data-method'=> false,// for overide yii data api
+                                    //'data-request-method'=>'post',
                                     'data-toggle'=>'tooltip',
-                                    'data-confirm-title'=>'ADVERTENCIA',
-                                    'data-confirm-message'=>'Motivo: <br>' .Html::activeDropDownList($model,'eventual_descripcion',$items) .'<br> ¿Esta seguro de anular la liquidacion: <strong>'.$model->eventual_nro_liquidacion.'</strong>?',
+                                    //'data-confirm-title'=>'ADVERTENCIA',
+                                    //'data-confirm-message'=>'Motivo: <br>' .Html::activeDropDownList($model,'eventual_descripcion',$items) .'<br> ¿Esta seguro de anular la liquidacion: <strong>'.$model->eventual_nro_liquidacion.'</strong>?',
                                     
                                 ]);                    
                 },
