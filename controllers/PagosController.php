@@ -353,6 +353,7 @@ class PagosController extends Controller
         }
     }
 
+
     public function actionCreate()
     {
         $titulo = '';
