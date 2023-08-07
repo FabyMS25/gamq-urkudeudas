@@ -93,8 +93,7 @@ class RuatServices extends Component
         $response = $request->send();
         if ($response->isOk) {
             $data = json_decode($response->content);
-            // return $data->numeroTasa;
-            return $data;
+            return $data->numeroTasa;
         } else {
             $data = json_decode($response->content);
             // return null;
@@ -124,8 +123,7 @@ class RuatServices extends Component
         $response = $request->send();
         if ($response->isOk) {
             $data = json_decode($response->content);
-            // return $data->continuarFlujo;
-            return $data;
+            return $data->continuarFlujo;
         } else {
             $data = json_decode($response->content);
             // return $data->continuarFlujo;
