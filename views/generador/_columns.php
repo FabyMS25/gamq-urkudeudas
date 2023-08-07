@@ -42,7 +42,7 @@ return [
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'detalle_nro_limite',
+        'attribute'=>'detalle_cantidad_anulado',
         'filter' =>false
     ],
     [
