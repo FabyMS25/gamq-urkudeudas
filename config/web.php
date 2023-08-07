@@ -59,7 +59,7 @@ $config = [
             'class' => 'app\components\Qrcodetest',
         ],
         'httpClient' => [
-            'class' => 'yii\httpclient\Client'
+            'class' => 'yii\httpclient\Client',
         ],
         'ruatServices' => [
             'class' => 'app\components\RuatServices'

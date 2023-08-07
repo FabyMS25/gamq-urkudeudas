@@ -24,6 +24,7 @@ use Yii;
  * @property string $eventual_importe_total
  * @property integer $eventual_anulado
  * @property string $eventual_anulado_detalle
+ * @property string $eventual_descripcion
  * @property string $eventual_anulado_fecha_hora
  * @property integer $eventual_preliquidacion
  * @property integer $eventual_user_id_preliquidacion
@@ -31,6 +32,8 @@ use Yii;
  * @property integer $eventual_cantidad_sitio
  * @property integer $eventual_nro_liquidacion
  * @property integer $eventual_cobrado
+ * @property string $eventual_tasa
+ * @property integer $eventual_tasa
  * @property ActividadesEconomicas $activi
  * @property Contribuyentes $contri
  * @property SitiosEventuales $sitios
@@ -65,6 +68,8 @@ class PagosEventuales extends \yii\db\ActiveRecord
             [['eventual_fecha_hora_pago', 'eventual_fecha_inicio', 'eventual_fecha_limite', 'eventual_anulado_fecha_hora'], 'safe'],
             [['eventual_importe_patente', 'eventual_costo_comprobante', 'eventual_costo_sentaje', 'eventual_costo_aseo', 'eventual_importe_total'], 'number'],
             [['eventual_anulado_detalle'], 'string', 'max' => 250],
+            [['eventual_descripcion'], 'string', 'max' => 250],
+            
             // personalizados
             [['categoria'  ], 'required', 'on'=>'crear_eventual_liquidacion' ],
             [['eventual_cantidad_sitio'], 'required', ],
@@ -110,6 +115,7 @@ class PagosEventuales extends \yii\db\ActiveRecord
             'eventual_importe_total' => 'Importe/Bs.',
             'eventual_anulado' => 'Anulado',
             'eventual_anulado_detalle' => 'Justificacion de anulacion',
+            'eventual_descripcion'=>'Observaciones',
             'eventual_anulado_fecha_hora' => 'Fecha anulacion',
             'eventual_preliquidacion' => 'Preliquidacion',
             'eventual_user_id_preliquidacion' => 'Preliquidador', //cajero
@@ -118,6 +124,8 @@ class PagosEventuales extends \yii\db\ActiveRecord
             'eventual_cantidad_sitio' => 'Cantidad puestos',
             'eventual_nro_liquidacion' => 'N° preliquidacion',
             'eventual_cobrado' => 'Cobrado',
+            'eventual_tasa' => 'Eventual tasa',
+            
             //PERSONALIZADO
             'categoria' =>'Categoria',
             'rango_fechas' => 'Rango de fechas',
