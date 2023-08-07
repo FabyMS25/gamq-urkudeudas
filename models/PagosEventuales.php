@@ -125,7 +125,7 @@ class PagosEventuales extends \yii\db\ActiveRecord
             'eventual_nro_liquidacion' => 'N° preliquidacion',
             'eventual_cobrado' => 'Cobrado',
             'eventual_tasa' => 'Eventual tasa',
-            'eventual_tasa' => 'Eventual tasa',
+            
             //PERSONALIZADO
             'categoria' =>'Categoria',
             'rango_fechas' => 'Rango de fechas',
