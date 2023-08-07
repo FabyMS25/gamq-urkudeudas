@@ -668,6 +668,9 @@ class PagosEventualesController extends Controller
                                 ', Fecha inicio: ' . $FechaInicio .
                                 ', Fecha fin: ' . $FechaFin .
                                 ', Cantidad puestos: ' . $cantSitio;
+                                $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obs);
+                                $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);   
+                                //VarDumper::dump($obs); 
                             $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24979', $montoTotal, $obs);
                             if ($nroTasa != null) {
                                 $model->eventual_tasa = $nroTasa;
