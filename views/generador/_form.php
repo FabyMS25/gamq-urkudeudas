@@ -22,10 +22,17 @@ $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable')
                 <?= $form->field($model, 'detalle_nro_inicio')->textInput(['id' => 'detalle_nro_inicio']) ?>
             </div>
         </div>
+        
         <div class="row">
             <div class="col-md-6">
-                <?= $form->field($model, 'detalle_nro_limite')->textInput(['id' => 'detalle_nro_limite', 'onchange'=>'actualizar()']) ?>
+                <?= $form->field($model, 'detalle_nro_limite')->textInput(['id' => 'detalle_nro_limite']) ?>
             </div>
+            <div class="col-md-6">
+                <?= $form->field($model, 'detalle_cantidad_anulado')->textInput(['id' => 'detalle_cantidad_anulado', 'onchange'=>'actualizar()']) ?>
+            </div>
+        </div>
+
+        <div class="row">
             <div class="col-md-6">
                 <?= 
                     $form->field($model, 'detalle_cantidad')->textInput([
@@ -35,8 +42,6 @@ $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable')
                     ])        
                 ?>
             </div>
-        </div>
-        <div class="row">
             <div class="col-md-6">
                 <?= $form->field($model, 'detalle_importe_bs')->textInput(['readonly' => true, 'id'=>'detalle_importe_bs']) ?> 
             </div>
@@ -61,9 +66,11 @@ function actualizar() {
   var precio  = document.getElementById("detalle_precio").value;
   var inicio  = document.getElementById("detalle_nro_inicio").value;
   var limite  = document.getElementById("detalle_nro_limite").value;
+  var anulado  = document.getElementById("detalle_cantidad_anulado").value;
   
   if(inicio > 0 && limite > 0) { 
-    var totalCantidad = (parseFloat(limite) - parseFloat(inicio)) + 1;
+    var cantidad = (parseFloat(limite) - parseFloat(inicio)) + 1;
+    var totalCantidad = (parseFloat(cantidad) - parseFloat(anulado));
     var totalImporte  = parseFloat(precio) * parseFloat(totalCantidad);
 
     //if (limite <= inicio ) {

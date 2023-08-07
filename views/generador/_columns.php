@@ -41,6 +41,11 @@ return [
         'filter' =>false
     ],
     [
+        'class'=>'\kartik\grid\DataColumn',
+        'attribute'=>'detalle_cantidad_anulado',
+        'filter' =>false
+    ],
+    [
          'class'=>'\kartik\grid\DataColumn',
          'attribute'=>'detalle_cantidad',
          'filter' =>false

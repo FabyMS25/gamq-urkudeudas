@@ -136,7 +136,7 @@ class GeneradorController extends Controller
         $model->detalle_fecha_entrega = date('Y-m-d H:m');
         $model->detalle_estado = 1;
         $model->detalle_estado_pago = 0;
-        $tituloMod ="Preliquidar Descargo";
+        $tituloMod ="PRELIQUIDAR DESCARGO";
         $mensaje= 'Registro exitoso';
 
         if($request->isAjax){
