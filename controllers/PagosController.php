@@ -288,6 +288,10 @@ class PagosController extends Controller
                                 ', Direccion: ' . $modelSitio->grad_direccion .
                                 ', Tipo armado: ' . $modelSitio->grad_tipo_armado .
                                 ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio;
+
+                                $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obs);
+                                $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
+
                             $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24976', $montoTotal, $obs);
                             if ($nroTasa != null) {
                                 $model->pago_tasa = $nroTasa;
