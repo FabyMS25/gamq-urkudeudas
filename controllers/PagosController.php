@@ -157,24 +157,53 @@ class PagosController extends Controller
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
                 $model->pago_cobrado = 1;
                 $dir = $model->pago_nro_comprobante;
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                    if ($token) {
+                            $nroTasa = $model->pago_tasa;
+                            
+                            $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
+                            if ($response == true) {
+                                $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
+                                $llamada = Yii::$app->generadorQR->QRCODE(400, $dir);
 
-                $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
-                $llamada = Yii::$app->generadorQR->QRCODE(400, $dir);
+                                if ($model->save())
+                                    $resultado = true;
+                                else
+                                    $resultado = false;
+                                //$resultado =$this->actualizarDatosCobro($model);
+                                $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
+                                return [
+                                    'forceReload' => '#crud-datatable-pjax',
+                                    'title' => $titulo,
+                                    'content' => '<span class="text-success">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
+                                        ' <br> Importe total Bs.: ' . $model->pago_importe_total . '  </span>',
+                                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                                        Html::a('Comprobante pago', ['comprobante-pago', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                                ]; 
 
-                if ($model->save())
-                    $resultado = true;
-                else
-                    $resultado = false;
-                //$resultado =$this->actualizarDatosCobro($model);
-                $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
-                return [
-                    'forceReload' => '#crud-datatable-pjax',
-                    'title' => $titulo,
-                    'content' => '<span class="text-success">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
-                        ' <br> Importe total Bs.: ' . $model->pago_importe_total . '  </span>',
-                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                        Html::a('Comprobante pago', ['comprobante-pago', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
-                ];
+                            }
+                            else
+                            return [
+                                'forceReload' => '#crud-datatable-pjax',
+                                'title' => $titulo,
+                                'content' => '<span class="text-success">' . 'No se realizo ningun Pago!!' ,
+                                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) 
+                                   
+                            ]; 
+                        
+                    }
+                    else{
+                        return [
+                            'forceReload' => '#crud-datatable-pjax',
+                            'title' => $titulo,
+                            'content' => '<span class="text-success">' . 'No se puede Autenticar en RUAT' ,
+                            'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+                               
+                        ]; 
+                    } 
+
+
+               
             } else {
                 return [
                     'title' => $titulo,
@@ -374,6 +403,8 @@ class PagosController extends Controller
 
     public function actionUpdatePagados()
     {
+      
+       
         $sql = 'SELECT * FROM pagos WHERE pago_cobrado=:pago_cobrado';
         $listaPagos = Yii::$app->db->createCommand($sql)
             ->bindValue(':pago_cobrado', 0)
@@ -392,10 +423,17 @@ class PagosController extends Controller
                         ->bindValue(':val', 1)
                         ->queryOne();
                 }
+            
             }
         } else {
             VarDumper::dump('No se pudo iniciar sesion en RUAT');
         }
+        /*
+             *   Process for non-ajax request
+             */
+           
+
+
     }
 
 
