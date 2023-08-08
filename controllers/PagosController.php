@@ -288,11 +288,15 @@ class PagosController extends Controller
                                 ', Direccion: ' . $modelSitio->grad_direccion .
                                 ', Tipo armado: ' . $modelSitio->grad_tipo_armado .
                                 ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio;
-                                $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obs);
-                                $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);   
-                            $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24976', $montoTotal, $obs);
-                            if ($nroTasa != null) {
+                            $obsCut = mb_substr($obs, 0, 250);
+                            $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
+                            $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
+
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24976', $montoTotal, $obs);
+                            if ($response->continuarFlujo) {
+                                $nroTasa= $response->numeroTasa;
                                 $model->pago_tasa = $nroTasa;
+
                                 if ($model->save()) {
                                     $sql = 'UPDATE graderias_sillas SET grad_vendido=:val, grad_longitud=:rest WHERE grad_id=:id';
                                     $command = Yii::$app->db->createCommand($sql)
@@ -307,7 +311,20 @@ class PagosController extends Controller
                                     $mensaje = 'No se pudo registrar registrar los datos de la preliquidación';
                                 }
                             } else {
-                                $mensaje = 'No se pudo registrar la tasa en RUAT';
+                                $mensaje = 'No se pudo registrar la tasa en RUAT <br>';
+                                if (is_array($response->mensaje)){
+                                    $messages = $response->mensaje;
+                                    foreach ($messages as $message) {
+                                        foreach ($message as $key => $errorMessages) {
+                                            $mensaje =$mensaje. "Error en: $key, ";
+                                            foreach ($errorMessages as $errorMessage) {
+                                                $mensaje= $mensaje.$errorMessage;
+                                            }
+                                        }
+                                    }
+                                }else{
+                                    $mensaje=$mensaje.$response->mensaje;
+                                }
                             }
                         }
                     } else {
@@ -521,7 +538,6 @@ class PagosController extends Controller
         $pago_longitud_modificada = $model->pago_longitud_modificada;
         $nro_preliquidacion = $model->pago_nro_liquidacion;
         $model->pago_estado = 0;
-
         // modelo graderias y sillas
         $modelGraderia = \app\models\GraderiasSillas::findOne($model->grad_id);
         $modelGraderia->grad_vendido = 0;
@@ -608,34 +624,6 @@ class PagosController extends Controller
                 ]);
             }
         }
-        //$transaction = Yii::$app->db->beginTransaction();
-      /*  try {
-            if ($modelGraderia->save(false) && $model->save(false)) {
-                //$transaction->commit();
-                $resultado = true;
-            } else {
-                //$transaction->rollBack();
-            }
-        } catch (Exception $e) {
-            //$transaction->rollBack();
-        }
-
-        $mensaje = ($resultado ? "Eliminado la preliquidacion " . $nro_preliquidacion : "Error, no se elimino la preliquidacion " . $nro_preliquidacion);
-
-
-        if ($request->isAjax) {
-            
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            // return ['forceCerrar' => true, 'forceReload' => '#crud-datatable-pjax'];
-            return [
-                'forceReload' => '#crud-datatable-pjax',
-                'title' => "Anular preliquidacion " . $model->pago_nro_liquidacion,
-                'content' => '<span class="text-success">' . $mensaje . '</span>',
-                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-            ];
-        } else {
-            return $this->redirect(['preliquidaciones']);
-        }*/
      }
     
     public function actionReciboLiquidacion($id)
