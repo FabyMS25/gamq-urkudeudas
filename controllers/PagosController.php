@@ -288,13 +288,15 @@ class PagosController extends Controller
                                 ', Direccion: ' . $modelSitio->grad_direccion .
                                 ', Tipo armado: ' . $modelSitio->grad_tipo_armado .
                                 ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio;
-
-                                $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obs);
+                            $obsCut = mb_substr($obs, 0, 250);
+                            $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                                 $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24976', $montoTotal, $obs);
-                            if ($nroTasa != null) {
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24976', $montoTotal, $obs);
+                            if ($response->continuarFlujo) {
+                                $nroTasa= $response->numeroTasa;
                                 $model->pago_tasa = $nroTasa;
+
                                 if ($model->save()) {
                                     $sql = 'UPDATE graderias_sillas SET grad_vendido=:val, grad_longitud=:rest WHERE grad_id=:id';
                                     $command = Yii::$app->db->createCommand($sql)
@@ -309,7 +311,20 @@ class PagosController extends Controller
                                     $mensaje = 'No se pudo registrar registrar los datos de la preliquidación';
                                 }
                             } else {
-                                $mensaje = 'No se pudo registrar la tasa en RUAT';
+                                $mensaje = 'No se pudo registrar la tasa en RUAT <br>';
+                                if (is_array($response->mensaje)){
+                                    $messages = $response->mensaje;
+                                    foreach ($messages as $message) {
+                                        foreach ($message as $key => $errorMessages) {
+                                            $mensaje =$mensaje. "Error en: $key, ";
+                                            foreach ($errorMessages as $errorMessage) {
+                                                $mensaje= $mensaje.$errorMessage;
+                                            }
+                                        }
+                                    }
+                                }else{
+                                    $mensaje=$mensaje.$response->mensaje;
+                                }
                             }
                         }
                     } else {

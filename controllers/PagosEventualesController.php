@@ -367,7 +367,7 @@ class PagosEventualesController extends Controller
     public function actionCreateAlasitas($id)
     {
         $codigoClasificador='24983';
-        $message = '';
+        $mensaje = '';
         $result = false;
 
         $this->verificarSesion();
@@ -419,7 +419,7 @@ class PagosEventualesController extends Controller
 
                         $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
                         if ($tieneDeudas) {
-                            $message = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
+                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
                             //todo
                         } else {    
                             $actividad= ActividadesEconomicas::findOne($model->activi_id);                                                     
@@ -442,39 +442,39 @@ class PagosEventualesController extends Controller
                                 $model->eventual_tasa = $nroTasa;
                                 if ($model->save()) {
                                     $result = true;
-                                    $message = 'Se registro los datos de la preliquidación con exito';
+                                    $mensaje = 'Se registro los datos de la preliquidación con exito';
                                 } else {
-                                    $message = 'No se pudo registrar los datos de la preliquidación';
+                                    $mensaje = 'No se pudo registrar los datos de la preliquidación';
                                 }
                             } else {
-                                $message = 'No se pudo registrar la tasa en RUAT <br>';
+                                $mensaje = 'No se pudo registrar la tasa en RUAT <br>';
                                 if (is_array($response->mensaje)){
                                     $messages = $response->mensaje;
-                                    foreach ($messages as $mensaje) {
-                                        foreach ($mensaje as $key => $errorMessages) {
-                                            $message =$message. "Error en: $key, ";
+                                    foreach ($messages as $message) {
+                                        foreach ($message as $key => $errorMessages) {
+                                            $mensaje =$mensaje. "Error en: $key, ";
                                             foreach ($errorMessages as $errorMessage) {
-                                                $message= $message.$errorMessage;
+                                                $mensaje= $mensaje.$errorMessage;
                                             }
                                         }
                                     }
                                 }else{
-                                    $message=$message.$response->mensaje;
+                                    $mensaje=$mensaje.$response->mensaje;
                                 }
                             }
                         }
                     } else {
-                        $message = "El contribuyente seleccionado no se encuentra registrado en RUAT.
+                        $mensaje = "El contribuyente seleccionado no se encuentra registrado en RUAT.
                                     <br> debe registrar contribuyente primero";
                     }
                 } else {
-                    $message = 'No se pudo iniciar sesión en RUAT';
+                    $mensaje = 'No se pudo iniciar sesión en RUAT';
                 }
                 if ($result) {
                     return [
                         'forceReload' => '#crud-datatable-pjax',
                         'title' => $titulo,
-                        'content' => '<span class="text-success">' . $message . '</span>',
+                        'content' => '<span class="text-success">' . $mensaje . '</span>',
                         'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                         Html::a('Recibo preliquidacion', ['preliquidacion-actividades', 'id' => $model->eventual_id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                     ];
@@ -482,7 +482,7 @@ class PagosEventualesController extends Controller
                     return [
                         'forceReload' => '#crud-datatable-pjax',
                         'title' => $titulo,
-                        'content' => '<span class="text-danger">' . $message . '</span>',
+                        'content' => '<span class="text-danger">' . $mensaje . '</span>',
                         'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
                     ];
                 }
