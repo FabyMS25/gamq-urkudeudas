@@ -777,14 +777,14 @@ class PagosEventualesController extends Controller
                     $obs = $model->eventual_descripcion;                 
                     $response = Yii::$app->ruatServices->anularTasa($token, $ci_usuarioAutenticado, $nrotasa,$motivo , $obs);
                     if ($response->continuarFlujo) {
-                        $model->eventual_estado = 0;                           
+                        $model->eventual_estado = 0;  
+                        $mensajeConfirmacion = $response->mensajeConfirmacion ;                          
                         if ($model->save()) {
-                            $mensaje = $response->mensajeConfirmacion ; 
-                            // $mensaje = "Se elimino la preliquidacion y \n "+$mensaje;
+                            $mensaje = "Se elimino la preliquidacion y  \n ".$mensajeConfirmacion;
                             $result=true;
                         }
                         else {
-                            $mensaje = $mensaje + 'pero no se pudo eliminar la Preliquidacion.';
+                            $mensaje = $mensajeConfirmacion . " pero no se pudo eliminar la Preliquidacion.";
                             $result=false;
                         }
                     } else {
