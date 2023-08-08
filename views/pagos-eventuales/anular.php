@@ -89,7 +89,7 @@ $idSitio = $model->sitios_id;
 
             <?= $form->field($model, 'eventual_anulado_detalle')->dropDownList(['A SOLICITUD DEL CONTRIBUYENTE'=>'A SOLICITUD DEL CONTRIBUYENTE','NO SE EFECTUO EL PAGO EN EL DIA DEL REGISTRO'=>'NO SE EFECTUO EL PAGO EN EL DIA DEL REGISTRO','REGISTRO DE DATOS INCONSISTENTES'=>'REGISTRO DE DATOS INCONSISTENTES']) ?>     
 
-            <?= $form->field($model, 'eventual_descripcion')->textInput(['maxlength' => true]) ?>   
+            <?= $form->field($model, 'eventual_descripcion')->textInput(['maxlength' => true , 'oninput' => 'processInput(this)' ]) ?>   
 
             <?php if (!Yii::$app->request->isAjax) { ?>
             <div class="form-group">
@@ -111,5 +111,11 @@ $idSitio = $model->sitios_id;
             }
         });
     });
+
+    function processInput(inputElement) {
+        var sanitizedValue = inputElement.value.replace(/[^A-Za-z0-9,.\-: ]/g, '');
+        // var sanitizedValue = inputElement.value.replace(/[^\w\s]/gi, '');
+        inputElement.value = sanitizedValue.toUpperCase();
+    }
 </script>
 
