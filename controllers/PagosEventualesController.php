@@ -672,9 +672,8 @@ class PagosEventualesController extends Controller
                                 ', Fecha inicio: ' . $FechaInicio .
                                 ', Fecha fin: ' . $FechaFin .
                                 ', Cantidad puestos: ' . $cantSitio;
-
-                                $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obs);
-                                $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
+                            $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obs);
+                            $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
                             $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24979', $montoTotal, $obs);
                             if ($nroTasa != null) {
@@ -747,90 +746,78 @@ class PagosEventualesController extends Controller
 
     public function actionAnularLiquidacion($id)
     {
-        $this->verificarSesion();
-       
+        $result=false; $mensaje="";
+        $this->verificarSesion();       
         $request = Yii::$app->request;
-        $idUsuario = Yii::$app->user->id;
-        $model = $this->findModel($id);
-        
+        $model = $this->findModel($id);        
         $titulo = "Anular liquidacion nro. <strong>" . $model->eventual_nro_liquidacion . "</strong>";
-        //$siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
-        $siteUrl = 'http://181.177.143.186/proyecto-urkupina/web/index.php?r=pagos-eventuales%2Fview&id=' . $id;
+
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
                     'title' => $titulo,
-                    'content' => $this->renderAjax('anular', [
-                        'model' => $model,
-                    ]),
+                    'content' => $this->renderAjax('anular', ['model' => $model,]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
                 //$model->eventual_fecha_hora_pago = date('Y-m-d H:m:s');
                 $model->usua_id = Yii::$app->user->id;
+                $idUsuario = $model->usua_id;
+                $datos = Usuario::findOne($idUsuario);
                 $model->eventual_cobrado = 1;
                 $dir = $model->eventual_nro_comprobante;
-                ////////////////////////
-                $idUsuarioAutenticado = Yii::$app->user->id;
-                $datos = Usuario::findOne($idUsuarioAutenticado);
                 $ci_usuarioAutenticado = $datos->usua_cuenta;
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
-                    if($token) { 
-                        $nrotasa = $model->eventual_tasa;
-                        if ($nrotasa)
-                         {  
-                            $obs = $model->eventual_descripcion;
-                            $motivo= $model->eventual_anulado_detalle;
-                            //VarDumper::dump($obs);
-                            //VarDumper::dump($motivo);
-                            
-                            $anulartasa = Yii::$app->ruatServices->anularTasa($token, $ci_usuarioAutenticado, $nrotasa,$motivo , $obs);
-                            //VarDumper::dump($anulartasa);
-                        if ($anulartasa)
-                        {
-                            $model->eventual_estado = 0;
-                            
-                            if ($model->save()) {
-                                $mensaje = "<span class='text-success'>Se anulo la liquidacion con exito.</span>";
-                                $result=true;
-                            }
-                            else {
-                            $mensaje = '<span class="text-warning">' . 'no se pudo eliminar la Preliquidacion </span>';
-                            $result=false;
-                            }
-                        }
-                     else {
-                        $mensaje = '<span class="text-warning">' . 'no se pudo eliminar la tasa en RUAT. </span>';
-                    }
-                    }
-                else {
-                     $mensaje = '<span class="text-warning">' . 'no permite autentificar en RUAT. </span>';
-                }
-
                 
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                if($token) { 
+                    $nrotasa = $model->eventual_tasa;
+                    $motivo= $model->eventual_anulado_detalle;
+                    $obs = $model->eventual_descripcion;                 
+                    $response = Yii::$app->ruatServices->anularTasa($token, $ci_usuarioAutenticado, $nrotasa,$motivo , $obs);
+                    if ($response->continuarFlujo) {
+                        $model->eventual_estado = 0;                           
+                        if ($model->save()) {
+                            $mensaje = $response->mensajeConfirmacion ; 
+                            // $mensaje = "Se elimino la preliquidacion y \n "+$mensaje;
+                            $result=true;
+                        }
+                        else {
+                            $mensaje = $mensaje + 'pero no se pudo eliminar la Preliquidacion.';
+                            $result=false;
+                        }
+                    } else {
+                        if (is_array($response->mensaje)){
+                            $messages = $response->mensaje;
+                            foreach ($messages as $message) {
+                                foreach ($message as $key => $errorMessages) {
+                                    $mensaje ="Error en: $key\n";
+                                    foreach ($errorMessages as $errorMessage) {
+                                        $mensaje= " Error en $key, \n $errorMessage\n";
+                                    }
+                                }
+                            }
+                        }else{
+                            $mensaje=$response->mensaje;
+                        }
+                    }
+                }else {
+                     $mensaje =  'No se pudo autentificar en RUAT.';
+                }
+                $mensaje = $result? "<span class='text-success'>  $mensaje </span>": "<span class='text-danger'>$mensaje </span>";
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
-                    'content' => $mensaje,
-                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) 
-                       
-                ];
-
-
-                ///////////////////////////    
-                
-                }
+                    'content' => $mensaje ,
+                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])                         
+                ];                
             } else {
                 return [
                     'title' => $titulo,
-                    'content' => $this->renderAjax('anular', [
-                        'model' => $model,
-                    ]),
+                    'content' => $this->renderAjax('anular', ['model' => $model,]),
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
-
                 ];
             }
         } else {
@@ -838,9 +825,7 @@ class PagosEventualesController extends Controller
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['index']);
             } else {
-                return $this->render('anular-liquidacion', [
-                    'model' => $model,
-                ]);
+                return $this->render('anular-liquidacion', [ 'model' => $model,]);
             }
         }
     }
