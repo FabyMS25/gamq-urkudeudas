@@ -516,9 +516,10 @@ class PagosController extends Controller
      */
     public function actionAnularPreliquidacion($id)
     {
+        $result=false; $mensaje="";
         $this->verificarSesion();
         $request = Yii::$app->request;
-        $model = $this->findModel($id); //var_dump($model);
+        $model = $this->findModel($id);
         $pago_longitud_modificada = $model->pago_longitud_modificada;
         $nro_preliquidacion = $model->pago_nro_liquidacion;
         $model->pago_estado = 0;
@@ -528,7 +529,7 @@ class PagosController extends Controller
         $modelGraderia->grad_vendido = 0;
         $modelGraderia->grad_longitud = $modelGraderia->grad_longitud + $pago_longitud_modificada;
         $resultado = false;
-        $titulo = "Anular preliquidacion de " . $model->graderiaSilla->grad_codigo;
+        $titulo = "Anular preliquidacion de <strong>" . $model->graderiaSilla->grad_codigo . "</strong>";
 
         if ($request->isAjax) {
             /*           Process for ajax request            */
@@ -545,38 +546,48 @@ class PagosController extends Controller
                 $idUsuario = $model->usua_id;
                 $datos = Usuario::findOne($idUsuario);
                 $username = $datos->usua_cuenta;
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
                 //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
-                if($token)
-                {   $motivo= $model->pago_anulado_detalle;
+                
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                if($token){
+                    $motivo= $model->pago_anulado_detalle;
                     $observacion = $model->pago_observaciones;
                     $nrotasa= $model->pago_tasa;
-                    $anulartasa = Yii::$app->ruatServices->anularTasa($token, $username, $nrotasa, $motivo, $observacion);
-                    $error1="";
-                    $error2="";
-                    if($anulartasa){
-                            if ($model->save() && $modelGraderia->save())
-                                {
-                                    $resultado = true;
-                                    $error1="";    
+                    $response = Yii::$app->ruatServices->anularTasa($token, $username, $nrotasa, $motivo, $observacion);
+                    if($response->continuarFlujo){
+                        $model->pago_estado = 0;  
+                        $mensajeConfirmacion=$response->mensajeConfirmacion;
+                        if ($model->save() && $modelGraderia->save()){
+                            $mensaje = "Se elimino la preliquidacion y  \n ".$mensajeConfirmacion;
+                            $result=true;   
+                        }else{ 
+                            $mensaje = $mensajeConfirmacion . " pero no se pudo eliminar la Preliquidacion.";
+                            $result=false;
+                        }  
+                    }else{
+                        if (is_array($response->mensaje)){
+                            $messages = $response->mensaje;
+                            foreach ($messages as $message) {
+                                foreach ($message as $key => $errorMessages) {
+                                    $mensaje ="Error en: $key\n";
+                                    foreach ($errorMessages as $errorMessage) {
+                                        $mensaje= " Error en $key, \n $errorMessage\n";
+                                    }
                                 }
-                            else
-                               { 
-                                $resultado = false;
-                                $error1="Preliquidacion no anulada";
-                                }
-                             $error2="";   
+                            }
+                        }else{
+                            $mensaje=$response->mensaje;
+                        }
                     }
-                    else
-                       $error2='No se anulo la tasa en RUAT';
-
-                       
-                $mensaje = ($resultado && $anulartasa ? "Se Anulo correctamente" : " Error al realizar la Anulacion: " .$error2 .$error1);
+                } else {
+                    $mensaje =  'No se pudo autentificar en RUAT.';
+                }
+                $mensaje = $result? "<span class='text-success'>  $mensaje </span>": "<span class='text-danger'>$mensaje </span>";
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
-                    'content' => '<span class="text-success">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
-                        ' <br> Importe total Bs.: ' . $model->pago_importe_total . '  </span>',
+                    'content' => $mensaje.'<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
+                                          ' <br> Importe total Bs.: ' . $model->pago_importe_total . '</span>',
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
                 ];
             } else {
@@ -587,17 +598,16 @@ class PagosController extends Controller
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             }
-            } else {
+        }else {
             /*
              *   Process for non-ajax request
              */
-                if ($model->load($request->post()) && $model->save() ) {
-                    return $this->redirect(['view', 'id' => $model->pago_id]);
+            if ($model->load($request->post()) && $model->save() ) {
+                return $this->redirect(['view', 'id' => $model->pago_id]);
                 } else {
                     return $this->render('anular', [
-                        'model' => $model,
-                    ]);
-                }
+                    'model' => $model,
+                ]);
             }
         }
         //$transaction = Yii::$app->db->beginTransaction();
