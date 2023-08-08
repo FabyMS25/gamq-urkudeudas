@@ -157,7 +157,7 @@ class PagosController extends Controller
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
                 $model->pago_cobrado = 1;
                 $dir = $model->pago_nro_comprobante;
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                     if ($token) {
                             $nroTasa = $model->pago_tasa;
                             
@@ -296,7 +296,7 @@ class PagosController extends Controller
                     $val = 1;
                 }
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -316,12 +316,12 @@ class PagosController extends Controller
                                 ', Direccion: ' . $modelSitio->grad_direccion  .
                                 ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio.
                                 ', Tipo armado: ' . $tipoArmado->tip_arm_descricpion .
-                                ', Descripcion: ' . $modelSitio->grad_tipo_armado;
+                                ', Armado Especifico: ' . $modelSitio->grad_tipo_armado;
                             $obsCut = mb_substr($obs, 0, 250);
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24976', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '22976', $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa= $response->numeroTasa;
                                 $model->pago_tasa = $nroTasa;
@@ -410,7 +410,7 @@ class PagosController extends Controller
             ->bindValue(':pago_cobrado', 0)
             ->queryAll();
 
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
         if ($token) {
             for ($i = 0; $i < count($listaPagos); $i++) {
                 $pago = $listaPagos[$i];
@@ -627,7 +627,7 @@ class PagosController extends Controller
                 $username = $datos->usua_cuenta;
                 //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
                 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if($token){
                     $motivo= $model->pago_anulado_detalle;
                     $observacion = $model->pago_observaciones;

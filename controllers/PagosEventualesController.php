@@ -239,7 +239,7 @@ class PagosEventualesController extends Controller
 
     public function actionCreateEventual($id)
     {
-        $codigoClasificador = '24977';
+        $codigoClasificador='22977';
         $mensaje = '';
         $resultado = false;
 
@@ -282,8 +282,8 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_limite = $porciones[1];
                 $montoTotal = $model->eventual_importe_total;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
-                if ($token) {
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                if($token) { 
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
                     $ci_contribuyente = $contri->contri_ci;
@@ -389,7 +389,7 @@ class PagosEventualesController extends Controller
     // liquidacion de act. economicas eventuales ALASITAS
     public function actionCreateAlasitas($id)
     {
-        $codigoClasificador = '24983';
+        $codigoClasificador='22983';
         $mensaje = '';
         $result = false;
 
@@ -431,7 +431,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_inicio = $porciones[0]; //aqui partimos las fechas
                 $model->eventual_fecha_limite = $porciones[1];
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -573,7 +573,7 @@ class PagosEventualesController extends Controller
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -601,7 +601,7 @@ class PagosEventualesController extends Controller
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
                             // $nroTasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24978', $montoTotal, $obs);
-                            $response = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24978', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '22978', $montoTotal, $obs);                            
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
@@ -714,7 +714,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -745,7 +745,7 @@ class PagosEventualesController extends Controller
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
                             // $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24979', $montoTotal, $obs);
-                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24979', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '22979', $montoTotal, $obs);                            
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
@@ -854,9 +854,9 @@ class PagosEventualesController extends Controller
                 $model->eventual_cobrado = 1;
                 $dir = $model->eventual_nro_comprobante;
                 $ci_usuarioAutenticado = $datos->usua_cuenta;
-
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
-                if ($token) {
+                
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                if($token) { 
                     $nrotasa = $model->eventual_tasa;
                     $motivo = $model->eventual_anulado_detalle;
                     $obs = $model->eventual_descripcion;
