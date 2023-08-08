@@ -177,7 +177,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_cobrado = 1;
                 $dir = $model->eventual_nro_comprobante;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $nroTasa = $model->eventual_tasa;
                     $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
