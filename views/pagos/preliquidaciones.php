@@ -24,12 +24,14 @@ CrudAsset::register($this);
             'pjax'=>true,
             'columns' => require(__DIR__.'/_columns_preliquidaciones.php'),
             'toolbar'=> [
-                ['content'=>                   
+                ['content'=>   
+                    Html::a('<i class="glyphicon glyphicon-repeat"></i> Actualizar cobrados', ['update-pagados'],
+                    ['data-pjax'=>1, 'class'=>'btn btn-default', 'title'=>'Actualizar cobrados']) .           
                     Html::a('<i class="glyphicon glyphicon-repeat"></i>', [''],
                     ['data-pjax'=>1, 'class'=>'btn btn-default', 'title'=>'Recargar datos']).
                     '{toggleData}'.
                     '{export}'
-                ],
+                ]
             ],          
             'striped' => true,
             'condensed' => true,

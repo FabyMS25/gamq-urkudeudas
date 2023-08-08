@@ -131,4 +131,30 @@ class RuatServices extends Component
             return $data;
         }
     }
+
+    public function buscarPagadoPorNroTasa($token, $nroTasa)
+    {
+        $client = new Client();
+        $request = $client->createRequest()
+            ->setMethod('POST')
+            ->setFormat(Client::FORMAT_JSON)
+            ->setUrl($this->baseUrl . '/RuatServiciosWebTasasOI/tasasOI/consultaPagoTasa')
+            ->setHeaders([
+                'Authorization' => "Bearer $token"
+            ])
+            ->setData([
+                "codigoAlcaldia" => "QUI",
+                "numeroTasa" => $nroTasa,
+                "tipoTasa" => 'TO',
+            ]);
+
+        $response = $request->send();
+        if ($response->isOk) {
+            $data = json_decode($response->content);
+            return $data->continuarFlujo;
+        } else {
+            $data = json_decode($response->content);
+            return $data->continuarFlujo;
+        }
+    }
 }
