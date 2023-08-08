@@ -283,11 +283,11 @@ class PagosController extends Controller
                             $tipoArmado = TipoArmados::findOne($model->tip_arm_id);
                             $obs = 'Datos graderia silla: ' .
                                 ' Zona: ' . $zona->zona_nombre .
-                                ', Tipo armado: ' . $tipoArmado->tip_arm_descricpion .
                                 ', Codigo: ' . $modelSitio->grad_codigo .
-                                ', Direccion: ' . $modelSitio->grad_direccion .
-                                ', Tipo armado: ' . $modelSitio->grad_tipo_armado .
-                                ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio;
+                                ', Direccion: ' . $modelSitio->grad_direccion  .
+                                ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio.
+                                ', Tipo armado: ' . $tipoArmado->tip_arm_descricpion .
+                                ', Descripcion: ' . $modelSitio->grad_tipo_armado;
                             $obsCut = mb_substr($obs, 0, 250);
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
