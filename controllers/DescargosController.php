@@ -87,7 +87,7 @@ class DescargosController extends Controller
         $model = new Descargos();
         $model->desc_estado = 1;
         $model->desc_fecha_hora = date('Y-m-d H:m');
-        $model->usua_id = \Yii::$app->user->id;
+        $model->usua_id = Yii::$app->user->id;
         
         $titulo ="Crear descargo de sentajes";
 
@@ -103,8 +103,7 @@ class DescargosController extends Controller
                         'model' => $model,
                     ]),
                     'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Guardar',['class'=>'btn btn-primary','type'=>"submit"])
-        
+                                Html::button('Guardar',['class'=>'btn btn-primary','type'=>"submit"])        
                 ];         
             }else if($model->load($request->post()) && $model->save()){
                 return [
@@ -112,8 +111,7 @@ class DescargosController extends Controller
                     'title'=> $titulo,
                     'content'=>'<span class="text-success">Create Descargos success</span>',
                     'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                            Html::a('Crear mas',['create'],['class'=>'btn btn-primary','role'=>'modal-remote'])
-        
+                            Html::a('Crear mas',['create'],['class'=>'btn btn-primary','role'=>'modal-remote'])        
                 ];         
             }else{           
                 return [
@@ -122,8 +120,7 @@ class DescargosController extends Controller
                         'model' => $model,
                     ]),
                     'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Guardar',['class'=>'btn btn-primary','type'=>"submit"])
-        
+                            Html::button('Guardar',['class'=>'btn btn-primary','type'=>"submit"])        
                 ];         
             }
         }else{
