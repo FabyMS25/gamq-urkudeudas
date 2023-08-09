@@ -160,12 +160,14 @@ class PagosController extends Controller
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                     if ($token) {
                             $nroTasa = $model->pago_tasa;
-                            
                             $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
                             if ($response == true) {
                                 $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
                                 $llamada = Yii::$app->generadorQR->QRCODE(400, $dir);
-
+                                
+                                $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
+                                $observacion = 'Folio: '. $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
+                                $model->pago_observaciones = $model->pago_observaciones . '->' . $observacion;
                                 if ($model->save())
                                     $resultado = true;
                                 else

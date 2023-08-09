@@ -182,6 +182,9 @@ class PagosEventualesController extends Controller
                     $nroTasa = $model->eventual_tasa;
                     $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
                     if ($response == true) {
+                        $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
+                        $observacion = 'Folio: ' . $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
+                        $model->eventual_descripcion = $model->eventual_descripcion . '-> ' . $observacion;
                         if ($model->save()) {
                             $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
                             $llamada = Yii::$app->generadorQR->QRCODE(400, $dir);
@@ -209,7 +212,7 @@ class PagosEventualesController extends Controller
                     return [
                         'forceReload' => '#crud-datatable-pjax',
                         'title' => $titulo,
-                        'content' => '<span class="text-success">' . $mensaje . '</span>',
+                        'content' => '<span class="text-danger">' . $mensaje . '</span>',
                         'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
                     ];
                 }
@@ -239,7 +242,7 @@ class PagosEventualesController extends Controller
 
     public function actionCreateEventual($id)
     {
-        $codigoClasificador='22977';
+        $codigoClasificador = '22977';
         $mensaje = '';
         $resultado = false;
 
@@ -283,7 +286,7 @@ class PagosEventualesController extends Controller
                 $montoTotal = $model->eventual_importe_total;
 
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
-                if($token) { 
+                if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
                     $ci_contribuyente = $contri->contri_ci;
@@ -389,7 +392,7 @@ class PagosEventualesController extends Controller
     // liquidacion de act. economicas eventuales ALASITAS
     public function actionCreateAlasitas($id)
     {
-        $codigoClasificador='22983';
+        $codigoClasificador = '22983';
         $mensaje = '';
         $result = false;
 
@@ -601,7 +604,7 @@ class PagosEventualesController extends Controller
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
                             // $nroTasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24978', $montoTotal, $obs);
-                            $response = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '22978', $montoTotal, $obs);                            
+                            $response = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '22978', $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
@@ -745,7 +748,7 @@ class PagosEventualesController extends Controller
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
                             // $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24979', $montoTotal, $obs);
-                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '22979', $montoTotal, $obs);                            
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '22979', $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
@@ -854,9 +857,9 @@ class PagosEventualesController extends Controller
                 $model->eventual_cobrado = 1;
                 $dir = $model->eventual_nro_comprobante;
                 $ci_usuarioAutenticado = $datos->usua_cuenta;
-                
+
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
-                if($token) { 
+                if ($token) {
                     $nrotasa = $model->eventual_tasa;
                     $motivo = $model->eventual_anulado_detalle;
                     $obs = $model->eventual_descripcion;
