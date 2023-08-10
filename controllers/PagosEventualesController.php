@@ -186,6 +186,7 @@ class PagosEventualesController extends Controller
                         $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
                         $observacion = 'Folio: ' . $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
                         $model->eventual_descripcion = $model->eventual_descripcion . '-> ' . $observacion;
+                        $model->eventual_nro_comprobante = $nroTasa;
                         if ($model->save()) {
                             $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
                             $llamada = Yii::$app->generadorQR->QRCODE(400, $dir);
