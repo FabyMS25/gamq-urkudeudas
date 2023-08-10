@@ -14,6 +14,7 @@ use app\models\Usuario;
 use app\models\ActividadesEconomicas;
 use app\models\Categorias;
 use app\models\Contribuyentes;
+use app\models\Sindicatos;
 use app\models\SitiosEventuales;
 use yii\helpers\VarDumper;
 
@@ -290,9 +291,15 @@ class PagosEventualesController extends Controller
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
                     $ci_contribuyente = $contri->contri_ci;
-                    $contribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
-                    if ($contribuyente) {
-                        $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $contribuyente);
+                    $tipo_id = $contri->ext_id;
+                    $tipo_doc = "CI";
+                    if ($tipo_id == 12) {
+                        $tipo_doc = "CE";
+                    }
+                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
+
+                    if ($codigoContribuyente) {
+                        $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $codigoContribuyente);
                         if ($tieneDeudas) {
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
                         } else {
@@ -301,20 +308,22 @@ class PagosEventualesController extends Controller
                             $idsitio = $model->sitios_id;
                             $sitio = SitiosEventuales::findOne($idsitio);
                             $categoria = Categorias::findOne($model->categoria);
-
+                            $sindicato = Sindicatos::findOne($contri->sindi_id);
                             $obs = 'DATOS DE ACTIVIDAD: EVENTUALES  ' .
+                                ', Sindicato: ' . $sindicato->sindi_nombre .
                                 ', Categoria: ' . $categoria->categ_nombre .
                                 ', Codigo Puesto: ' . $sitio->sitios_codigo .
                                 ', Nro Puesto: ' . $sitio->sitios_numero_sitio .
-                                ', Dir Puesto: ' . $sitio->sitios_descripcion;
-                            ', Fecha inicio ' . $porciones[0] .
+                                ', Dir Puesto: ' . $sitio->sitios_descripcion .
+                                ', Fecha inicio ' . $porciones[0] .
                                 ', Fecha fin ' . $porciones[1] .
                                 ', Actividad economica: ' . $acti->activi_descripcion;
+
                             $obsCut = mb_substr($obs, 0, 250);
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            $response = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $contribuyente, $codigoClasificador, $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, $codigoClasificador, $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
@@ -439,7 +448,12 @@ class PagosEventualesController extends Controller
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
                     $ci_contribuyente = $contri->contri_ci;
-                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
+                    $tipo_id = $contri->ext_id;
+                    $tipo_doc = "CI";
+                    if ($tipo_id == 12) {
+                        $tipo_doc = "CE";
+                    }
+                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
 
                     if ($codigoContribuyente) {
 
@@ -451,7 +465,10 @@ class PagosEventualesController extends Controller
                             $actividad = ActividadesEconomicas::findOne($model->activi_id);
                             $sitio = SitiosEventuales::findOne($model->sitios_id);
                             $montoTotal = $model->eventual_importe_total;
+                            $sindicato = Sindicatos::findOne($contri->sindi_id);
+
                             $obs = 'DATOS ACTIVIDAD: ' . "ALASITAS " . date('Y') .
+                                ', Sindicato: ' . $sindicato->sindi_nombre .
                                 ', Clasificador: ' . $codigoClasificador .
                                 ', Fechas de Act: ' . $porciones[0] . " a " . $porciones[1] .
                                 ', Codigo Puesto: ' . $sitio->sitios_codigo .
@@ -581,7 +598,12 @@ class PagosEventualesController extends Controller
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
                     $ci_contribuyente = $contri->contri_ci;
-                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
+                    $tipo_id = $contri->ext_id;
+                    $tipo_doc = "CI";
+                    if ($tipo_id == 12) {
+                        $tipo_doc = "CE";
+                    }
+                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
                         $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
                         if ($tieneDeudas) {
@@ -722,8 +744,12 @@ class PagosEventualesController extends Controller
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
                     $ci_contribuyente = $contri->contri_ci;
-                    $acti = ActividadesEconomicas::findOne($model->activi_id);
-                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
+                    $tipo_id = $contri->ext_id;
+                    $tipo_doc = "CI";
+                    if ($tipo_id == 12) {
+                        $tipo_doc = "CE";
+                    }
+                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente != null) {
                         $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
                         if ($tieneDeudas) {
