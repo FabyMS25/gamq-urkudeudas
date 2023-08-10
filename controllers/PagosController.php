@@ -167,6 +167,7 @@ class PagosController extends Controller
                                 $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
                                 $observacion = 'Folio: '. $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
                                 $model->pago_observaciones = $model->pago_observaciones . '->' . $observacion;
+                                $model->pago_nro_comprobante = $nroTasa;
                                 if ($model->save())
                                     $resultado = true;
                                 else
