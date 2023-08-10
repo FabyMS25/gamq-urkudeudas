@@ -34,7 +34,7 @@ $config = [
             'resource_directory' => false, //optional
             'locale' => 'es_ES', //optional
             'db' => [
-                'dsn' => 'pgsql:host=127.0.0.1;port=5432;dbname=urkupina_10_08_23_09_45?sslmode=disable',
+                'dsn' => 'pgsql:host=181.177.143.180;port=5432;dbname=db_urkupina?sslmode=disable',
                 // 'dsn' => 'pgsql:host=181.177.143.185;port=5432;dbname=test_urku?sslmode=disable',
                 //'dsn' => 'pgsql:host=localhost;dbname=urkupina',                
                 'username' => 'postgres',
