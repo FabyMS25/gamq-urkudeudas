@@ -140,7 +140,7 @@ class PagosController extends Controller
         $titulo = "Cobrar preliquidacion de " . $model->graderiaSilla->grad_codigo;
 
         //$siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
-        $siteUrl = 'http://181.177.143.186/proyecto-urkupina/web/index.php?r=pagos%2Fview&id=' . $id;
+        $siteUrl = 'http://192.168.7.4/proyecto-urkupina/web/index.php?r=pagos%2Fview&id=' . $id;
 
         if ($request->isAjax) {
             /*           Process for ajax request            */
@@ -156,14 +156,13 @@ class PagosController extends Controller
                 $model->usua_id = Yii::$app->user->id;
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
                 $model->pago_cobrado = 1;
-                $dir = $model->pago_nro_comprobante;
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                     if ($token) {
                             $nroTasa = $model->pago_tasa;
                             $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
                             if ($response == true) {
                                 $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
-                                $llamada = Yii::$app->generadorQR->QRCODE(400, $dir);
+                                $llamada = Yii::$app->generadorQR->QRCODE(400, $nroTasa);
                                 
                                 $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
                                 $observacion = 'Folio: '. $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
@@ -628,7 +627,6 @@ class PagosController extends Controller
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate() && $modelGraderia->save(false)) {
-                $model->usua_id = Yii::$app->user->id;
                 $idUsuario = $model->usua_id;
                 $datos = Usuario::findOne($idUsuario);
                 $username = $datos->usua_cuenta;

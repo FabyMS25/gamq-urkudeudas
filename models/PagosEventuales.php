@@ -81,8 +81,8 @@ class PagosEventuales extends \yii\db\ActiveRecord
             [['rango_fechas'],'required', 'on'=>['crear_espectaculos_liquidacion', 'crear_publicidad_liquidacion']],//
             //eventual_fecha_hora_pago     'eventual_nro_comprobante',
             // 'eventual_fecha_inicio', 'eventual_fecha_limite',
-            [['eventual_nro_comprobante'], 'required', 'on'=>['cobrar_liquidacion']],
-            [['eventual_nro_comprobante'], 'validateComprobante', 'on'=>['cobrar_liquidacion']],
+            [['eventual_tasa'], 'required', 'on'=>['cobrar_liquidacion']],
+            //[['eventual_nro_comprobante'], 'validateComprobante', 'on'=>['cobrar_liquidacion']],
             
             [['activi_id'], 'exist', 'skipOnError' => true, 'targetClass' => ActividadesEconomicas::className(), 'targetAttribute' => ['activi_id' => 'activi_id']],
             [['contri_id'], 'exist', 'skipOnError' => true, 'targetClass' => Contribuyentes::className(), 'targetAttribute' => ['contri_id' => 'contri_id']],

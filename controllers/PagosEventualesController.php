@@ -159,7 +159,7 @@ class PagosEventualesController extends Controller
         $model->scenario = "cobrar_liquidacion";
         $titulo = "Cobrar liquidacion nro. <strong>" . $model->eventual_nro_liquidacion . "</strong>";
         //$siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
-        $siteUrl = 'http://181.177.143.186/proyecto-urkupina/web/index.php?r=pagos-eventuales%2Fview&id=' . $id;
+        $siteUrl = 'http://192.168.7.4/proyecto-urkupina/web/index.php?r=pagos-eventuales%2Fview&id=' . $id;
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -176,7 +176,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_hora_pago = date('Y-m-d H:m:s');
                 $model->usua_id = Yii::$app->user->id;
                 $model->eventual_cobrado = 1;
-                $dir = $model->eventual_nro_comprobante;
+                $dir = $model->eventual_tasa;
 
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
@@ -1044,7 +1044,7 @@ class PagosEventualesController extends Controller
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             // jasper init
-            $archivo = "preliquidacion_sitios3";
+            $archivo = "preliquidacion_actividades_economicas";
             $carpeta =  "reportes";
             $parametros = ['id_pago' => $id, 'monto_literal' => '"' . $montoLiteral . '"'];
             $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
