@@ -36,7 +36,7 @@ class RuatServices extends Component
         }
     }
 
-    public function getContribuyentePorCi($token, $ci)
+    public function getContribuyentePorCi($token, $ci, $tipoDocumento)
     {
         $client = new Client();
         $request = $client->createRequest()
@@ -49,7 +49,7 @@ class RuatServices extends Component
             ->setData([
                 'codigoAlcaldia' => 'QUI',
                 'numeroDocumento' => $ci,
-                'tipoDocumento' => 'CI',
+                'tipoDocumento' => $tipoDocumento,
             ]);
 
         $response = $request->send();

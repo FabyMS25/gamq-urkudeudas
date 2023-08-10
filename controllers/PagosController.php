@@ -303,7 +303,12 @@ class PagosController extends Controller
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
                     $ci_contribuyente = $contri->contri_ci;
-                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente);
+                    $tipo_id = $contri->ext_id;
+                    $tipo_doc = "CI";
+                    if ($tipo_id == 12) {
+                        $tipo_doc = "CE";
+                    }
+                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente != null) {
                         $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
                         if ($tieneDeudas) {
