@@ -5,7 +5,7 @@
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="bd urkupina"/>
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="489"/>
+	<property name="ireport.y" value="614"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
 	<parameter name="image_path" class="java.lang.String"/>
@@ -23,6 +23,8 @@
           pago_fecha_hora_preliquidacion,
           pago_fecha_hora_cobro,
           pago_con_exencion,
+          pago_tasa,
+          pago_observaciones,
           contri_nombres, contri_paterno, contri_materno, contri_ci, contri_nit,
           liquidador, grad_codigo, grad_direccion, grad_longitud, grad_acera,
           grad_tipo_armado, grad_tipo_sitio, grad_vendido, grad_reservado,
@@ -155,6 +157,8 @@
 	<field name="zona_descripcion" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="zona_descripcion"/>
 	</field>
+	<field name="pago_tasa" class="java.lang.String"/>
+	<field name="pago_observaciones" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -400,7 +404,7 @@
 				<textElement textAlignment="Left">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<text><![CDATA[URKUPIÑA 2022]]></text>
+				<text><![CDATA[URKUPIÑA 2023]]></text>
 			</staticText>
 			<textField>
 				<reportElement positionType="FixRelativeToBottom" x="90" y="206" width="250" height="15" uuid="89f36765-97ac-415b-adee-ed0841117074"/>
@@ -465,7 +469,7 @@
 				<textFieldExpression><![CDATA[$F{pago_fecha_hora_cobro}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="8" y="100" width="172" height="15" uuid="3d2bdc74-5368-4e0e-8cc1-7a5181ce5f5a">
+				<reportElement x="8" y="100" width="353" height="29" uuid="3d2bdc74-5368-4e0e-8cc1-7a5181ce5f5a">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
@@ -473,11 +477,11 @@
 				<textElement textAlignment="Left">
 					<font fontName="Arial" size="7" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{grad_id}+ " - "+$F{pago_nro_liquidacion} + " - "+$F{pago_nro_comprobante}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{grad_id}+ " - "+$F{pago_nro_liquidacion} + " - " + $F{pago_nro_comprobante} + " - Tasa: " + $F{pago_tasa} + " - Obs.: " + $F{pago_observaciones}]]></textFieldExpression>
 			</textField>
 			<image onErrorType="Blank">
 				<reportElement x="365" y="29" width="100" height="100" uuid="93904204-4f95-41e7-868c-825c71c4c705"/>
-				<imageExpression><![CDATA[$P{image_path} + "/" + $F{pago_nro_comprobante} + ".png"]]></imageExpression>
+				<imageExpression><![CDATA[$P{image_path} + "/" + $F{pago_tasa} + ".png"]]></imageExpression>
 			</image>
 		</band>
 	</summary>

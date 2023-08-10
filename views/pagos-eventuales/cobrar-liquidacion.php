@@ -1,12 +1,13 @@
 <?php
 
+use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\widgets\ActiveForm;
 
 /****************************/
 if (Yii::$app->user->isGuest) {
     Yii::$app->user->logout(true);
-    Yii::app()->session->clear();
+    Yii::$app()->session->clear();
     return $this->goHome();
 }
 
@@ -86,7 +87,7 @@ $idSitio = $model->sitios_id;
 </div>
     <div class="alert alert-info">
         <?php $form = ActiveForm::begin(); ?>          
-            <?= $form->field($model, 'eventual_nro_comprobante')->textInput(['maxlength' => true]) ?>     
+            <?= $form->field($model, 'eventual_tasa')->textInput(['readonly' => true]) ?>     
 
             <?php if (!Yii::$app->request->isAjax) { ?>
                 <div class="form-group">

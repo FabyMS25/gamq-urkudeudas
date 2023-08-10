@@ -42,7 +42,7 @@ class Contribuyentes extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['ext_id', 'contri_nombres', 'contri_ci', 'contri_direccion', 'contri_fecharegistro', 'contri_estado'], 'required'],
+            [['ext_id', 'contri_nombres', 'contri_ci', 'contri_direccion', 'contri_fecharegistro', 'contri_estado','sindi_id'], 'required'],
             [['ext_id', 'sindi_id', 'contri_telefono', 'contri_nit', 'contri_estado'], 'integer'],
             [['contri_fecharegistro'], 'safe'],
             [['contri_nombres'], 'string', 'max' => 100],

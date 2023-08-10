@@ -1,5 +1,6 @@
 <?php
 
+use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\widgets\ActiveForm;
 
@@ -8,7 +9,7 @@ use yii\widgets\ActiveForm;
 /****************************/
 if (Yii::$app->user->isGuest) {
     Yii::$app->user->logout(true);
-    Yii::app()->session->clear();
+    Yii::$app()->session->clear();
     return $this->goHome();
 }
 ?>
@@ -58,7 +59,7 @@ if (Yii::$app->user->isGuest) {
     <div class="alert alert-info">
     <?php $form = ActiveForm::begin(); ?>    
         <?php // echo $form ->errorSummary($model); ?>    
-        <?= $form->field($model, 'pago_nro_comprobante')->textInput(['maxlength' => true]) ?>     
+        <?= $form->field($model, 'pago_tasa')->textInput(['readonly' => true]) ?>     
 
         <?php if (!Yii::$app->request->isAjax) { ?>
             <div class="form-group">
