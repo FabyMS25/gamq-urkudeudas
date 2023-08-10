@@ -61,7 +61,12 @@ class RuatServices extends Component
         }
     }
 
-    public function getTieneDeudaContribuyente($token, $tipoConsulta, $nroDocumento, $tipoDocumento)
+    public function getTieneDeudaContribuyente($token, $ciContribuyente)
+    {
+        return false;
+    }
+
+    public function getTieneDeudaContribuyentePorNroDocumento($token, $tipoConsulta, $nroDocumento, $tipoDocumento)
     {
         $client = new Client();
         $request = $client->createRequest()
