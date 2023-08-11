@@ -628,7 +628,7 @@ class PagosController extends Controller
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate() && $modelGraderia->save(false)) {
-                $idUsuario = $model->usua_id;
+                $idUsuario = $model->pago_id_user_preliquidacion;
                 $datos = Usuario::findOne($idUsuario);
                 $username = $datos->usua_cuenta;
                 //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');

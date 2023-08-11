@@ -136,6 +136,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
             <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
         </div>
     <?php } ?>
+    <?= $form->field($model, 'eventual_descripcion')->textarea(['rows' => 2, 'maxlength' => true,]) ?>
 
     <?php ActiveForm::end(); ?>
 </div>

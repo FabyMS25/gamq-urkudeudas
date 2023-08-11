@@ -93,6 +93,10 @@ class ActividadesEconomicas extends \yii\db\ActiveRecord
     public function listaActividadesEconomicasModel(){
         return $this->find()->where(['activi_estado'=>1])->all();
     }
+
+    public function listaActividadesById($idCategoria){
+        return $this->find()->where(['activi_estado'=>1,'categ_id'=>$idCategoria])->all();
+    }
     
      public function listaActividadesEconomicasAlasitasModel(){
         return $this->find()
