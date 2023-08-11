@@ -228,6 +228,7 @@
 				<reportElement x="611" y="0" width="140" height="30" uuid="2d42a714-7c49-433d-97a1-f5e0f02ce952">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
+				<box leftPadding="5"/>
 				<textElement verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
@@ -330,6 +331,7 @@
 				<reportElement x="611" y="0" width="141" height="20" uuid="f1232f00-dee9-4d16-aac4-e47c7c454fe4">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
+				<box leftPadding="4"/>
 				<textElement>
 					<font size="8"/>
 				</textElement>

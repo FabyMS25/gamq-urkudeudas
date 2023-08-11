@@ -15,7 +15,7 @@
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="165"/>
+	<property name="ireport.y" value="55"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
 	<queryString>
@@ -359,27 +359,6 @@
 				<text><![CDATA[Señor(a) contribuyentes verifique sus datos antes de realizar el pago a caja.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="220" y="57" width="50" height="15" uuid="05a12aa9-4852-4198-9756-6884fd6c8b9f">
-					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-				</reportElement>
-				<box leftPadding="4"/>
-				<textElement verticalAlignment="Middle">
-					<font size="9" isBold="true"/>
-				</textElement>
-				<text><![CDATA[ANCHO:]]></text>
-			</staticText>
-			<textField isBlankWhenNull="true">
-				<reportElement positionType="FixRelativeToBottom" x="270" y="57" width="50" height="15" uuid="24dd138c-8e71-44c4-a066-d25a3efe43d9">
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-				</reportElement>
-				<textElement verticalAlignment="Middle">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{activi_largo_mts}]]></textFieldExpression>
-			</textField>
-			<staticText>
 				<reportElement positionType="FixRelativeToBottom" x="334" y="57" width="92" height="15" uuid="d2cc5acb-7a66-4d23-914f-966dbe01b7d5">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
@@ -511,6 +490,20 @@
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{eventual_fecha_limite}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="227" y="57" width="48" height="15" uuid="0456b028-63b6-4f76-a6dd-81f76d99d154"/>
+				<textElement>
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ANCHO:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="277" y="57" width="56" height="15" uuid="9a478767-6293-44d9-8a96-c4a752623ca0"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{activi_ancho_mts}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

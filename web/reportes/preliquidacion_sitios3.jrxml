@@ -15,7 +15,7 @@
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="GAMQ Urkupina"/>
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="228"/>
+	<property name="ireport.y" value="36"/>
 	<parameter name="id_pago" class="java.lang.Integer">
 		<defaultValueExpression><![CDATA[502]]></defaultValueExpression>
 	</parameter>
@@ -574,7 +574,7 @@
 				<textElement verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{activi_largo_mts}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{activi_ancho_mts}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="FixRelativeToBottom" x="325" y="93" width="92" height="15" uuid="d2cc5acb-7a66-4d23-914f-966dbe01b7d5">
@@ -658,6 +658,7 @@
 			</staticText>
 			<staticText>
 				<reportElement x="300" y="358" width="139" height="13" uuid="8d39ba84-a30f-43ec-9f88-93f12fd80101"/>
+				<textElement textAlignment="Center"/>
 				<text><![CDATA[.................................................]]></text>
 			</staticText>
 			<staticText>
@@ -676,6 +677,7 @@
 			</staticText>
 			<staticText>
 				<reportElement x="69" y="358" width="139" height="13" uuid="a07a1274-ae9f-4f28-8604-cbea400104c8"/>
+				<textElement textAlignment="Center"/>
 				<text><![CDATA[.................................................]]></text>
 			</staticText>
 			<staticText>
@@ -686,11 +688,13 @@
 				<text><![CDATA[LIQUIDADOR]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="81" y="371" width="120" height="17" uuid="e7cdf903-168f-46e1-b458-1706c62b3891"/>
+				<reportElement x="69" y="371" width="139" height="17" uuid="e7cdf903-168f-46e1-b458-1706c62b3891"/>
+				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA[$F{nombre_liquidador}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="318" y="371" width="100" height="17" uuid="3cb62352-42aa-46fe-9994-d837dfd8a364"/>
+				<reportElement x="301" y="371" width="138" height="17" uuid="3cb62352-42aa-46fe-9994-d837dfd8a364"/>
+				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA[$F{contribuyente}]]></textFieldExpression>
 			</textField>
 			<textField>
