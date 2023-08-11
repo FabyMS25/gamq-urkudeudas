@@ -61,9 +61,36 @@ class RuatServices extends Component
         }
     }
 
-    public function getTieneDeudaContribuyente($token, $ci)
+    public function getTieneDeudaContribuyente($token, $ciContribuyente)
     {
         return false;
+    }
+
+    public function getTieneDeudaContribuyentePorNroDocumento($token, $tipoConsulta, $nroDocumento, $tipoDocumento)
+    {
+        $client = new Client();
+        $request = $client->createRequest()
+            ->setMethod('POST')
+            ->setFormat(Client::FORMAT_JSON)
+            ->setUrl($this->baseUrl . '/RuatServiciosWebTasasOI/tasasOI/consultaDeudaTasaContrib')
+            ->setHeaders([
+                'Authorization' => "Bearer $token"
+            ])
+            ->setData([
+                'codigoAlcaldia' => 'QUI',
+                'tipoConsulta' => $tipoConsulta,
+                'numeroDocumento' => $nroDocumento,
+                'tipoDocumento' => $tipoDocumento,
+            ]);
+
+        $response = $request->send();
+        if ($response->isOk) {
+            $data = json_decode($response->content);
+            return $data;
+        } else {
+            $data = json_decode($response->content);
+            return $data;
+        }
     }
 
     public function createTasa($token, $codigoUsuario, $codigoContribuyente, $codigoClasificador, $monto, $obsercaciones)

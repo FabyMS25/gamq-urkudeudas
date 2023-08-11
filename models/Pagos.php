@@ -78,8 +78,8 @@ class Pagos extends \yii\db\ActiveRecord
             
             //personalizado           
             [['pago_importe_total', 'pago_importe_patente', 'pago_con_exencion'], 'required'],
-            ['pago_nro_comprobante', 'required' ,'on'=>['cobrar_graderias_sillas']],
-            ['pago_nro_comprobante', 'validateComprobante' ,'on'=>['cobrar_graderias_sillas']],
+            ['pago_tasa', 'required' ,'on'=>['cobrar_graderias_sillas']],
+            //['pago_nro_comprobante', 'validateComprobante' ,'on'=>['cobrar_graderias_sillas']],
             
             ['pago_anulado_detalle', 'required' , 'on' => ['anular-pago']],
             // para reportes
