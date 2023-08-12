@@ -157,55 +157,48 @@ class PagosController extends Controller
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
                 $model->pago_cobrado = 1;
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
-                    if ($token) {
-                            $nroTasa = $model->pago_tasa;
-                            $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
-                            if ($response == true) {
-                                $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
-                                $llamada = Yii::$app->generadorQR->QRCODE(400, $nroTasa);
-                                
-                                $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
-                                $observacion = 'Folio: '. $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
-                                $model->pago_observaciones = $model->pago_observaciones . '->' . $observacion;
-                                $model->pago_nro_comprobante = $nroTasa;
-                                if ($model->save())
-                                    $resultado = true;
-                                else
-                                    $resultado = false;
-                                //$resultado =$this->actualizarDatosCobro($model);
-                                $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
-                                return [
-                                    'forceReload' => '#crud-datatable-pjax',
-                                    'title' => $titulo,
-                                    'content' => '<span class="text-success">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
-                                        ' <br> Importe total Bs.: ' . $model->pago_importe_total . '  </span>',
-                                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                                        Html::a('Comprobante pago', ['comprobante-pago', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
-                                ]; 
+                if ($token) {
+                    $nroTasa = $model->pago_tasa;
+                    $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
+                    if ($response == true) {
+                        $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
+                        $llamada = Yii::$app->generadorQR->QRCODE(400, $nroTasa);
 
-                            }
-                            else
-                            return [
-                                'forceReload' => '#crud-datatable-pjax',
-                                'title' => $titulo,
-                                'content' => '<span class="text-danger">' . 'No se realizo ningun Pago!!' ,
-                                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) 
-                                   
-                            ]; 
-                        
-                    }
-                    else{
+                        $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
+                        $observacion = 'Folio: ' . $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
+                        $model->pago_observaciones = $model->pago_observaciones . '->' . $observacion;
+                        $model->pago_nro_comprobante = $nroTasa;
+                        if ($model->save())
+                            $resultado = true;
+                        else
+                            $resultado = false;
+                        //$resultado =$this->actualizarDatosCobro($model);
+                        $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
                         return [
                             'forceReload' => '#crud-datatable-pjax',
                             'title' => $titulo,
-                            'content' => '<span class="text-success">' . 'No se puede Autenticar en RUAT' ,
+                            'content' => '<span class="text-success">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
+                                ' <br> Importe total Bs.: ' . $model->pago_importe_total . '  </span>',
+                            'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                                Html::a('Comprobante pago', ['comprobante-pago', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                        ];
+                    } else
+                        return [
+                            'forceReload' => '#crud-datatable-pjax',
+                            'title' => $titulo,
+                            'content' => '<span class="text-danger">' . 'No se realizo ningun Pago!!',
                             'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-                               
-                        ]; 
-                    } 
 
+                        ];
+                } else {
+                    return [
+                        'forceReload' => '#crud-datatable-pjax',
+                        'title' => $titulo,
+                        'content' => '<span class="text-success">' . 'No se puede Autenticar en RUAT',
+                        'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
 
-               
+                    ];
+                }
             } else {
                 return [
                     'title' => $titulo,
@@ -321,7 +314,7 @@ class PagosController extends Controller
                                 ' Zona: ' . $zona->zona_nombre .
                                 ', Codigo: ' . $modelSitio->grad_codigo .
                                 ', Direccion: ' . $modelSitio->grad_direccion  .
-                                ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio.
+                                ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio .
                                 ', Tipo armado: ' . $tipoArmado->tip_arm_descricpion .
                                 ', Armado Especifico: ' . $modelSitio->grad_tipo_armado;
                             $obsCut = mb_substr($obs, 0, 250);
@@ -330,7 +323,7 @@ class PagosController extends Controller
 
                             $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '22976', $montoTotal, $obs);
                             if ($response->continuarFlujo) {
-                                $nroTasa= $response->numeroTasa;
+                                $nroTasa = $response->numeroTasa;
                                 $model->pago_tasa = $nroTasa;
 
                                 if ($model->save()) {
@@ -348,18 +341,18 @@ class PagosController extends Controller
                                 }
                             } else {
                                 $mensaje = 'No se pudo registrar la tasa en RUAT <br>';
-                                if (is_array($response->mensaje)){
+                                if (is_array($response->mensaje)) {
                                     $messages = $response->mensaje;
                                     foreach ($messages as $message) {
                                         foreach ($message as $key => $errorMessages) {
-                                            $mensaje =$mensaje. "Error en: $key, ";
+                                            $mensaje = $mensaje . "Error en: $key, ";
                                             foreach ($errorMessages as $errorMessage) {
-                                                $mensaje= $mensaje.$errorMessage;
+                                                $mensaje = $mensaje . $errorMessage;
                                             }
                                         }
                                     }
-                                }else{
-                                    $mensaje=$mensaje.$response->mensaje;
+                                } else {
+                                    $mensaje = $mensaje . $response->mensaje;
                                 }
                             }
                         }
@@ -410,37 +403,53 @@ class PagosController extends Controller
 
     public function actionUpdatePagados()
     {
-      
-       
-        $sql = 'SELECT * FROM pagos WHERE pago_cobrado=:pago_cobrado';
+        $sql = 'SELECT * FROM pagos WHERE pago_cobrado=:pago_cobrado AND pago_estado=:pago_estado';
         $listaPagos = Yii::$app->db->createCommand($sql)
             ->bindValue(':pago_cobrado', 0)
+            ->bindValue(':pago_estado', 1)
             ->queryAll();
 
         $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
         if ($token) {
             for ($i = 0; $i < count($listaPagos); $i++) {
                 $pago = $listaPagos[$i];
+                $id = $pago['pago_id'];
                 $nroTasa = $pago['pago_tasa'];
                 $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
+                //$response = true;
                 if ($response == true) {
-                    $sql = 'UPDATE pagos SET pago_cobrado=:val WHERE pago_id=:id';
+                    $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
+                    $usua_id = Yii::$app->user->id;
+                    $pago_fecha_hora_cobro = date('Y-m-d H:m:s');
+                    /*$observacion = 'Folio de prueba pagos';
+                    $sql = 'UPDATE pagos SET pago_cobrado=:cobr, usua_id=:id_user, pago_fecha_hora_cobro=:pago_fecha, pago_nro_comprobante=:comprob, pago_observaciones=:obs WHERE pago_id=:id';
                     $command = Yii::$app->db->createCommand($sql)
-                        ->bindValue(':id', $pago['pago_tasa'])
-                        ->bindValue(':val', 1)
-                        ->queryOne();
+                        ->bindValue(':id', $id)
+                        ->bindValue(':cobr', 1)
+                        ->bindValue(':id_user', $usua_id)
+                        ->bindValue(':pago_fecha', $pago_fecha_hora_cobro)
+                        ->bindValue(':comprob', $nroTasa)
+                        ->bindValue(':obs', $observacion)
+                        ->queryOne();*/
+                    if ($pagoTasa != null) {
+                        $usua_id = Yii::$app->user->id;
+                        $pago_fecha_hora_cobro = date('Y-m-d H:m:s');
+                        $observacion = 'Folio: ' . $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
+                        $sql = 'UPDATE pagos SET pago_cobrado=:cobr, usua_id=:id_user, pago_fecha_hora_cobro=:pago_fecha, pago_nro_comprobante=:comprob, pago_observaciones=:obs WHERE pago_id=:id';
+                        $command = Yii::$app->db->createCommand($sql)
+                            ->bindValue(':id', $id)
+                            ->bindValue(':cobr', 1)
+                            ->bindValue(':id_user', $usua_id)
+                            ->bindValue(':pago_fecha', $pago_fecha_hora_cobro)
+                            ->bindValue(':comprob', $nroTasa)
+                            ->bindValue(':obs', $observacion)
+                            ->queryOne();
+                    }
                 }
-            
             }
+            $this->actionPreliquidaciones();
         } else {
-            VarDumper::dump('No se pudo iniciar sesion en RUAT');
         }
-        /*
-             *   Process for non-ajax request
-             */
-           
-
-
     }
 
 
@@ -603,7 +612,8 @@ class PagosController extends Controller
      */
     public function actionAnularPreliquidacion($id)
     {
-        $result=false; $mensaje="";
+        $result = false;
+        $mensaje = "";
         $this->verificarSesion();
         $request = Yii::$app->request;
         $model = $this->findModel($id);
@@ -632,51 +642,51 @@ class PagosController extends Controller
                 $datos = Usuario::findOne($idUsuario);
                 $username = $datos->usua_cuenta;
                 //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
-                
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
-                if($token){
-                    $motivo= $model->pago_anulado_detalle;
+
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                if ($token) {
+                    $motivo = $model->pago_anulado_detalle;
                     $observacion = $model->pago_observaciones;
-                    $nrotasa= $model->pago_tasa;
+                    $nrotasa = $model->pago_tasa;
                     $response = Yii::$app->ruatServices->anularTasa($token, $username, $nrotasa, $motivo, $observacion);
-                    if($response->continuarFlujo){
-                        $model->pago_estado = 0;  
-                        $mensajeConfirmacion=$response->mensajeConfirmacion;
-                        if ($model->save() ){
+                    if ($response->continuarFlujo) {
+                        $model->pago_estado = 0;
+                        $mensajeConfirmacion = $response->mensajeConfirmacion;
+                        if ($model->save()) {
                             if ($modelGraderia->save()) {
-                                $mensaje = "Se elimino la preliquidacion y  \n ".$mensajeConfirmacion;
-                                $result=true;   
-                            }else{
+                                $mensaje = "Se elimino la preliquidacion y  \n " . $mensajeConfirmacion;
+                                $result = true;
+                            } else {
                                 $mensaje = 'No se pudo actualizar graderias';
-                            }   
-                        }else{ 
+                            }
+                        } else {
                             $mensaje = $mensajeConfirmacion . " pero no se pudo eliminar la Preliquidacion.";
-                            $result=false;
-                        }  
-                    }else{
-                        if (is_array($response->mensaje)){
+                            $result = false;
+                        }
+                    } else {
+                        if (is_array($response->mensaje)) {
                             $messages = $response->mensaje;
                             foreach ($messages as $message) {
                                 foreach ($message as $key => $errorMessages) {
-                                    $mensaje ="Error en: $key\n";
+                                    $mensaje = "Error en: $key\n";
                                     foreach ($errorMessages as $errorMessage) {
-                                        $mensaje= " Error en $key, \n $errorMessage\n";
+                                        $mensaje = " Error en $key, \n $errorMessage\n";
                                     }
                                 }
                             }
-                        }else{
-                            $mensaje=$response->mensaje;
+                        } else {
+                            $mensaje = $response->mensaje;
                         }
                     }
                 } else {
                     $mensaje =  'No se pudo autentificar en RUAT.';
                 }
-                $mensaje = $result? "<span class='text-success'>  $mensaje </span>": "<span class='text-danger'>$mensaje </span>";
+                $mensaje = $result ? "<span class='text-success'>  $mensaje </span>" : "<span class='text-danger'>$mensaje </span>";
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
-                    'content' => $mensaje.'<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
-                                          ' <br> Importe total Bs.: ' . $model->pago_importe_total . '</span>',
+                    'content' => $mensaje . '<br> Nro. preliquidacion : ' . $model->pago_nro_liquidacion .
+                        ' <br> Importe total Bs.: ' . $model->pago_importe_total . '</span>',
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
                 ];
             } else {
@@ -687,20 +697,20 @@ class PagosController extends Controller
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             }
-        }else {
+        } else {
             /*
              *   Process for non-ajax request
              */
-            if ($model->load($request->post()) && $model->save() ) {
+            if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->pago_id]);
-                } else {
-                    return $this->render('anular', [
+            } else {
+                return $this->render('anular', [
                     'model' => $model,
                 ]);
             }
         }
-     }
-    
+    }
+
     public function actionReciboLiquidacion($id)
     {
         $this->verificarSesion();

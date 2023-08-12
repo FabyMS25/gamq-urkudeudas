@@ -241,6 +241,54 @@ class PagosEventualesController extends Controller
         }
     }
 
+    public function actionUpdatePagados()
+    {
+        $sql = 'SELECT * FROM pagos_eventuales WHERE eventual_cobrado=:ev_cobrado AN eventual_estado=:ev_estado';
+        $listaPagosEventuales = Yii::$app->db->createCommand($sql)
+            ->bindValue(':ev_cobrado', 0)
+            ->bindValue(':ev_estado', 1)
+            ->queryAll();
+
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+        if ($token) {
+            for ($i = 0; $i < count($listaPagosEventuales); $i++) {
+                $pago = $listaPagosEventuales[$i];
+                $id = $pago['eventual_id'];
+                $nroTasa = $pago['eventual_tasa'];
+                $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
+                //$response = true;
+                if ($response == true) {
+                    $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
+                    $usua_id = Yii::$app->user->id;
+                    $eventual_fecha_hora_pago = date('Y-m-d H:m:s');
+                    /*$observacion = 'Folio de prueba eventual';
+                    $sql = 'UPDATE pagos_eventuales SET eventual_cobrado=:cobr, usua_id=:user_id, eventual_fecha_hora_pago=:pago_fecha, eventual_nro_comprobante=:comprob, eventual_descripcion=:obs WHERE eventual_id=:id';
+                    $command = Yii::$app->db->createCommand($sql)
+                        ->bindValue(':id', $id)
+                        ->bindValue(':cobr', 1)
+                        ->bindValue(':user_id', $usua_id)
+                        ->bindValue(':pago_fecha', $eventual_fecha_hora_pago)
+                        ->bindValue(':comprob', $nroTasa)
+                        ->bindValue(':obs', $observacion)
+                        ->queryOne();*/
+                    if ($pagoTasa) {
+                        $observacion = 'Folio: ' . $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
+                        $sql = 'UPDATE pagos_eventuales SET eventual_cobrado=:cobr, usua_id=:user_id, eventual_fecha_hora_pago=:pago_fecha, eventual_nro_comprobante=:comprob, eventual_descripcion=:obs WHERE eventual_id=:id';
+                        $command = Yii::$app->db->createCommand($sql)
+                            ->bindValue(':id', $id)
+                            ->bindValue(':cobr', 1)
+                            ->bindValue(':user_id', $usua_id)
+                            ->bindValue(':pago_fecha', $eventual_fecha_hora_pago)
+                            ->bindValue(':comprob', $nroTasa)
+                            ->bindValue(':obs', $observacion)
+                            ->queryOne();
+                    }
+                }
+            }
+            $this->actionIndex();
+        } else {
+        }
+    }
 
     public function actionCreateEventual($id)
     {
