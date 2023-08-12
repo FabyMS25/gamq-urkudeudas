@@ -881,7 +881,7 @@ class PagosEventualesController extends Controller
                 $model->usua_id = Yii::$app->user->id;
                 $idUsuario = $model->usua_id;
                 $datos = Usuario::findOne($idUsuario);
-                $model->eventual_cobrado = 1;
+                //$model->eventual_cobrado = 1;
                 $dir = $model->eventual_nro_comprobante;
                 $ci_usuarioAutenticado = $datos->usua_cuenta;
 
