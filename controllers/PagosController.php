@@ -188,7 +188,7 @@ class PagosController extends Controller
                             return [
                                 'forceReload' => '#crud-datatable-pjax',
                                 'title' => $titulo,
-                                'content' => '<span class="text-success">' . 'No se realizo ningun Pago!!' ,
+                                'content' => '<span class="text-danger">' . 'No se realizo ningun Pago!!' ,
                                 'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) 
                                    
                             ]; 
@@ -627,7 +627,7 @@ class PagosController extends Controller
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
-            } else if ($model->load($request->post()) && $model->validate() && $modelGraderia->save(false)) {
+            } else if ($model->load($request->post()) && $model->validate()) {
                 $idUsuario = $model->pago_id_user_preliquidacion;
                 $datos = Usuario::findOne($idUsuario);
                 $username = $datos->usua_cuenta;
@@ -642,9 +642,13 @@ class PagosController extends Controller
                     if($response->continuarFlujo){
                         $model->pago_estado = 0;  
                         $mensajeConfirmacion=$response->mensajeConfirmacion;
-                        if ($model->save() && $modelGraderia->save()){
-                            $mensaje = "Se elimino la preliquidacion y  \n ".$mensajeConfirmacion;
-                            $result=true;   
+                        if ($model->save() ){
+                            if ($modelGraderia->save()) {
+                                $mensaje = "Se elimino la preliquidacion y  \n ".$mensajeConfirmacion;
+                                $result=true;   
+                            }else{
+                                $mensaje = 'No se pudo actualizar graderias';
+                            }   
                         }else{ 
                             $mensaje = $mensajeConfirmacion . " pero no se pudo eliminar la Preliquidacion.";
                             $result=false;
