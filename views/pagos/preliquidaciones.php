@@ -1,4 +1,6 @@
 <?php
+
+use app\models\Usuario;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\bootstrap\Modal;
@@ -24,8 +26,9 @@ CrudAsset::register($this);
             'pjax'=>true,
             'columns' => require(__DIR__.'/_columns_preliquidaciones.php'),
             'toolbar'=> [
-                ['content'=>   
-                              
+                ['content'=>  
+                    ((Usuario::getRolCajero())?Html::a('<i class="glyphicon glyphicon-repeat"></i>Actualizar pagados', ['update-pagados'],
+                    ['data-pjax'=>1, 'class'=>'btn btn-default', 'title'=>'Recargar pagados']):null).         
                     Html::a('<i class="glyphicon glyphicon-repeat"></i>', [''],
                     ['data-pjax'=>1, 'class'=>'btn btn-default', 'title'=>'Recargar datos']).
                     '{toggleData}'.
