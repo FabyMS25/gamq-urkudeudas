@@ -964,6 +964,20 @@ class PagosController extends Controller
         return $this->render('reporte-general', ['url' => $url]);
     }
 
+    public function actionReporteGeneralZonas()
+    {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE COMPROBANTES PAGADOS POR ZONAS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_general_graderias_zonas";
+        $carpeta = "reportes/graderias_sillas";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+        return $this->render('reporte-general-zonas', ['url' => $url]);
+    }
+
     public function actionResumenGeneral()
     {
         $this->verificarSesion();

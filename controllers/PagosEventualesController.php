@@ -243,13 +243,13 @@ class PagosEventualesController extends Controller
 
     public function actionUpdatePagados()
     {
-        $sql = 'SELECT * FROM pagos_eventuales WHERE eventual_cobrado=:ev_cobrado AN eventual_estado=:ev_estado';
+        $sql = 'SELECT * FROM pagos_eventuales WHERE eventual_cobrado=:ev_cobrado AND eventual_estado=:ev_estado';
         $listaPagosEventuales = Yii::$app->db->createCommand($sql)
             ->bindValue(':ev_cobrado', 0)
             ->bindValue(':ev_estado', 1)
             ->queryAll();
 
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
         if ($token) {
             for ($i = 0; $i < count($listaPagosEventuales); $i++) {
                 $pago = $listaPagosEventuales[$i];
