@@ -12,8 +12,8 @@ class RuatServices extends Component
 
     public function init()
     {
-        // $this->baseUrl = 'https://consolidacionjboss.ruat.gob.bo';
-        $this->baseUrl = 'https://aplicaciones.ruat.gob.bo';
+        $this->baseUrl = 'https://consolidacionjboss.ruat.gob.bo';
+        //$this->baseUrl = 'https://aplicaciones.ruat.gob.bo';
     }
 
     public function login($username, $password)

@@ -2,6 +2,7 @@
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
 use app\models\Descargos;
+use yii\helpers\Html;
 
 $listaResponsablesDesc = (new Descargos())->listaResponsables();
 $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable');
@@ -25,7 +26,7 @@ $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable')
         
         <div class="row">
             <div class="col-md-6">
-                <?= $form->field($model, 'detalle_nro_limite')->textInput(['id' => 'detalle_nro_limite']) ?>
+                <?= $form->field($model, 'detalle_nro_limite')->textInput(['id' => 'detalle_nro_limite', 'onchange'=>'actualizar()']) ?>
             </div>
             <div class="col-md-6">
                 <?= $form->field($model, 'detalle_cantidad_anulado')->textInput(['id' => 'detalle_cantidad_anulado', 'onchange'=>'actualizar()']) ?>

@@ -71,8 +71,13 @@ return [
         'filter' =>false
     ],
     [
+        'class'=>'\kartik\grid\DataColumn',
+        'attribute'=>'detalle_tasa',
+        'filter' =>false
+    ],
+    [
         'class' => 'kartik\grid\ActionColumn',
-        'template' => '{delete} {cobro} {print}',
+        'template' => '{delete} {cobro} {print} {tasa}',
         'dropdown' => false,
         'width' => '160px',
         'vAlign'=>'middle',
@@ -83,7 +88,7 @@ return [
         'buttons' => [
             'cobro' => function ($url, $model, $key) {    
                 if ($model->nro_comprobante == null) {                        
-                    return Html::a('<i class="glyphicon glyphicon-usd"></i>', ['cobrar', 'id'=>$model->detalle_id],
+                    return Html::a('Tasa', ['cobrar', 'id'=>$model->detalle_id],
                         ['title'=> 'Cobrar', 
                               'class'=>'btn btn-primary btn-xs',
                             'role'=>'modal-remote', 'data-toggle'=>'tooltip',]);  
