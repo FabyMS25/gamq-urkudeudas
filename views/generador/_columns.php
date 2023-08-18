@@ -87,7 +87,7 @@ return [
         
         'buttons' => [
             'cobro' => function ($url, $model, $key) {    
-                if ($model->nro_comprobante == null) {                        
+                if ($model->nro_comprobante == null && $model->detalle_tasa == null) {                        
                     return Html::a('Tasa', ['cobrar', 'id'=>$model->detalle_id],
                         ['title'=> 'Generar tasa', 
                               'class'=>'btn btn-primary btn-xs',
