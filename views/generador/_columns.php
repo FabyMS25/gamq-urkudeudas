@@ -77,7 +77,7 @@ return [
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
-        'template' => '{delete} {cobro} {print} {tasa}',
+        'template' => '{delete} {cobro} {print}',
         'dropdown' => false,
         'width' => '160px',
         'vAlign'=>'middle',
@@ -89,7 +89,7 @@ return [
             'cobro' => function ($url, $model, $key) {    
                 if ($model->nro_comprobante == null) {                        
                     return Html::a('Tasa', ['cobrar', 'id'=>$model->detalle_id],
-                        ['title'=> 'Cobrar', 
+                        ['title'=> 'Generar tasa', 
                               'class'=>'btn btn-primary btn-xs',
                             'role'=>'modal-remote', 'data-toggle'=>'tooltip',]);  
                 }                  

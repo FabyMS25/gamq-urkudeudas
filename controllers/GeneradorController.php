@@ -84,8 +84,9 @@ class GeneradorController extends Controller
         $this->verificarSesion();
         $request = Yii::$app->request;
         $model = $this->findModel($id);
-        $titulo = "Cobrar sentaje";
+        $titulo = "Generar tasa";
         $resultado = false;
+        $mensaje = '';
 
         $idUsuarioAutenticado = Yii::$app->user->id;
         $datos = Usuario::findOne($idUsuarioAutenticado);
@@ -101,9 +102,11 @@ class GeneradorController extends Controller
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
-                $sql = 'SELECT SUM(detalle_importe_bs) FROM detalle_descargos WHERE desc_id = :desc_id';
+                $sql = 'SELECT SUM(detalle_importe_bs) FROM detalle_descargos WHERE desc_id = :desc_id AND detalle_estado_pago =:pagado AND detalle_estado =:d_estado';
                 $montoTotal = Yii::$app->db->createCommand($sql)
                     ->bindValue(':desc_id', $model->desc_id)
+                    ->bindValue(':pagado', 0)
+                    ->bindValue(':d_estado', 1)
                     ->queryOne();
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
                 if ($token) {
@@ -132,11 +135,15 @@ class GeneradorController extends Controller
                             $response = Yii::$app->ruatServices->createTasa($token, $username, $codigoContribuyente, '24980', $montoTotal['sum'], $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
-                                $sql = 'UPDATE detalle_descargos SET detalle_tasa = :tasa WHERE desc_id = :desc_id';
+                                $sql = 'UPDATE detalle_descargos SET detalle_tasa = :tasa, detalle_observacion =:obs WHERE desc_id = :desc_id AND detalle_estado_pago=:pagado';
                                 $command = Yii::$app->db->createCommand($sql)
                                     ->bindValue(':tasa', $nroTasa)
                                     ->bindValue(':desc_id', $id)
+                                    ->bindValue(':pagado', 0)
+                                    ->bindValue(':obs', $model->detalle_observacion)
                                     ->queryOne();
+                                $resultado = true;
+                                $mensaje = 'Se creo la tasa con exito';
                             } else {
                                 $mensaje = 'No se pudo registrar la tasa en RUAT <br>';
                                 if (is_array($response->mensaje)) {
@@ -155,39 +162,32 @@ class GeneradorController extends Controller
                             }
                         }
                     } else {
-                        $mensaje = "El contribuyente seleccionado no se encuentra registrado en RUAT.
-                                    <br> debe registrar contribuyente primero";
+                        $mensaje = "El contribuyente seleccionado no se encuentra registrado en RUAT. <br> debe registrar contribuyente primero";
                     }
                 } else {
                     $mensaje = 'No se pudo iniciar sesión en RUAT';
                 }
-                if ($token) {
-                    $montoTotal = '';
-                    $obs = '';
-                    $response = Yii::$app->ruatServices->createTasa($token, 'ERODRIGUEZ2.QUI', '0A025F03001B0807140E565453', '22976', $montoTotal, $obs);
+                if ($resultado) {
+                    return [
+                        'forceReload' => '#crud-datatable-pjax',
+                        'title' => $titulo,
+                        'content' => '<span class="text-success text-bold">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->detalle_id .
+                            ' <br> Importe total Bs.: ' . $montoTotal['sum'] . '</span>',
+                        'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+                    ];
+                } else {
+                    return [
+                        'forceReload' => '#crud-datatable-pjax',
+                        'title' => $titulo,
+                        'content' => '<span class="text-danger text-bold">' . $mensaje . '</span>',
+                        'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+                    ];
                 }
-
-                //$model->detalle_estado_pago = 1;
-                $dir = $model->nro_comprobante;
-                if ($model->save())
-                    $resultado = true;
-                else
-                    $resultado = false;
-                //$resultado =$this->actualizarDatosCobro($model);
-                $mensaje = ($resultado ? "Se realizo el cobro correctamente" : " Error al realizar el cobro");
-                return [
-                    'forceReload' => '#crud-datatable-pjax',
-                    'title' => $titulo,
-                    'content' => '<span class="text-success">' . $mensaje . '<br> Nro. preliquidacion : ' . $model->detalle_id .
-                        ' <br> Importe total Bs.: ' . $model->detalle_importe_bs . '  </span>',
-                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-                    //. Html::a('Comprobante pago', ['comprobante-pago', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
-                ];
             } else {
                 return [
                     'title' => $titulo,
                     'content' => $this->renderAjax('cobrar', ['model' => $model,]),
-                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                    'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pulx|l-left', 'data-dismiss' => "modal"]) .
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             }
@@ -200,6 +200,54 @@ class GeneradorController extends Controller
                 ]);
             }
         }
+    }
+
+    public function actionUpdatePagados()
+    {
+        $sql = 'SELECT * FROM detalle_descargos WHERE detalle_estado_pago=:d_pago AND detalle_estado=:d_estado AND detalle_tasa';
+        $listaDetalleDescargos = Yii::$app->db->createCommand($sql)
+            ->bindValue(':d_pago', 0)
+            ->bindValue(':d_estado', 1)
+            ->queryAll();
+
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+        if ($token) {
+            for ($i = 0; $i < count($listaDetalleDescargos); $i++) {
+                $pago = $listaDetalleDescargos[$i];
+                $id = $pago['detalle_id'];
+                $nroTasa = $pago['detalle_tasa'];
+                //$response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
+                $response = true;
+                if ($response == true) {
+                    //$pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
+                    $usua_id = Yii::$app->user->id;
+                    $eventual_fecha_hora_pago = date('Y-m-d H:m:s');
+                    $observacion = 'Folio de prueba eventual';
+                    $sql = 'UPDATE detalle_descargos SET detalle_estado_pago=:cobr, nro_comprobante=:comprob, detalle_observacion=:obs WHERE detalle_tasa=:tasa';
+                    $command = Yii::$app->db->createCommand($sql)
+                        ->bindValue(':tasa', $nroTasa)
+                        ->bindValue(':cobr', 1)
+                        ->bindValue(':comprob', $nroTasa)
+                        ->bindValue(':obs', $observacion)
+                        ->queryOne();
+                    /*if ($pagoTasa) {
+                        $observacion = 'Folio: ' . $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
+                        $sql = 'UPDATE pagos_eventuales SET eventual_cobrado=:cobr, usua_id=:user_id, eventual_fecha_hora_pago=:pago_fecha, eventual_nro_comprobante=:comprob, eventual_descripcion=:obs WHERE eventual_id=:id';
+                        $command = Yii::$app->db->createCommand($sql)
+                            ->bindValue(':id', $id)
+                            ->bindValue(':cobr', 1)
+                            ->bindValue(':user_id', $usua_id)
+                            ->bindValue(':pago_fecha', $eventual_fecha_hora_pago)
+                            ->bindValue(':comprob', $nroTasa)
+                            ->bindValue(':obs', $observacion)
+                            ->queryOne();
+                    }*/
+                } else {
+                    VarDumper::dump('no existe el contribuyente en ruat');
+                }
+            }
+        }
+        $this->actionIndex();
     }
 
     public function actionCreate()
