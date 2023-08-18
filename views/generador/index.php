@@ -1,4 +1,6 @@
 <?php
+
+use app\models\Usuario;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\bootstrap\Modal;
@@ -26,6 +28,8 @@ CrudAsset::register($this);
             'columns' => require(__DIR__.'/_columns.php'),
             'toolbar'=> [
                 ['content'=>
+                    ((Usuario::getRolCajero())?Html::a('<i class="glyphicon glyphicon-repeat"></i>Actualizar pagados', ['update-pagados'],
+                    ['data-pjax'=>1, 'class'=>'btn btn-default', 'title'=>'Recargar pagados']):null).
                     Html::a('<i class="glyphicon glyphicon-plus"></i>', ['create'],
                     ['role'=>'modal-remote','title'=> 'Crear descargo','class'=>'btn btn-default']).
                     Html::a('<i class="glyphicon glyphicon-repeat"></i>', [''],

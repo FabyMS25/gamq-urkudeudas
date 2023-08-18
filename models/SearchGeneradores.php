@@ -18,7 +18,7 @@ class SearchGeneradores extends GeneradorDescargos
     public function rules()
     {
         return [
-            [['detalle_id', 'desc_id', 'detalle_precio', 'detalle_nro_inicio', 'detalle_nro_limite', 'detalle_cantidad', 'detalle_fecha_entrega','detalle_importe_bs','detalle_estado'], 'integer'],
+            [['detalle_id', 'desc_id', 'detalle_precio', 'detalle_nro_inicio', 'detalle_nro_limite', 'detalle_cantidad', 'detalle_fecha_entrega','detalle_importe_bs','detalle_estado','detalle_tasa'], 'integer'],
             //[['desc_responsable', 'desc_fecha_hora', 'desc_anulado_justificacion', 'desc_anulado_fecha_hora'], 'safe'],
         ];
     }
@@ -64,6 +64,7 @@ class SearchGeneradores extends GeneradorDescargos
             'detalle_cantidad' => $this->detalle_cantidad,
             'detalle_fecha_entrega' => $this->detalle_fecha_entrega,
             'detalle_importe_bs' => $this->detalle_importe_bs,
+            'detalle_tasa' => $this->detalle_tasa,
             'detalle_estado' => 1,//$this->detalle_estado,
         ]);
 

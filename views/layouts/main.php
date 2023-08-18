@@ -159,7 +159,7 @@ AppAsset::register($this);
                 // SENTAJES               
                 [
                     'label' => 'Sentajes',
-                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli()),
+                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolCajero()),
                     'items' =>
                     [
                         ['label' => 'Razon social', 'url' => ['/razon-sociales/index'], 'visible' => !Yii::$app->user->isGuest,],

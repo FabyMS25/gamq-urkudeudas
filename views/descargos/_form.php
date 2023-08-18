@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
@@ -7,6 +8,9 @@ use app\models\RazonSociales;
 
 $listaRazones = (new RazonSociales())->listaRazonesSocialesModel();
 $items = ArrayHelper::map($listaRazones, 'razon_id', 'razon_nombre');
+$modelCiudad=new \app\models\Extensiones();
+$listaCiudad=$modelCiudad->find()->where(['ext_estado'=>1])->all();
+
 //var_dump($items);
 ?>
 
@@ -14,27 +18,26 @@ $items = ArrayHelper::map($listaRazones, 'razon_id', 'razon_nombre');
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'usua_id')->textInput(['id'=>'usua_id','readonly'=> true]) ?>
+    <?= $form->field($model, 'usua_id')->textInput(['id' => 'usua_id', 'readonly' => true]) ?>
 
-    <?= $form->field($model, 'razon_id')->dropDownList($items, ['prompt'=>'** Seleccione una opcion **']) ?>
+    <?= $form->field($model, 'razon_id')->dropDownList($items, ['prompt' => '** Seleccione una opcion **']) ?>
 
-    <?= $form->field($model, 'desc_nro_comprobante')->textInput(['id'=>'desc_nro_comprobante']) ?>
+    <?= $form->field($model, 'desc_nro_comprobante')->textInput(['id' => 'desc_nro_comprobante']) ?>
 
-    <?= $form->field($model, 'desc_responsable')->textInput(['id'=>'desc_responsable', 'maxlength' => true]) ?>
+    <?= $form->field($model, 'desc_responsable')->textInput(['id' => 'desc_responsable', 'maxlength' => true]) ?>
 
-    
+    <?= $form->field($model, 'desc_ci')->textInput(['id' => 'desc_ci', 'maxlength' => true]) ?>
 
-    <?= $form->field($model, 'desc_impreso')->textInput(['id'=>'desc_impreso']) ?>
+    <?= $form->field($model, 'desc_ext')->dropDownList(yii\helpers\ArrayHelper::map($listaCiudad, 'ext_id', 'ext_nombre'), ['prompt'=>'*Seleccione una ciudad*']) ?>
 
-    
+    <?= $form->field($model, 'desc_impreso')->textInput(['id' => 'desc_impreso']) ?>
 
-  
-	<?php if (!Yii::$app->request->isAjax){ ?>
-	  	<div class="form-group">
-	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
-	    </div>
-	<?php } ?>
+    <?php if (!Yii::$app->request->isAjax) { ?>
+        <div class="form-group">
+            <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        </div>
+    <?php } ?>
 
     <?php ActiveForm::end(); ?>
-    
+
 </div>
