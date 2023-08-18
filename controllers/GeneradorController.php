@@ -84,7 +84,7 @@ class GeneradorController extends Controller
         $this->verificarSesion();
         $request = Yii::$app->request;
         $model = $this->findModel($id);
-        $titulo = "Generar tasa";
+        $titulo = "Generar Tasa";
         $resultado = false;
         $mensaje = '';
 
@@ -102,12 +102,12 @@ class GeneradorController extends Controller
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
-                $sql = 'SELECT SUM(detalle_importe_bs) FROM detalle_descargos WHERE desc_id = :desc_id AND detalle_estado_pago =:pagado AND detalle_estado =:d_estado';
+                $sql = 'SELECT SUM(detalle_importe_bs) FROM detalle_descargos WHERE desc_id = :desc_id AND detalle_estado_pago =:pagado AND detalle_tasa IS NULL';
                 $montoTotal = Yii::$app->db->createCommand($sql)
                     ->bindValue(':desc_id', $model->desc_id)
                     ->bindValue(':pagado', 0)
-                    ->bindValue(':d_estado', 1)
                     ->queryOne();
+                //VarDumper::dump($montoTotal);
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
                 if ($token) {
                     $id = $model->desc_id;
@@ -119,46 +119,35 @@ class GeneradorController extends Controller
                         $tipo_doc = "CE";
                     }
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
-
                     if ($codigoContribuyente) {
+                        //VarDumper::dump($codigoContribuyente);
                         $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $codigoContribuyente);
                         if ($tieneDeudas) {
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
                         } else {
                             $idactividad = $sentajero->razon_id;
                             $acti = RazonSociales::findOne($idactividad);
-                            $obs = 'DATOS DE ACTIVIDAD: SENTAJES  ' .
+                            $obs = 'DATOS DE ACTIVIDAD: SENTAJES ' .
                                 ', Tipo de sentaje: ' . $acti->razon_nombre;
                             $obsCut = mb_substr($obs, 0, 250);
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
+                            //VarDumper::dump($obs);
                             $response = Yii::$app->ruatServices->createTasa($token, $username, $codigoContribuyente, '24980', $montoTotal['sum'], $obs);
                             if ($response->continuarFlujo) {
+                                //VarDumper::dump($response);
                                 $nroTasa = $response->numeroTasa;
-                                $sql = 'UPDATE detalle_descargos SET detalle_tasa = :tasa, detalle_observacion =:obs WHERE desc_id = :desc_id AND detalle_estado_pago=:pagado';
+                                //VarDumper::dump($nroTasa);
+                                $sql = 'UPDATE detalle_descargos SET detalle_tasa=:tasa WHERE desc_id = :desc_id AND detalle_estado_pago=:pagado AND detalle_tasa IS NULL';
                                 $command = Yii::$app->db->createCommand($sql)
                                     ->bindValue(':tasa', $nroTasa)
-                                    ->bindValue(':desc_id', $id)
+                                    ->bindValue(':desc_id', $model->desc_id)
                                     ->bindValue(':pagado', 0)
-                                    ->bindValue(':obs', $model->detalle_observacion)
                                     ->queryOne();
                                 $resultado = true;
                                 $mensaje = 'Se creo la tasa con exito';
                             } else {
                                 $mensaje = 'No se pudo registrar la tasa en RUAT <br>';
-                                if (is_array($response->mensaje)) {
-                                    $messages = $response->mensaje;
-                                    foreach ($messages as $message) {
-                                        foreach ($message as $key => $errorMessages) {
-                                            $mensaje = $mensaje . "Error en: $key, ";
-                                            foreach ($errorMessages as $errorMessage) {
-                                                $mensaje = $mensaje . $errorMessage;
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    $mensaje = $mensaje . $response->mensaje;
-                                }
                             }
                         }
                     } else {
@@ -204,18 +193,19 @@ class GeneradorController extends Controller
 
     public function actionUpdatePagados()
     {
-        $sql = 'SELECT * FROM detalle_descargos WHERE detalle_estado_pago=:d_pago AND detalle_estado=:d_estado AND detalle_tasa';
-        $listaDetalleDescargos = Yii::$app->db->createCommand($sql)
-            ->bindValue(':d_pago', 0)
-            ->bindValue(':d_estado', 1)
+        $sql = 'SELECT DISTINCT detalle_tasa FROM detalle_descargos WHERE detalle_estado_pago=:pagado AND detalle_estado =:estado';
+        //$sql = 'SELECT * FROM detalle_descargos WHERE detalle_estado_pago=:d_pago AND detalle_estado=:d_estado AND detalle_tasa IS NOT NULL';
+        $listaTasasNoPagadas = Yii::$app->db->createCommand($sql)
+            ->bindValue(':pagado', 0)
+            ->bindValue(':estado', 1)
             ->queryAll();
-
+        //VarDumper::dump($listaTasasNoPagadas);
         $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
         if ($token) {
-            for ($i = 0; $i < count($listaDetalleDescargos); $i++) {
-                $pago = $listaDetalleDescargos[$i];
-                $id = $pago['detalle_id'];
-                $nroTasa = $pago['detalle_tasa'];
+            for ($i = 0; $i < count($listaTasasNoPagadas); $i++) {
+                $tasa = $listaTasasNoPagadas[$i];
+                $nroTasa = $tasa['detalle_tasa'];
+                //VarDumper::dump($nroTasa);
                 //$response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
                 $response = true;
                 if ($response == true) {
@@ -223,10 +213,10 @@ class GeneradorController extends Controller
                     $usua_id = Yii::$app->user->id;
                     $eventual_fecha_hora_pago = date('Y-m-d H:m:s');
                     $observacion = 'Folio de prueba eventual';
-                    $sql = 'UPDATE detalle_descargos SET detalle_estado_pago=:cobr, nro_comprobante=:comprob, detalle_observacion=:obs WHERE detalle_tasa=:tasa';
+                    $sql = 'UPDATE detalle_descargos SET detalle_estado_pago=:pagado, nro_comprobante=:comprob, detalle_observacion=:obs WHERE detalle_tasa=:tasa';
                     $command = Yii::$app->db->createCommand($sql)
                         ->bindValue(':tasa', $nroTasa)
-                        ->bindValue(':cobr', 1)
+                        ->bindValue(':pagado', 1)
                         ->bindValue(':comprob', $nroTasa)
                         ->bindValue(':obs', $observacion)
                         ->queryOne();
