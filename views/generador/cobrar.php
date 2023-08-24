@@ -48,6 +48,7 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'desc_id', 'desc_resp
                     'placeholder' => 'Elija el Sentajero...',
                     'multiple' => false,
                     'allowClear' => true,
+                    'disabled'=>true,
                     'onchange' => 'getActividad($this.val());'
                 ],
                 'settings' => ['width' => '100%',],

@@ -643,7 +643,7 @@ class PagosController extends Controller
                 $username = $datos->usua_cuenta;
                 //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $motivo = $model->pago_anulado_detalle;
                     $observacion = $model->pago_observaciones;

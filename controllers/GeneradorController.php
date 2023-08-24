@@ -102,13 +102,15 @@ class GeneradorController extends Controller
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
-                $sql = 'SELECT SUM(detalle_importe_bs) FROM detalle_descargos WHERE desc_id = :desc_id AND detalle_estado_pago =:pagado AND detalle_tasa IS NULL';
+                $sql = 'SELECT SUM(detalle_importe_bs) FROM detalle_descargos WHERE desc_id = :desc_id AND detalle_estado_pago =:pagado AND detalle_estado=:estado AND detalle_tasa IS NULL';
                 $montoTotal = Yii::$app->db->createCommand($sql)
                     ->bindValue(':desc_id', $model->desc_id)
                     ->bindValue(':pagado', 0)
+                    ->bindValue(':estado', 1)
                     ->queryOne();
                 //VarDumper::dump($montoTotal);
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                //$token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
                 if ($token) {
                     $id = $model->desc_id;
                     $sentajero = Descargos::findOne($id);
@@ -118,7 +120,8 @@ class GeneradorController extends Controller
                     if ($tipo_id == 12) {
                         $tipo_doc = "CE";
                     }
-                    $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
+                    //$codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
+                    $codigoContribuyente = 'codigo-contribuyente';
                     if ($codigoContribuyente) {
                         //VarDumper::dump($codigoContribuyente);
                         $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $codigoContribuyente);
@@ -133,16 +136,18 @@ class GeneradorController extends Controller
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
                             //VarDumper::dump($obs);
-                            $response = Yii::$app->ruatServices->createTasa($token, $username, $codigoContribuyente, '24980', $montoTotal['sum'], $obs);
-                            if ($response->continuarFlujo) {
+                            //$response = Yii::$app->ruatServices->createTasa($token, $username, $codigoContribuyente, '24980', $montoTotal['sum'], $obs);
+                            $response = true;
+                            if ($response) {
                                 //VarDumper::dump($response);
-                                $nroTasa = $response->numeroTasa;
+                                $nroTasa = rand(10000,12000);
                                 //VarDumper::dump($nroTasa);
-                                $sql = 'UPDATE detalle_descargos SET detalle_tasa=:tasa WHERE desc_id = :desc_id AND detalle_estado_pago=:pagado AND detalle_tasa IS NULL';
+                                $sql = 'UPDATE detalle_descargos SET detalle_tasa=:tasa WHERE desc_id = :desc_id AND detalle_estado_pago=:pagado AND detalle_estado=:estado AND detalle_tasa IS NULL';
                                 $command = Yii::$app->db->createCommand($sql)
                                     ->bindValue(':tasa', $nroTasa)
                                     ->bindValue(':desc_id', $model->desc_id)
                                     ->bindValue(':pagado', 0)
+                                    ->bindValue(':estado', 1)
                                     ->queryOne();
                                 $resultado = true;
                                 $mensaje = 'Se creo la tasa con exito';
@@ -200,7 +205,8 @@ class GeneradorController extends Controller
             ->bindValue(':estado', 1)
             ->queryAll();
         //VarDumper::dump($listaTasasNoPagadas);
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+        //$token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+        $token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
         if ($token) {
             for ($i = 0; $i < count($listaTasasNoPagadas); $i++) {
                 $tasa = $listaTasasNoPagadas[$i];

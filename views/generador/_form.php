@@ -7,13 +7,17 @@ use yii\helpers\ArrayHelper;
 
 $listaResponsablesDesc = (new Descargos())->listaResponsables();
 $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable');
+$sentajeroCantidad = 10;
 ?>
 
 <div class="descargos-form">
     <?php $form = ActiveForm::begin(); ?>
     <?= $form->field($model, 'desc_id')->dropDownList(
         $items,
-        ['prompt' => '** Seleccione una opcion **']
+        [
+            'prompt' => '** Seleccione una opcion **',
+            'class' => 'form-control',
+        ]
     ) ?>
     <div class="row">
         <div class="col-md-6">
@@ -90,16 +94,32 @@ $items = ArrayHelper::map($listaResponsablesDesc, 'desc_id', 'desc_responsable')
         var inicio = document.getElementById("detalle_nro_inicio").value;
         var limite = document.getElementById("detalle_nro_limite").value;
         var anulado = document.getElementById("detalle_cantidad_anulado").value;
-
         if (precio >= 0 && inicio > 0 && limite > 0 && anulado >= 0) {
-            var cantidad = (parseFloat(limite) - parseFloat(inicio)) + 1;
-            var totalCantidad = (parseFloat(cantidad) - parseFloat(anulado));
-            var totalImporte = parseFloat(precio) * parseFloat(totalCantidad);
-            document.getElementById("detalle_cantidad").setAttribute('value', totalCantidad);
-            document.getElementById("detalle_importe_bs").setAttribute('value', totalImporte);
+            if (limite > inicio) {
+                var cantidad = (parseFloat(limite) - parseFloat(inicio)) + 1;
+                var totalCantidad = (parseFloat(cantidad) - parseFloat(anulado));
+                var totalImporte = parseFloat(precio) * parseFloat(totalCantidad);
+                var sentajeroCantidad = "<?php echo $sentajeroCantidad; ?>";
+                document.getElementById("detalle_cantidad").setAttribute('value', totalCantidad);
+                document.getElementById("detalle_importe_bs").setAttribute('value', totalImporte);
+
+            } else {
+                alert('El  Nro limite no puede ser menor al Nro inicio');
+                document.getElementById("detalle_cantidad_anulado").setAttribute('value', null);
+                document.getElementById("detalle_cantidad").setAttribute('value', null);
+                document.getElementById("detalle_importe_bs").setAttribute('value', null);
+            }
         } else {
             document.getElementById("detalle_cantidad").setAttribute('value', null);
             document.getElementById("detalle_importe_bs").setAttribute('value', null);
         }
+    }
+
+    function formularioValido() {
+        let res = false;
+        var precio = document.getElementById("detalle_precio").value;
+        var inicio = document.getElementById("detalle_nro_inicio").value;
+        var limite = document.getElementById("detalle_nro_limite").value;
+        var anulado = document.getElementById("detalle_cantidad_anulado").value;
     }
 </script>
