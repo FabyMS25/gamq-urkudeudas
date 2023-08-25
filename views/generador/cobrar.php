@@ -63,7 +63,7 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'desc_id', 'desc_resp
         </div>
     </div>
     <div class="alert alert-info">
-        <?= $form->field($model, 'detalle_observacion')->textInput(['maxlength' => true]) ?>
+        <?= $form->field($model, 'detalle_feria')->textInput(['maxlength' => true]) ?>
 
         <?php if (!Yii::$app->request->isAjax) { ?>
             <div class="form-group">

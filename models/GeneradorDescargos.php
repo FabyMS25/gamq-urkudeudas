@@ -17,6 +17,7 @@ use Yii;
  * @property string $detalle_importe_bs
  * @property integer $detalle_estado
  * @property integer $detalle_cantidad_anulado
+ * @property integer $detalle_feria
  *
  * @property Descargos $desc
  */
@@ -62,6 +63,7 @@ class GeneradorDescargos extends \yii\db\ActiveRecord
             'detalle_importe_bs' => 'Importe total Bs',
             'detalle_estado' => 'Estado',
             'nro_comprobante' => 'Comprobante',
+            'detalle_feria' => 'Feria',
         ];
     }
 
