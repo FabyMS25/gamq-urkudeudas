@@ -78,7 +78,7 @@ return [
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
-        'template' => '{delete} {cobro} {print}',
+        'template' => '{delete} {tasa} {print}',
         'dropdown' => false,
         'width' => '160px',
         'vAlign' => 'middle',
@@ -87,11 +87,11 @@ return [
         },
 
         'buttons' => [
-            'cobro' => function ($url, $model, $key) {
+            'tasa' => function ($url, $model, $key) {
                 if ($model->nro_comprobante == null && $model->detalle_tasa == null) {
                     return Html::a(
                         'Tasa',
-                        ['cobrar', 'id' => $model->detalle_id],
+                        ['generar-tasa', 'id' => $model->detalle_id],
                         [
                             'title' => 'Generar tasa',
                             'class' => 'btn btn-primary btn-xs',
@@ -113,20 +113,6 @@ return [
                     );
                 }
             },
-            'delete' => function ($url, $model, $key) {
-                if ($model->detalle_estado_pago != 1 && $model->detalle_tasa == null) {
-                    return Html::a(
-                        '<i class="glyphicon glyphicon-trash"></i>',
-                        ['delete', 'id' => $model->detalle_id],
-                        [
-                            'title' => 'Eliminar senasas',
-                            'class' => 'btn btn-primary btn-xs',
-                            'role' => 'modal-remote', 'data-toggle' => 'tooltip',
-                        ]
-                    );
-                }
-            },
-
         ],
 
         //'viewOptions'=>['role'=>'modal-remote','title'=>'View','data-toggle'=>'tooltip', 'hidden' => true],
