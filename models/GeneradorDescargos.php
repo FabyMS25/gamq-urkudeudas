@@ -16,11 +16,15 @@ use Yii;
  * @property string $detalle_fecha_entrega
  * @property string $detalle_importe_bs
  * @property integer $detalle_estado
+ * @property integer $detalle_cantidad_anulado
+ * @property integer $detalle_feria
  *
  * @property Descargos $desc
  */
 class GeneradorDescargos extends \yii\db\ActiveRecord
 {
+
+    //public $rango_fechas;
     /**
      * @inheritdoc
      */
@@ -35,8 +39,8 @@ class GeneradorDescargos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['desc_id', 'detalle_precio', 'detalle_nro_inicio', 'detalle_nro_limite', 'detalle_cantidad', 'detalle_fecha_entrega', 'detalle_importe_bs', 'detalle_estado'], 'required'],
-            [['desc_id', 'detalle_nro_inicio', 'detalle_nro_limite', 'detalle_cantidad', 'detalle_estado', 'nro_comprobante', 'detalle_estado_pago'], 'integer'],
+            [['desc_id', 'detalle_precio', 'detalle_nro_inicio', 'detalle_nro_limite', 'detalle_cantidad',  'detalle_cantidad_anulado','detalle_fecha_entrega', 'detalle_importe_bs', 'detalle_estado'], 'required'],
+            [['desc_id', 'detalle_nro_inicio', 'detalle_nro_limite', 'detalle_cantidad', 'detalle_estado', 'nro_comprobante', 'detalle_estado_pago','detalle_cantidad_anulado'], 'integer'],
             [['detalle_precio', 'detalle_importe_bs', 'nro_comprobante', 'detalle_estado_pago'], 'number'],
             [['detalle_fecha_entrega'], 'safe'],
         ];
@@ -54,10 +58,12 @@ class GeneradorDescargos extends \yii\db\ActiveRecord
             'detalle_nro_inicio' => 'Nro inicio',
             'detalle_nro_limite' => 'Nro limite',
             'detalle_cantidad' => 'Cantidad',
+            'detalle_cantidad_anulado' => 'Cantidad anulados',
             'detalle_fecha_entrega' => 'Fecha entrega',
             'detalle_importe_bs' => 'Importe total Bs',
             'detalle_estado' => 'Estado',
             'nro_comprobante' => 'Comprobante',
+            'detalle_feria' => 'Feria',
         ];
     }
 

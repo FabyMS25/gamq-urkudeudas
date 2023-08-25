@@ -159,7 +159,7 @@ AppAsset::register($this);
                 // SENTAJES               
                 [
                     'label' => 'Sentajes',
-                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolPreli()),
+                    'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin() or Usuario::getRolCajero()),
                     'items' =>
                     [
                         ['label' => 'Razon social', 'url' => ['/razon-sociales/index'], 'visible' => !Yii::$app->user->isGuest,],
@@ -181,6 +181,11 @@ AppAsset::register($this);
                         ],
                         ['label' => 'Graderia o Sillas Pagados',
                         'url' => ['pagos/reporte-general'],
+                        //'linkOptions' => ['role' => 'modal-remote'],
+                        'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()),
+                        ],
+                        ['label' => 'Graderia o Sillas por zonas',
+                        'url' => ['pagos/reporte-general-zonas'],
                         //'linkOptions' => ['role' => 'modal-remote'],
                         'visible' => !Yii::$app->user->isGuest && (Usuario::getRolAdmin()),
                         ],

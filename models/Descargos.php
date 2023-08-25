@@ -18,6 +18,8 @@ use Yii;
  * @property string $desc_anulado_fecha_hora
  * @property integer $desc_impreso
  * @property integer $desc_estado
+ * @property integer $desc_ci
+ * @property integer $desc_ext
  *
  * @property RazonSociales $razon
  * @property Usuario $usua
@@ -39,7 +41,7 @@ class Descargos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['usua_id', 'razon_id', 'desc_nro_comprobante', 'desc_responsable', 'desc_fecha_hora', 'desc_estado'], 'required'],
+            [['usua_id', 'razon_id', 'desc_nro_comprobante', 'desc_responsable', 'desc_fecha_hora', 'desc_estado','desc_ci','desc_ext'], 'required'],
             [['usua_id', 'razon_id', 'desc_nro_comprobante', 'desc_anulado', 'desc_impreso', 'desc_estado'], 'integer'],
             [['desc_fecha_hora', 'desc_anulado_fecha_hora'], 'safe'],
             [['desc_responsable'], 'string', 'max' => 250],
@@ -66,6 +68,8 @@ class Descargos extends \yii\db\ActiveRecord
             'desc_anulado_fecha_hora' => 'Fecha hora anulado',
             'desc_impreso' => 'Cantidad de boletas',
             'desc_estado' => ' Estado',
+            'desc_ci' => ' Nro de identidad',
+            'desc_ext' => 'Ciudad',
         ];
     }
 

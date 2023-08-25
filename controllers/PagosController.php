@@ -643,7 +643,7 @@ class PagosController extends Controller
                 $username = $datos->usua_cuenta;
                 //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'S1234567');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $motivo = $model->pago_anulado_detalle;
                     $observacion = $model->pago_observaciones;
@@ -962,6 +962,20 @@ class PagosController extends Controller
             ]);
         }*/
         return $this->render('reporte-general', ['url' => $url]);
+    }
+
+    public function actionReporteGeneralZonas()
+    {
+        $this->verificarSesion();
+        $request = Yii::$app->request;
+        $titulo = "REPORTE COMPROBANTES PAGADOS POR ZONAS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_general_graderias_zonas";
+        $carpeta = "reportes/graderias_sillas";
+        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
+
+        $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
+        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
+        return $this->render('reporte-general-zonas', ['url' => $url]);
     }
 
     public function actionResumenGeneral()
