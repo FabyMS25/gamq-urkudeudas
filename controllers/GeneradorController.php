@@ -101,13 +101,14 @@ class GeneradorController extends Controller
                     'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
-            } else if ($model->load($request->post()) && $model->validate()) {
+            } else if ($model->load($request->post())) {
                 $sql = 'SELECT SUM(detalle_importe_bs) FROM detalle_descargos WHERE desc_id = :desc_id AND detalle_estado_pago =:pagado AND detalle_estado=:estado AND detalle_tasa IS NULL';
                 $montoTotal = Yii::$app->db->createCommand($sql)
                     ->bindValue(':desc_id', $model->desc_id)
                     ->bindValue(':pagado', 0)
                     ->bindValue(':estado', 1)
                     ->queryOne();
+
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 //$token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
                 if ($token) {
