@@ -13,9 +13,9 @@
 	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="GAMQ Urkupina"/>
-	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="243"/>
+	<property name="ireport.y" value="0"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
 	<parameter name="id_detalle" class="java.lang.Integer"/>
 	<queryString>
@@ -35,6 +35,7 @@
         (DE.desc_impreso * DD.detalle_precio) AS total_importe_esperado,
         DE.desc_fecha_hora,
         DD.detalle_fecha_entrega,
+        DD.detalle_tasa,
         (US.usua_nombres||' '||US.usua_apellidos) AS preliquidador
         FROM descargos DE
         INNER JOIN detalle_descargos DD ON DD.desc_id = DE.desc_id
@@ -59,6 +60,7 @@
 	<field name="preliquidador" class="java.lang.String"/>
 	<field name="total_importe_esperado" class="java.lang.String"/>
 	<field name="detalle_id" class="java.lang.String"/>
+	<field name="detalle_tasa" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -104,7 +106,7 @@
 	<pageHeader>
 		<band height="28" splitType="Stretch">
 			<textField>
-				<reportElement x="13" y="0" width="198" height="20" uuid="c9ef4d78-ed49-4098-ab94-37f44d9ab638"/>
+				<reportElement x="13" y="0" width="130" height="20" uuid="c9ef4d78-ed49-4098-ab94-37f44d9ab638"/>
 				<box leftPadding="5">
 					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
@@ -129,6 +131,13 @@
 					<font size="9" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="148" y="2" width="120" height="20" uuid="04241d94-c61f-4ac3-8884-2aca1d6f4707"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Tasa: " + $F{detalle_tasa}]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>

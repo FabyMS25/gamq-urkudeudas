@@ -47,9 +47,9 @@ FROM
   INNER JOIN public.actividades_economicas ae ON pe.activi_id = ae.activi_id
   INNER JOIN public.usuario liq ON liq.usua_id = pe.eventual_user_id_preliquidacion
 WHERE pe.eventual_nro_comprobante IS NOT NULL
-    AND se.sitios_es_alasita = false
+    AND (se.sitios_es_alasita = false OR se.sitios_es_alasita IS NULL)
     AND pe.eventual_estado = 1
-   --AND pe.eventual_fecha_hora_pago::DATE BETWEEN '2022/08/05 00:00' AND '2022/09/19 23:59'
+   --AND pe.eventual_fecha_hora_pago::DATE BETWEEN '2023/08/01 00:00' AND '2023/09/30 23:59'
 
   -- AND caj.usua_id = 29
   --AND se.sitios_codigo LIKE 'PUENTE-%'
@@ -278,44 +278,44 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 		</band>
 	</pageHeader>
 	<columnHeader>
-		<band height="34" splitType="Stretch">
+		<band height="28" splitType="Stretch">
 			<staticText>
-				<reportElement x="41" y="0" width="65" height="30" uuid="44713341-7a3e-451e-92d0-7de654bc6930"/>
+				<reportElement x="41" y="0" width="65" height="25" uuid="44713341-7a3e-451e-92d0-7de654bc6930"/>
 				<textElement verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[COMPROBANTE]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="107" y="0" width="135" height="30" uuid="aa0d4958-e63d-4bd9-bcc5-048d4a3eeaaf"/>
+				<reportElement x="107" y="0" width="135" height="25" uuid="aa0d4958-e63d-4bd9-bcc5-048d4a3eeaaf"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[CONTRIBUYENTE]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="242" y="0" width="146" height="30" uuid="1ad1ac48-497e-4bc2-b2a9-dfc198e37826"/>
+				<reportElement x="242" y="0" width="146" height="25" uuid="1ad1ac48-497e-4bc2-b2a9-dfc198e37826"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[ACTIVIDAD]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="390" y="0" width="24" height="30" uuid="83acfcf7-0dbe-45d4-bc61-d696710bb39c"/>
-				<textElement verticalAlignment="Middle">
+				<reportElement x="390" y="0" width="24" height="25" uuid="83acfcf7-0dbe-45d4-bc61-d696710bb39c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[DIAS]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="415" y="0" width="45" height="30" uuid="1f1a2c97-97bb-4c52-b591-ab5e8ac58207"/>
+				<reportElement x="415" y="0" width="45" height="25" uuid="1f1a2c97-97bb-4c52-b591-ab5e8ac58207"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[PATENTE BS]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="462" y="0" width="50" height="30" uuid="4f4c2176-a327-40bc-9031-190d194e61a9">
+				<reportElement x="462" y="0" width="50" height="25" uuid="4f4c2176-a327-40bc-9031-190d194e61a9">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -324,7 +324,7 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<text><![CDATA[SENTAJE BS.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="513" y="0" width="50" height="30" uuid="14aa6872-d8fc-43b7-af24-3df5f9177ed2">
+				<reportElement x="513" y="0" width="50" height="25" uuid="14aa6872-d8fc-43b7-af24-3df5f9177ed2">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -333,7 +333,7 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<text><![CDATA[TASA DE ASEO]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="564" y="0" width="49" height="30" uuid="6985514c-6612-4372-ab3a-7839dac03729">
+				<reportElement x="564" y="0" width="49" height="25" uuid="6985514c-6612-4372-ab3a-7839dac03729">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -342,21 +342,21 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<text><![CDATA[REPO. COMPR. BS.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="616" y="0" width="59" height="30" uuid="ed9bc842-447f-4b8a-a4ec-5fd8b8d83574"/>
+				<reportElement x="616" y="0" width="59" height="25" uuid="ed9bc842-447f-4b8a-a4ec-5fd8b8d83574"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[TOTAL IMPORTE]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="685" y="0" width="67" height="30" uuid="910d0d83-173e-46fd-a495-f8ffc601378f"/>
+				<reportElement x="685" y="0" width="67" height="25" uuid="910d0d83-173e-46fd-a495-f8ffc601378f"/>
 				<textElement verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
 				<text><![CDATA[FECHA PAGO]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="2" y="0" width="40" height="30" uuid="12dd8295-dfbd-4991-9d0e-f0b798203233">
+				<reportElement x="2" y="0" width="40" height="25" uuid="12dd8295-dfbd-4991-9d0e-f0b798203233">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
@@ -366,7 +366,7 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<text><![CDATA[NRO.]]></text>
 			</staticText>
 			<line>
-				<reportElement positionType="FixRelativeToBottom" x="0" y="31" width="750" height="1" uuid="08ab89ae-a9c2-4017-84b8-d3e9e8a75f4a"/>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="26" width="750" height="1" uuid="08ab89ae-a9c2-4017-84b8-d3e9e8a75f4a"/>
 			</line>
 		</band>
 	</columnHeader>
@@ -395,7 +395,8 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 			</textField>
 			<textField>
 				<reportElement x="390" y="1" width="24" height="11" uuid="05791d15-fb76-4ba2-92b7-40e02c2cdc18"/>
-				<textElement>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right">
 					<font size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{eventual_cantidad_dia}]]></textFieldExpression>
@@ -478,9 +479,9 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 		</band>
 	</pageFooter>
 	<summary>
-		<band height="21" splitType="Stretch">
+		<band height="17" splitType="Stretch">
 			<textField pattern="#,#00.00#;#,#00.00#-">
-				<reportElement x="414" y="0" width="46" height="20" uuid="9ad42f51-d031-4c07-9651-f4b94523f6a8">
+				<reportElement x="414" y="0" width="46" height="16" uuid="9ad42f51-d031-4c07-9651-f4b94523f6a8">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
@@ -490,21 +491,21 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<textFieldExpression><![CDATA[$V{eventual_importe_patente1}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,#00.00#;#,#00.00#-">
-				<reportElement x="564" y="0" width="49" height="20" uuid="e5376320-a7a9-4d4d-8505-30f25a9acef1"/>
+				<reportElement x="564" y="0" width="49" height="16" uuid="e5376320-a7a9-4d4d-8505-30f25a9acef1"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{eventual_costo_comprobante1}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,#00.00#;#,#00.00#-">
-				<reportElement x="510" y="0" width="53" height="20" uuid="53c6481d-ec9a-4d0b-9f98-62e807bc7974"/>
+				<reportElement x="510" y="0" width="53" height="16" uuid="53c6481d-ec9a-4d0b-9f98-62e807bc7974"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{eventual_costo_aseo1}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,#00.00#;#,#00.00#-">
-				<reportElement x="460" y="0" width="52" height="20" uuid="7c8413b2-adc2-4b3f-8d02-13d419b6df8f">
+				<reportElement x="460" y="0" width="52" height="16" uuid="7c8413b2-adc2-4b3f-8d02-13d419b6df8f">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
@@ -513,7 +514,7 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				<textFieldExpression><![CDATA[$V{eventual_costo_sentaje1}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,#00.00#;#,#00.00#-">
-				<reportElement x="616" y="0" width="59" height="20" uuid="16c78e1e-ac2e-4766-949e-be9a9c4b7b12">
+				<reportElement x="616" y="0" width="59" height="16" uuid="16c78e1e-ac2e-4766-949e-be9a9c4b7b12">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
@@ -522,6 +523,13 @@ ORDER BY caj.usua_ci, pe.eventual_nro_comprobante, pe.eventual_nro_liquidacion]]
 				</textElement>
 				<textFieldExpression><![CDATA[$V{eventual_importe_total1}]]></textFieldExpression>
 			</textField>
+			<staticText>
+				<reportElement x="339" y="0" width="70" height="16" uuid="88224a2d-6ef0-4ad1-b9cd-5fe20bca43d8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTALES:]]></text>
+			</staticText>
 		</band>
 	</summary>
 </jasperReport>

@@ -50,6 +50,7 @@ class RuatServices extends Component
                 'codigoAlcaldia' => 'QUI',
                 'numeroDocumento' => $ci,
                 'tipoDocumento' => $tipoDocumento,
+                'expedido'=>''
             ]);
 
         $response = $request->send();

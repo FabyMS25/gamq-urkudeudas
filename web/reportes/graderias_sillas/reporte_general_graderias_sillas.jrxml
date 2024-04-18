@@ -13,8 +13,8 @@
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="238"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="751"/>
-	<property name="ireport.zoom" value="1.5"/>
-	<property name="ireport.x" value="94"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<parameter name="logo_path" class="java.lang.String"/>
 	<parameter name="fecha_ini" class="java.lang.String"/>
@@ -52,7 +52,7 @@
        FROM view_graderias_sillas
        INNER JOIN  usuario ON usuario.usua_id = view_graderias_sillas.usua_id
        WHERE  pago_estado = 1 AND (pago_anulado = 0  OR pago_anulado = 1)
-       AND (pago_fecha_hora_cobro BETWEEN '2022/08/05 00:00' AND '2022/09/28 23:59')
+       AND (pago_fecha_hora_cobro BETWEEN '2023/08/01 00:00' AND '2023/09/30 23:59')
        ORDER BY pago_nro_comprobante::INT ASC]]>
 	</queryString>
 	<field name="nro_comprobante" class="java.lang.Integer"/>
@@ -249,6 +249,7 @@
 				<reportElement x="630" y="0" width="122" height="30" uuid="2d42a714-7c49-433d-97a1-f5e0f02ce952">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
+				<box leftPadding="5"/>
 				<textElement verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
@@ -358,6 +359,7 @@
 				<reportElement x="630" y="0" width="122" height="20" uuid="f1232f00-dee9-4d16-aac4-e47c7c454fe4">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
+				<box leftPadding="4"/>
 				<textElement>
 					<font size="8"/>
 				</textElement>
