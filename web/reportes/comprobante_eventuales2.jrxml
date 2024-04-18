@@ -7,7 +7,7 @@
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="GAMQ Urkupina"/>
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="528"/>
+	<property name="ireport.y" value="816"/>
 	<parameter name="id_pago" class="java.lang.Integer"/>
 	<parameter name="monto_literal" class="java.lang.String"/>
 	<queryString>
@@ -614,7 +614,7 @@
 				<textFieldExpression><![CDATA[$F{pago_fecha_hora_cobro}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="32" y="5" width="222" height="25" uuid="3d2bdc74-5368-4e0e-8cc1-7a5181ce5f5a">
+				<reportElement x="32" y="5" width="273" height="25" uuid="3d2bdc74-5368-4e0e-8cc1-7a5181ce5f5a">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="cm"/>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>

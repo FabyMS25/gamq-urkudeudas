@@ -49,7 +49,7 @@ FROM
 WHERE pe.eventual_nro_comprobante IS NOT NULL
     AND se.sitios_es_alasita = true
     AND pe.eventual_estado = 1
-   --AND pe.eventual_fecha_hora_pago::DATE BETWEEN '2022/08/05 00:00' AND '2022/09/19 23:59'
+   --AND pe.eventual_fecha_hora_pago::DATE BETWEEN '2022/08/01 00:00' AND '2022/09/19 23:59'
 
   -- AND caj.usua_id = 29
   --AND se.sitios_codigo LIKE 'PUENTE-%'

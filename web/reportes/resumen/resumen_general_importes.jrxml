@@ -23,14 +23,14 @@
         FROM pagos_eventuales PE
         INNER JOIN sitios_eventuales SE ON SE.sitios_id = PE.sitios_id
         WHERE PE.eventual_nro_comprobante IS NOT NULL AND PE.eventual_estado = 1
-        AND PE.sitios_id != 9712
+        AND PE.sitios_id IS NOT NULL
         GROUP BY SE.sitios_es_alasita
         UNION ALL
 		SELECT INITCAP(CA.categ_codigo) AS concepto,SUM(PE.eventual_importe_total) AS total_importe
 		FROM pagos_eventuales PE
 		INNER JOIN actividades_economicas AE ON AE.activi_id = PE.activi_id
 		INNER JOIN categorias CA ON CA.categ_id = AE.categ_id
-		WHERE sitios_id = 9712 AND eventual_nro_comprobante IS NOT NULL
+		WHERE sitios_id IS NULL AND eventual_nro_comprobante IS NOT NULL
 		GROUP BY CA.categ_codigo
         UNION ALL
         SELECT
