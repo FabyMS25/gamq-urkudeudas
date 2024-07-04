@@ -3,29 +3,26 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\PagosEventuales;
-use app\models\SearchPagosEventuales;
+
+use \yii\web\Response;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use \yii\web\Response;
-use yii\helpers\Html;
-use app\models\Usuario;
-use app\models\ActividadesEconomicas;
-use app\models\Categorias;
-use app\models\Contribuyentes;
-use app\models\Sindicatos;
-use app\models\SitiosEventuales;
-use yii\helpers\VarDumper;
 
-/**
- * PagosEventualesController implements the CRUD actions for PagosEventuales model.
- */
+use app\models\Usuario;
+use app\models\Categorias;
+use app\models\Sindicatos;
+use app\models\Contribuyentes;
+use app\models\PagosEventuales;
+use app\models\SitiosEventuales;
+use app\models\SearchPagosEventuales;
+use app\models\ActividadesEconomicas;
+
+use yii\helpers\Html;
+use yii\helpers\VarDumper;
+use yii\filters\VerbFilter;
+
 class PagosEventualesController extends Controller
 {
-    /**
-     * @inheritdoc
-     */
     public function behaviors()
     {
         return [
@@ -39,20 +36,13 @@ class PagosEventualesController extends Controller
         ];
     }
 
-    /**
-     * Lists all PagosEventuales models.
-     *  @return mixed
-     */
     public function actionIndex()
     {
         $this->verificarSesion();
-
         $searchModel = new SearchPagosEventuales();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->query->andWhere(['IS ', 'eventual_fecha_hora_pago',  NULL]);
         $dataProvider->query->andFilterWhere(['eventual_estado' => 1]);
-
-
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -62,7 +52,6 @@ class PagosEventualesController extends Controller
     public function actionPagados()
     {
         $this->verificarSesion();
-
         $searchModel = new SearchPagosEventuales();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->query->andWhere(['IS NOT ', 'eventual_fecha_hora_pago',  NULL]);
@@ -71,8 +60,6 @@ class PagosEventualesController extends Controller
         if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
-
-
         return $this->render('pagados', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -82,7 +69,6 @@ class PagosEventualesController extends Controller
     public function actionAnulados()
     {
         $this->verificarSesion();
-
         $searchModel = new SearchPagosEventuales();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->query->andWhere(['IS NOT ', 'eventual_fecha_hora_pago',  NULL]);
@@ -91,19 +77,12 @@ class PagosEventualesController extends Controller
         if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
-
         return $this->render('anulados', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
 
-
-    /**
-     * Displays a single PagosEventuales model.
-     * @param integer $id
-     * @return mixed
-     */
     public function actionView($id)
     {
         $this->verificarSesion();
@@ -124,12 +103,10 @@ class PagosEventualesController extends Controller
         }
     }
 
-
-    // listado de sitios eventuales  para la preliquidacion en alasitas y urkupina
+    /**Listado de sitios eventuales  para la preliquidacion en alasitas y urkupina */
     public function actionEventualesAlasitas()
     {
         $this->verificarSesion();
-
         $searchModel = new \app\models\SearchSitiosEventuales();
         $listaSitios = (new PagosEventuales())->listaIdsSitiosEventuales();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -142,18 +119,11 @@ class PagosEventualesController extends Controller
         ]);
     }
 
-    /**
-     * Creates a new PagosEventuales model.
-     * For ajax request will return json object
-     * and for non-ajax request if creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
     public function actionCobrarLiquidacion($id)
     {
         $this->verificarSesion();
         $mensaje = '';
         $resultado = false;
-
         $request = Yii::$app->request;
         $model = $this->findModel($id);
         $model->scenario = "cobrar_liquidacion";
@@ -178,7 +148,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_cobrado = 1;
                 $dir = $model->eventual_tasa;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $nroTasa = $model->eventual_tasa;
                     $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
@@ -230,7 +200,6 @@ class PagosEventualesController extends Controller
                 ];
             }
         } else {
-            /*       *   Process for non-ajax request            */
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['index']);
             } else {
@@ -249,7 +218,7 @@ class PagosEventualesController extends Controller
             ->bindValue(':ev_estado', 1)
             ->queryAll();
 
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
         if ($token) {
             for ($i = 0; $i < count($listaPagosEventuales); $i++) {
                 $pago = $listaPagosEventuales[$i];
@@ -335,7 +304,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_limite = $porciones[1];
                 $montoTotal = $model->eventual_importe_total;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -433,9 +402,6 @@ class PagosEventualesController extends Controller
                 ];
             }
         } else {
-            /*
-            *   Process for non-ajax request
-            */
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->eventual_id]);
             } else {
@@ -446,8 +412,7 @@ class PagosEventualesController extends Controller
         }
     }
 
-
-    // liquidacion de act. economicas eventuales ALASITAS
+    /*Liquidacion de act. economicas eventuales ALASITAS*/
     public function actionCreateAlasitas($id)
     {
         $codigoClasificador = '22983';
@@ -492,7 +457,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_inicio = $porciones[0]; //aqui partimos las fechas
                 $model->eventual_fecha_limite = $porciones[1];
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -589,8 +554,6 @@ class PagosEventualesController extends Controller
                 ];
             }
         } else {
-            /* Process for non-ajax request
-             */
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->eventual_id]);
             } else {
@@ -601,7 +564,7 @@ class PagosEventualesController extends Controller
         }
     }
 
-    // liquidacion de act. economicas eventuales
+    /*Liquidacion de act. economicas eventuales*/
     public function actionCreateEspectaculo()
     {
         $this->verificarSesion();
@@ -642,7 +605,7 @@ class PagosEventualesController extends Controller
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -788,7 +751,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -897,15 +860,6 @@ class PagosEventualesController extends Controller
         }
     }
 
-    /**
-     * Delete an existing PagosEventuales model.
-     * For ajax request will return json object
-     * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     */
-    //eventual_estado
-
     public function actionAnularLiquidacion($id)
     {
         $result = false;
@@ -933,7 +887,7 @@ class PagosEventualesController extends Controller
                 $dir = $model->eventual_nro_comprobante;
                 $ci_usuarioAutenticado = $datos->usua_cuenta;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $nrotasa = $model->eventual_tasa;
                     $motivo = $model->eventual_anulado_detalle;
@@ -998,56 +952,34 @@ class PagosEventualesController extends Controller
         $this->findModel($id)->delete();
 
         if ($request->isAjax) {
-            /*
-            *   Process for ajax request
-            */
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ['forceCerrar' => true, 'forceReload' => '#crud-datatable-pjax'];
         } else {
-            /*
-            *   Process for non-ajax request
-            */
             return $this->redirect(['index']);
         }
     }
 
-    /**
-     * Delete multiple existing PagosEventuales model.
-     * For ajax request will return json object
-     * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     */
     public function actionBulkDelete()
     {
         $request = Yii::$app->request;
-        $pks = explode(',', $request->post('pks')); // Array or selected records primary keys
+        $pks = explode(',', $request->post('pks'));
         foreach ($pks as $pk) {
             $model = $this->findModel($pk);
             $model->delete();
         }
 
         if ($request->isAjax) {
-            /*
-            *   Process for ajax request
-            */
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ['forceCerrar' => true, 'forceReload' => '#crud-datatable-pjax'];
         } else {
-            /*
-            *   Process for non-ajax request
-            */
             return $this->redirect(['index']);
         }
     }
 
-    /************************************************/
-    // reportes jasper
-
+    /**Reportes Jasper */
     public function actionComprobantePago($id)
     {
         $this->verificarSesion();
-
         $request = Yii::$app->request;
         $model = $this->findModel($id);
         //$model->eventual_cobrado=1;
@@ -1083,21 +1015,17 @@ class PagosEventualesController extends Controller
     public function actionPreliquidacionSitios($id)
     {
         $this->verificarSesion();
-
         $request = Yii::$app->request;
         $model = $this->findModel($id);
         $montoLiteral = $model->montoTotalLiteral();
         $titulo = "RECIBO DE LIQUIDACION  DE SITIOS ";
         $url = "";
-
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            // jasper init
             $archivo = "preliquidacion_actividades_economicas";
             $carpeta =  "reportes";
             $parametros = ['id_pago' => $id, 'monto_literal' => '"' . $montoLiteral . '"'];
             $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-            //end jasper
             return [
                 'title' => $titulo,
                 'content' => $this->renderAjax('preliquidacion-sitios', [
@@ -1116,7 +1044,6 @@ class PagosEventualesController extends Controller
     public function actionPreliquidacionActividades($id)
     {
         $this->verificarSesion();
-
         $request = Yii::$app->request;
         $model = $this->findModel($id);
         $montoLiteral = $model->montoTotalLiteral();
@@ -1125,12 +1052,10 @@ class PagosEventualesController extends Controller
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            // jasper init
             $archivo = "preliquidacion_actividades_economicas";
             $carpeta = "reportes";
             $parametros = ['id_pago' => $id, 'monto_literal' => '"' . $montoLiteral . '"'];
             $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-            //end jasper
             return [
                 'title' => $titulo,
                 'content' => $this->renderAjax('preliquidacion-actividades', [
@@ -1146,13 +1071,6 @@ class PagosEventualesController extends Controller
         }
     }
 
-    /**
-     * Finds the PagosEventuales model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return PagosEventuales the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     protected function findModel($id)
     {
         if (($model = PagosEventuales::findOne($id)) !== null) {
@@ -1162,7 +1080,7 @@ class PagosEventualesController extends Controller
         }
     }
 
-    // funcion que verifica la existencia de una sesion activa
+    /**Verificar sesion activa */
     public function verificarSesion()
     {
         if (Yii::$app->user->isGuest) {
@@ -1179,7 +1097,6 @@ class PagosEventualesController extends Controller
         $archivo = "reporte_eventuales_pagos";
         $carpeta = "reportes/eventuales";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-
         $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
 
@@ -1233,10 +1150,8 @@ class PagosEventualesController extends Controller
 
     protected function generarURLReportePdf($carpeta, $file, $parametros = [])
     {
-
         $archivo = $file;
         Yii::setAlias('@ruta', $carpeta);
-
         $jasper = Yii::$app->jasper;
         $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
         $jasper->process(
