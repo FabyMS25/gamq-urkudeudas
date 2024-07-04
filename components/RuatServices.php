@@ -12,8 +12,8 @@ class RuatServices extends Component
 
     public function init()
     {
-        //$this->baseUrl = 'https://consolidacionjboss.ruat.gob.bo';
-        $this->baseUrl = 'https://aplicaciones.ruat.gob.bo';
+        $this->baseUrl = 'https://verificacionjboss.ruat.gob.bo';
+        //$this->baseUrl = 'https://aplicaciones.ruat.gob.bo';
     }
 
     public function login($username, $password)
@@ -50,7 +50,43 @@ class RuatServices extends Component
                 'codigoAlcaldia' => 'QUI',
                 'numeroDocumento' => $ci,
                 'tipoDocumento' => $tipoDocumento,
-                'expedido'=>''
+                'expedido' => ''
+            ]);
+
+        $response = $request->send();
+        if ($response->isOk) {
+            $data = json_decode($response->content);
+            return $data->codigoContribuyente;
+        } else {
+            return null;
+        }
+    }
+
+    public function registerContribuyente($token, $ci, $tipoDocumento)
+    {
+        $client = new Client();
+        $request = $client->createRequest()
+            ->setMethod('POST')
+            ->setFormat(Client::FORMAT_JSON)
+            ->setUrl($this->baseUrl . '/RuatServiciosWebContribuyentes/contribuyentes/comun/registroContribuyente')
+            ->setHeaders([
+                'Authorization' => "Bearer $token"
+            ])
+            ->setData([
+                'codigoAlcaldia' => '',
+                'codigoUsuario' => '',
+                'numeroDocumento' => '',
+                'tipoDocumento' => '',
+                'expedido' => '',
+                'nombre' => '',
+                'primerApellido' => '',
+                'segundoApellido' => '',
+                'estadoCivil' => '',
+                'fechaNacimiento' => '',
+                'genero' => '',
+                'apellidoEsposo' => '',
+                'motivo' => '',
+                'observaciones' => '',
             ]);
 
         $response = $request->send();
