@@ -21,14 +21,8 @@ use yii\helpers\Html;
 use yii\helpers\VarDumper;
 use yii\filters\VerbFilter;
 
-/**
- * PagosController implements the CRUD actions for Pagos model.
- */
 class PagosController extends Controller
 {
-    /**
-     * @inheritdoc
-     */
     public function behaviors()
     {
         return [
@@ -42,10 +36,6 @@ class PagosController extends Controller
         ];
     }
 
-    /**
-     * Lists all Pagos models.
-     * @return mixed
-     */
     public function actionIndex()
     {
         $this->verificarSesion();
@@ -67,9 +57,6 @@ class PagosController extends Controller
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->query->andFilterWhere(['pago_estado' => 1]);
-
-        //'pago_cobrado' => 1, 'pago_anulado' => 0
-
         return $this->render('general', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -79,15 +66,12 @@ class PagosController extends Controller
     public function actionPreliquidaciones()
     {
         $this->verificarSesion();
-
-        //
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->query->andFilterWhere(['pago_estado' => 1, 'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
         if (Usuario::getRolPreli()) {
             $dataProvider->query->andFilterWhere(['pago_id_user_preliquidacion' => \Yii::$app->user->id]);
         }
-
         return $this->render('preliquidaciones', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -103,7 +87,6 @@ class PagosController extends Controller
         if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
-
         return $this->render('pagados', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -119,18 +102,12 @@ class PagosController extends Controller
         if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
-
         return $this->render('anulados', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
 
-    /**
-     * Displays a single Pagos model.
-     * @param integer $id
-     * @return mixed
-     */
     public function actionCobrar($id)
     {
         $this->verificarSesion();
@@ -138,12 +115,9 @@ class PagosController extends Controller
         $model = $this->findModel($id);
         $model->scenario = "cobrar_graderias_sillas";
         $titulo = "Cobrar preliquidacion de " . $model->graderiaSilla->grad_codigo;
-
         //$siteUrl = 'http://proyecto-urkupina.test/index.php?r=pagos%2Fview&id='.$id;
         $siteUrl = 'http://192.168.7.4/proyecto-urkupina/web/index.php?r=pagos%2Fview&id=' . $id;
-
         if ($request->isAjax) {
-            /*           Process for ajax request            */
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
@@ -156,7 +130,7 @@ class PagosController extends Controller
                 $model->usua_id = Yii::$app->user->id;
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
                 $model->pago_cobrado = 1;
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $nroTasa = $model->pago_tasa;
                     $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
@@ -208,9 +182,6 @@ class PagosController extends Controller
                 ];
             }
         } else {
-            /*
-             *   Process for non-ajax request
-             */
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->pago_id]);
             } else {
@@ -242,17 +213,10 @@ class PagosController extends Controller
         }
     }
 
-    /**
-     * Creates a new Pagos model.
-     * For ajax request will return json object
-     * and for non-ajax request if creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
     public function actionPreliquidar($id)
     {
         $mensaje = '';
         $resultado = false;
-
         $this->verificarSesion();
         $request = Yii::$app->request;
         $idUsuarioAutenticado = Yii::$app->user->id;
@@ -269,7 +233,6 @@ class PagosController extends Controller
         $model->pago_preliquidacion = 1;
         $modelSitio = GraderiasSillas::findOne($id);
         $titulo = "Preliquidacion para el codigo <strong> " . $modelSitio->grad_codigo . "</strong>";
-
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
@@ -291,7 +254,7 @@ class PagosController extends Controller
                     $val = 1;
                 }
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -357,6 +320,8 @@ class PagosController extends Controller
                             }
                         }
                     } else {
+                        VarDumper::dump($contri);
+                        Yii::warning($contri);
                         $mensaje = 'No se pudo registrar la preliquidación, porque el contribuyente seleccionado no se encuentra registrado en RUAT, por favor registrar contribuyente.';
                     }
                 } else {
@@ -390,7 +355,6 @@ class PagosController extends Controller
                 ];
             }
         } else {
-            /*Process for non-ajax request*/
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->pago_id]);
             } else {
@@ -409,7 +373,7 @@ class PagosController extends Controller
             ->bindValue(':pago_estado', 1)
             ->queryAll();
 
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
         if ($token) {
             for ($i = 0; $i < count($listaPagos); $i++) {
                 $pago = $listaPagos[$i];
@@ -452,8 +416,6 @@ class PagosController extends Controller
         }
     }
 
-
-
     public function actionCreate()
     {
         $titulo = '';
@@ -462,9 +424,6 @@ class PagosController extends Controller
         $model = new Pagos();
 
         if ($request->isAjax) {
-            /*
-             *   Process for ajax request
-             */
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
@@ -494,9 +453,6 @@ class PagosController extends Controller
                 ];
             }
         } else {
-            /*
-             *   Process for non-ajax request
-             */
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->pago_id]);
             } else {
@@ -507,13 +463,6 @@ class PagosController extends Controller
         }
     }
 
-    /**
-     * Updates an existing Pagos model.
-     * For ajax request will return json object
-     * and for non-ajax request if update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
     public function actionAnularPago($id)
     {
         $this->verificarSesion();
@@ -551,9 +500,6 @@ class PagosController extends Controller
                 ];
             }
         } else {
-            /*
-             *   Process for non-ajax request
-             */
             if ($model->load($request->post()) && $model->validate()) {
                 $res = $model->habilitarDatosPreliquidacion($model);
                 return $this->redirect(['pagados']);
@@ -561,10 +507,8 @@ class PagosController extends Controller
         }
     }
 
-    // funcion para habilitar datos de preliquidacion porq se anulo su pago
     protected function habilitarDatosPreliquidacion($model)
     {
-
         $model->pago_anulado = 1;
         $model->pago_anulado_fecha_hora = date('Y-m-d H:m:s');
 
@@ -603,13 +547,6 @@ class PagosController extends Controller
         return $resultado;
     }
 
-    /**
-     * Delete an existing Pagos model.
-     * For ajax request will return json object
-     * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     */
     public function actionAnularPreliquidacion($id)
     {
         $result = false;
@@ -643,7 +580,7 @@ class PagosController extends Controller
                 $username = $datos->usua_cuenta;
                 //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $motivo = $model->pago_anulado_detalle;
                     $observacion = $model->pago_observaciones;
@@ -698,9 +635,6 @@ class PagosController extends Controller
                 ];
             }
         } else {
-            /*
-             *   Process for non-ajax request
-             */
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->pago_id]);
             } else {
@@ -756,20 +690,17 @@ class PagosController extends Controller
     public function actualizarDatosCobro($model)
     {
         $modelGraderia = new \app\models\GraderiasSillas();
-
         $auxGraderia = $modelGraderia->findOne($model->grad_id);
         $auxGraderia->grad_vendido = 1; //modifica estado de vendido
         $model->usua_id = Yii::$app->user->id;
         $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
         $model->pago_cobrado = 1;
         $resultado = false;
-
         $transaction = Yii::$app->db->beginTransaction();
         try {
             if ($auxGraderia->save(false)) {
                 $resultado = true;
             } else {
-                //echo "MODEL1 NOT SAVED";
                 print_r($auxGraderia->getAttributes());
                 print_r($auxGraderia->getErrors());
             }
@@ -778,7 +709,6 @@ class PagosController extends Controller
                 $transaction->commit();
                 $resultado = true;
             } else {
-                //echo "MODEL2 NOT SAVED";
                 print_r($model->getAttributes());
                 print_r($model->getErrors());
                 $transaction->rollBack();
@@ -789,10 +719,9 @@ class PagosController extends Controller
         return $resultado;
     }
 
-    // reportes en jasper
+    /**Reportes Jasper */
     public function actionComprobantePago($id)
     {
-
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "COMPROBANTE DE PAGO - GRADERIA O SILLAS";
@@ -804,11 +733,9 @@ class PagosController extends Controller
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            // jasper init
             $archivo = "comprobante_graderia_silla";
             $parametros = ['id_pago' => $id, 'monto_literal' => '"' . $montoLiteral . '"', 'image_path' => '"' . $qrImagePath . '"'];
             $url = $this->generarURLReportePdf('reportes', $archivo, $parametros);
-            //end jasper
             return [
                 'title' => $titulo,
                 'content' => $this->renderAjax('comprobante-pago', [
@@ -878,61 +805,6 @@ class PagosController extends Controller
         }
     }
 
-    // funcion para generar reportes del cajero (individual)
-    /* public function actionReporteFormPago() {
-        $this->verificarSesion();
-        
-        $request = Yii::$app->request;
-        $model = new Pagos();  
-        $model->scenario = "reporte_pagos_anulados";
-        $titulo = "REPORTE DE PAGOS O ANULADOS";
-        
-         if($request->isAjax){            
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
-                return [
-                    'title'=> $titulo,
-                    'content'=>$this->renderAjax('reporte-form-pago', [
-                        'model' => $model,
-                    ]),
-                    'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Guardar',['class'=>'btn btn-primary','type'=>"submit"])        
-                ];         
-            }else if($model->load($request->post()) && $model->validate()){
-                echo "entro";
-                exit;
-                $tipo = $model->tipo; // pagados o anulados               
-                $porciones = explode(" a ", $model->fecha_rango);
-                $fecha_inicio = $porciones[0];
-                $fecha_limite = $porciones[1];   
-                
-                   return [
-                        'forceReload'=>'#crud-datatable-pjax',
-                        'title'=> $titulo,
-                        'content' =>"Hola",                        
-                        'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"])                                
-                    ]; 
-                      
-            }else{           
-                return [
-                    'title'=> $titulo,
-                    'content'=>$this->renderAjax('reporte-form-pago', [
-                        'model' => $model,
-                    ]),
-                    'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                               Html::button('Guardar 1',['class'=>'btn btn-primary','type'=>"submit"])        
-                ];         
-            }
-        }else{
-            
-            if ($model->load($request->post()) && $model->save()) {
-                return $this->redirect(['reporte-form-pago']);
-            }
-        }  
-        
-    }
-    */
-
     public function actionReporteGeneral()
     {
         $this->verificarSesion();
@@ -944,23 +816,6 @@ class PagosController extends Controller
 
         $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-
-        /*if ($request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return [
-                'title' => $titulo,
-                'content' => $this->renderAjax('reporte-general', [
-                    'url' => $url,
-                    'size' => 'modal-xl',
-                ]),
-                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-            ];
-        } else {
-            return $this->render('reporte-general', [
-                'url' => $url,
-                'size' => 'modal-xl',
-            ]);
-        }*/
         return $this->render('reporte-general', ['url' => $url]);
     }
 
@@ -1008,20 +863,6 @@ class PagosController extends Controller
         return $this->render('reporte-preliquidacion-nopagados', ['url' => $url]);
     }
 
-    /*
-    public function actionReporteGeneralSentajes() {
-        $this->verificarSesion();
-        $request = Yii::$app->request;
-        $titulo = "REPORTE GENERAL SENTAJES - FECHA " . date("d/m/Y H:m");
-        $archivo = "reporte_descargo_sentajes;
-        $carpeta = "reportes/sentajes";
-        $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        
-        $parametros = ['logo_path' => '"'.$logoImagePath.'"'];
-        $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-        return $this->render('reporte-sentajes', ['url' => $url]);
-    }
-*/
     public function actionReporteEspaciosDisponibles()
     {
         $this->verificarSesion();
@@ -1033,23 +874,6 @@ class PagosController extends Controller
 
         $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-
-        /*if ($request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return [
-                'title' => $titulo,
-                'content' => $this->renderAjax('reporte-espacios-disponibles', [
-                    'url' => $url,
-                    'size' => 'modal-xl',
-                ]),
-                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-            ];
-        } else {
-            return $this->render('reporte-espacios-disponibles', [
-                'url' => $url,
-                'size' => 'modal-xl',
-            ]);
-        }*/
         return $this->render('reporte-espacios-disponibles', ['url' => $url]);
     }
 
@@ -1064,22 +888,6 @@ class PagosController extends Controller
 
         $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-
-        /*if ($request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return [
-                'title' => $titulo,
-                'content' => $this->renderAjax('reporte-diferencias', [
-                    'url' => $url,
-                    'size' => 'modal-xl',
-                ]),
-                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-            ];
-        } else {
-            return $this->render('reporte-diferencias', [
-                'url' => $url,
-            ]);
-        }*/
         return $this->render('reporte-diferencias', ['url' => $url]);
     }
 
@@ -1094,23 +902,6 @@ class PagosController extends Controller
 
         $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-
-        /*if ($request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return [
-                'title' => $titulo,
-                'content' => $this->renderAjax('reporte-diferencias-eventuales', [
-                    'url' => $url,
-                    'size' => 'modal-lg',
-                ]),
-                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-            ];
-        } else {
-            return $this->render('reporte-diferencias-eventuales', [
-                'url' => $url,
-                'size' => 'modal-lg',
-            ]);
-        }*/
         return $this->render('reporte-diferencias-eventuales', ['url' => $url]);
     }
 
@@ -1125,23 +916,6 @@ class PagosController extends Controller
 
         $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-
-        /*if ($request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return [
-                'title' => $titulo,
-                'content' => $this->renderAjax('reporte-pagos-graderias-cajeros', [
-                    'url' => $url,
-                    'size' => 'modal-lg',
-                ]),
-                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-            ];
-        } else {
-            return $this->render('reporte-pagos-graderias-cajeros', [
-                'url' => $url,
-                'size' => 'modal-lg',
-            ]);
-        }*/
         return $this->render('reporte-pagos-graderias-cajeros', ['url' => $url]);
     }
 
@@ -1156,23 +930,6 @@ class PagosController extends Controller
 
         $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-
-        /*if ($request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return [
-                'title' => $titulo,
-                'content' => $this->renderAjax('reporte-anulados-graderias-cajeros', [
-                    'url' => $url,
-                    'size' => 'modal-lg',
-                ]),
-                'footer' => Html::button('Cerrar', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
-            ];
-        } else {
-            return $this->render('reporte-anulados-graderias-cajeros', [
-                'url' => $url,
-                'size' => 'modal-lg',
-            ]);
-        }*/
         return $this->render('reporte-anulados-graderias-cajeros', ['url' => $url]);
     }
 
@@ -1187,7 +944,6 @@ class PagosController extends Controller
 
         $parametros = ['logo_path' => '"' . $logoImagePath . '"'];
         $url = $this->generarURLReportePdf($carpeta, $archivo, $parametros);
-
         return $this->render('reporte-preliquidacion-sentajes', ['url' => $url]);
     }
 
@@ -1299,13 +1055,6 @@ class PagosController extends Controller
         return $url;
     }
 
-    /**
-     * Finds the Pagos model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return Pagos the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     protected function findModel($id)
     {
         if (($model = Pagos::findOne($id)) !== null) {
@@ -1315,7 +1064,7 @@ class PagosController extends Controller
         }
     }
 
-    // funcion que verifica la existencia de una sesion activa
+    /**vericar sesion activa */
     public function verificarSesion()
     {
         if (Yii::$app->user->isGuest) {

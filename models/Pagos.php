@@ -38,12 +38,16 @@ use Yii;
  */
 class Pagos extends \yii\db\ActiveRecord
 {
-    public $longitud ;
-    public $codigo, $nombre, $paterno, $materno, $ci;
-    public $fecha_rango,$tipo;
-    //
-    const COMPROBANTE = 10.5;
+    public $longitud;
+    public $codigo;
+    public $nombre;
+    public $paterno;
+    public $materno;
+    public $ci;
+    public $fecha_rango, $tipo;
     
+    const COMPROBANTE = 10.5;
+
     public static function tableName()
     {
         return 'pagos';
@@ -55,12 +59,18 @@ class Pagos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['grad_id', 'usua_id', 'contri_id', 'tip_arm_id', 'pago_nro_comprobante', 'pago_anulado', 'pago_id_user_preliquidacion', 
-                'pago_preliquidacion', 'pago_cobrado', 'pago_estado'], 'integer'],
-            [['contri_id', 'tip_arm_id',  'pago_aseo', 'pago_reposicion', 
-                'pago_fecha_hora_preliquidacion',  'pago_estado'], 'required'],
-            [['pago_longitud_modificada', 'pago_descuento_porcentaje', 'pago_descuento_monto', 'pago_importe_patente', 'pago_aseo',
-                'pago_reposicion', 'pago_importe_total'], 'number'],
+            [[
+                'grad_id', 'usua_id', 'contri_id', 'tip_arm_id', 'pago_nro_comprobante', 'pago_anulado', 'pago_id_user_preliquidacion',
+                'pago_preliquidacion', 'pago_cobrado', 'pago_estado'
+            ], 'integer'],
+            [[
+                'contri_id', 'tip_arm_id',  'pago_aseo', 'pago_reposicion',
+                'pago_fecha_hora_preliquidacion',  'pago_estado'
+            ], 'required'],
+            [[
+                'pago_longitud_modificada', 'pago_descuento_porcentaje', 'pago_descuento_monto', 'pago_importe_patente', 'pago_aseo',
+                'pago_reposicion', 'pago_importe_total'
+            ], 'number'],
             [['pago_anulado_fecha_hora', 'pago_fecha_hora_preliquidacion', 'pago_fecha_hora_cobro'], 'safe'],
             [['pago_nro_liquidacion'], 'string', 'max' => 15],
             [['pago_anulado_detalle'], 'string', 'max' => 250],
@@ -68,22 +78,22 @@ class Pagos extends \yii\db\ActiveRecord
             //
             //'usua_id'
             // personlaizado
-            [['pago_descuento_porcentaje'], 'number', 'min' => 0,'max' => 100],
+            [['pago_descuento_porcentaje'], 'number', 'min' => 0, 'max' => 100],
             [['pago_longitud_modificada'], 'number', 'min' => 0,],
-            [['pago_longitud_modificada'],'required'],            
+            [['pago_longitud_modificada'], 'required'],
             [['contri_id'], 'exist', 'skipOnError' => true, 'targetClass' => Contribuyentes::className(), 'targetAttribute' => ['contri_id' => 'contri_id']],
             [['grad_id'], 'exist', 'skipOnError' => true, 'targetClass' => GraderiasSillas::className(), 'targetAttribute' => ['grad_id' => 'grad_id']],
             [['tip_arm_id'], 'exist', 'skipOnError' => true, 'targetClass' => TipoArmados::className(), 'targetAttribute' => ['tip_arm_id' => 'tip_arm_id']],
             [['usua_id'], 'exist', 'skipOnError' => true, 'targetClass' => Usuario::className(), 'targetAttribute' => ['usua_id' => 'usua_id']],
-            
+
             //personalizado           
             [['pago_importe_total', 'pago_importe_patente', 'pago_con_exencion'], 'required'],
-            ['pago_tasa', 'required' ,'on'=>['cobrar_graderias_sillas']],
+            ['pago_tasa', 'required', 'on' => ['cobrar_graderias_sillas']],
             //['pago_nro_comprobante', 'validateComprobante' ,'on'=>['cobrar_graderias_sillas']],
-            
-            ['pago_anulado_detalle', 'required' , 'on' => ['anular-pago']],
+
+            ['pago_anulado_detalle', 'required', 'on' => ['anular-pago']],
             // para reportes
-            [['fecha_rango', 'tipo'],'required' ,'on'=>['reporte_pagos_anulados']],
+            [['fecha_rango', 'tipo'], 'required', 'on' => ['reporte_pagos_anulados']],
         ];
     }
 
@@ -160,29 +170,31 @@ class Pagos extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Usuario::className(), ['usua_id' => 'usua_id']);
     }
-    
+
     // validaciones personalizados
     public function validateComprobante($attribute, $params, $validator)
     {
         $comprobante = $this->pago_nro_comprobante;
         $total = Pagos::find()->select('pago_nro_comprobante')
-                ->where(['pago_estado'=>1, 'pago_nro_comprobante'=>$comprobante])->count();
-        
+            ->where(['pago_estado' => 1, 'pago_nro_comprobante' => $comprobante])->count();
+
         if ($total > 0) {
-            $this->addError($attribute, 'El comprobante "'.$comprobante.'" ya existe.');
+            $this->addError($attribute, 'El comprobante "' . $comprobante . '" ya existe.');
         }
     }
-    
-    
+
+
     // lista de graderias y sillas preliquidados
-    public  function listaIdGraderiasSillasPreliquidados(){
+    public  function listaIdGraderiasSillasPreliquidados()
+    {
         return $this->find()
-                ->select('grad_id')
-                ->where(['pago_estado'=>1, 'pago_preliquidacion'=>1])
-                ->column();        
+            ->select('grad_id')
+            ->where(['pago_estado' => 1, 'pago_preliquidacion' => 1])
+            ->column();
     }
-    
-    public function montoTotalLiteral(){
+
+    public function montoTotalLiteral()
+    {
         $montoTotal = $this->pago_importe_total;
         $modelAux = new NumeroALetras();
         return $modelAux->convertir($montoTotal);
