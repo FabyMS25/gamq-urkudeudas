@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use DateTime;
 use Yii;
 use yii\base\Component;
 use yii\helpers\VarDumper;
@@ -68,6 +69,7 @@ class RuatServices extends Component
 
     public function registerContribuyente($token, $codigoUsuario, $contribuyente)
     {
+        //VarDumper::dump($contribuyente);
         $client = new Client();
         $request = $client->createRequest()
             ->setMethod('POST')
@@ -85,21 +87,29 @@ class RuatServices extends Component
                 'nombre' => $contribuyente->contri_nombres,
                 'primerApellido' => $contribuyente->contri_paterno ? $contribuyente->contri_paterno : 'NO LLEVA',
                 'segundoApellido' => $contribuyente->contri_materno ? $contribuyente->contri_materno : 'NO LLEVA',
-                'estadoCivil' => 'CA',
-                'fechaNacimiento' => '22/03/1977',
-                'genero' => 'M',
+                'estadoCivil' =>  $contribuyente->contri_estadocivil ? $contribuyente->contri_estadocivil : 'SO',
+                'fechaNacimiento' => $contribuyente->contri_fechanac ? Yii::$app->formatter->asDate($contribuyente->contri_fechanac, 'php:d/m/Y') : '01/01/1990',
+                'genero' => $contribuyente->contri_sexo ? $contribuyente->contri_sexo : 'M',
                 'apellidoEsposo' => $contribuyente->contri_apellidocasada,
                 'motivo' => 'REGISTRO TASAS Y OTROS INGRESOS',
                 'observacion' => 'REGISTRO URKUPINA 2024'
             ]);
 
         $response = $request->send();
+        VarDumper::dump($response);
         if ($response->isOk) {
             $data = json_decode($response->content);
             return $data->codigoContribuyente;
         } else {
             return null;
         }
+    }
+
+    private function transformDate($originalDate)
+    {
+        $date = new DateTime($originalDate);
+        $date->setDate(1977, $date->format('m'), $date->format('d'));
+        return $date->format('m/d/Y');
     }
 
     public function getTieneDeudaContribuyente($token, $ciContribuyente)
