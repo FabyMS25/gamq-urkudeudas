@@ -69,7 +69,6 @@ class RuatServices extends Component
 
     public function registerContribuyente($token, $codigoUsuario, $contribuyente)
     {
-        //VarDumper::dump($contribuyente);
         $client = new Client();
         $request = $client->createRequest()
             ->setMethod('POST')
@@ -96,20 +95,12 @@ class RuatServices extends Component
             ]);
 
         $response = $request->send();
-        VarDumper::dump($response);
         if ($response->isOk) {
             $data = json_decode($response->content);
             return $data->codigoContribuyente;
         } else {
             return null;
         }
-    }
-
-    private function transformDate($originalDate)
-    {
-        $date = new DateTime($originalDate);
-        $date->setDate(1977, $date->format('m'), $date->format('d'));
-        return $date->format('m/d/Y');
     }
 
     public function getTieneDeudaContribuyente($token, $ciContribuyente)
