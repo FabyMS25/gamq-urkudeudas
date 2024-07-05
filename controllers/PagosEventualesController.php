@@ -270,7 +270,7 @@ class PagosEventualesController extends Controller
 
         $idUsuarioAutenticado = Yii::$app->user->id;
         $datos = Usuario::findOne($idUsuarioAutenticado);
-        $ci_usuarioAutenticado = $datos->usua_cuenta;
+        $codigoUsuario = $datos->usua_cuenta;
 
         $model = new PagosEventuales();
         $model->scenario = "crear_eventual_liquidacion";
@@ -300,7 +300,7 @@ class PagosEventualesController extends Controller
             } else if ($model->load($request->post()) && $model->validate()) {
 
                 $porciones = explode(" a ", $model->rango_fechas);
-                $model->eventual_fecha_inicio = $porciones[0];   //aqui partimos la fecha
+                $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
                 $montoTotal = $model->eventual_importe_total;
 
@@ -315,7 +315,6 @@ class PagosEventualesController extends Controller
                         $tipo_doc = "CE";
                     }
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
-
                     if ($codigoContribuyente) {
                         $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $codigoContribuyente);
                         if ($tieneDeudas) {
@@ -336,12 +335,11 @@ class PagosEventualesController extends Controller
                                 ', Fecha inicio ' . $porciones[0] .
                                 ', Fecha fin ' . $porciones[1] .
                                 ', Actividad economica: ' . $acti->activi_descripcion;
-
                             $obsCut = mb_substr($obs, 0, 250);
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            $response = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, $codigoClasificador, $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, $codigoClasificador, $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
@@ -369,8 +367,57 @@ class PagosEventualesController extends Controller
                             }
                         }
                     } else {
-                        $mensaje = "El contribuyente seleccionado no se encuentra registrado en RUAT.
-                                    <br> debe registrar contribuyente primero";
+                        $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
+                        if ($codigoContrib != null) {
+                            $idactividad = $model->activi_id;
+                            $acti = ActividadesEconomicas::findOne($idactividad);
+                            $idsitio = $model->sitios_id;
+                            $sitio = SitiosEventuales::findOne($idsitio);
+                            $categoria = Categorias::findOne($model->categoria);
+                            $sindicato = Sindicatos::findOne($contri->sindi_id);
+                            $obs = 'DATOS DE ACTIVIDAD: EVENTUALES  ' .
+                                ', Sindicato: ' . $sindicato->sindi_nombre .
+                                ', Categoria: ' . $categoria->categ_nombre .
+                                ', Codigo Puesto: ' . $sitio->sitios_codigo .
+                                ', Nro Puesto: ' . $sitio->sitios_numero_sitio .
+                                ', Dir Puesto: ' . $sitio->sitios_descripcion .
+                                ', Fecha inicio ' . $porciones[0] .
+                                ', Fecha fin ' . $porciones[1] .
+                                ', Actividad economica: ' . $acti->activi_descripcion;
+
+                            $obsCut = mb_substr($obs, 0, 250);
+                            $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
+                            $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
+
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, $codigoClasificador, $montoTotal, $obs);
+                            if ($response->continuarFlujo) {
+                                $nroTasa = $response->numeroTasa;
+                                $model->eventual_tasa = $nroTasa;
+                                if ($model->save()) {
+                                    $resultado = true;
+                                    $mensaje = 'CONTRIBUYENTE: Se registro los datos de la preliquidación con exito';
+                                } else {
+                                    $mensaje = 'CONTRIBUYENTE: No se pudo registrar los datos de la preliquidación';
+                                }
+                            } else {
+                                $mensaje = 'CONTRIBUYENTE: No se pudo registrar la tasa en RUAT <br>';
+                                if (is_array($response->mensaje)) {
+                                    $messages = $response->mensaje;
+                                    foreach ($messages as $message) {
+                                        foreach ($message as $key => $errorMessages) {
+                                            $mensaje = $mensaje . "Error en: $key, ";
+                                            foreach ($errorMessages as $errorMessage) {
+                                                $mensaje = $mensaje . $errorMessage;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    $mensaje = $mensaje . $response->mensaje;
+                                }
+                            }
+                        } else {
+                            $mensaje = 'CONTRIBUYENTE: No se pudo registrar el contribuyente y la tasa.';
+                        }
                     }
                 } else {
                     $mensaje = 'No se pudo iniciar sesión en RUAT';
