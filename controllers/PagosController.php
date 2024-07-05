@@ -253,7 +253,6 @@ class PagosController extends Controller
                 if ($resto == 0) {
                     $val = 1;
                 }
-
                 $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'fIH1z30a1SpB');
                 if ($token) {
                     $id = $model->contri_id;
@@ -288,7 +287,6 @@ class PagosController extends Controller
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->pago_tasa = $nroTasa;
-
                                 if ($model->save()) {
                                     $sql = 'UPDATE graderias_sillas SET grad_vendido=:val, grad_longitud=:rest WHERE grad_id=:id';
                                     $command = Yii::$app->db->createCommand($sql)
@@ -320,9 +318,58 @@ class PagosController extends Controller
                             }
                         }
                     } else {
-                        VarDumper::dump($contri);
-                        Yii::warning($contri);
-                        $mensaje = 'No se pudo registrar la preliquidación, porque el contribuyente seleccionado no se encuentra registrado en RUAT, por favor registrar contribuyente.';
+                        $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
+                        if ($codigoContrib != null) {
+                            $montoTotal = $model->pago_importe_total;
+                            $zona = Zonas::findOne($modelSitio->zona_id);
+                            $tipoArmado = TipoArmados::findOne($model->tip_arm_id);
+                            $obs = 'Datos graderia silla: ' .
+                                ' Zona: ' . $zona->zona_nombre .
+                                ', Codigo: ' . $modelSitio->grad_codigo .
+                                ', Direccion: ' . $modelSitio->grad_direccion  .
+                                ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio .
+                                ', Tipo armado: ' . $tipoArmado->tip_arm_descricpion .
+                                ', Armado Especifico: ' . $modelSitio->grad_tipo_armado;
+                            $obsCut = mb_substr($obs, 0, 250);
+                            $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
+                            $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
+
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, '22976', $montoTotal, $obs);
+                            if ($response->continuarFlujo) {
+                                $nroTasa = $response->numeroTasa;
+                                $model->pago_tasa = $nroTasa;
+                                if ($model->save()) {
+                                    $sql = 'UPDATE graderias_sillas SET grad_vendido=:val, grad_longitud=:rest WHERE grad_id=:id';
+                                    $command = Yii::$app->db->createCommand($sql)
+                                        ->bindValue(':id', $codigo)
+                                        ->bindValue(':val', $val)
+                                        ->bindValue(':rest', $resto)
+                                        ->queryOne();
+                                    $resultado = true;
+                                    $mensaje = 'CONTRIBUYENTE: Se registro los datos de la preliquidación con exito';
+                                } else {
+                                    $resultado = false;
+                                    $mensaje = 'CONTRIBUYENTE: No se pudo registrar registrar los datos de la preliquidación';
+                                }
+                            } else {
+                                $mensaje = 'CONTRIBUYENTE: No se pudo registrar la tasa en RUAT <br>';
+                                if (is_array($response->mensaje)) {
+                                    $messages = $response->mensaje;
+                                    foreach ($messages as $message) {
+                                        foreach ($message as $key => $errorMessages) {
+                                            $mensaje = $mensaje . "Error en: $key, ";
+                                            foreach ($errorMessages as $errorMessage) {
+                                                $mensaje = $mensaje . $errorMessage;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    $mensaje = $mensaje . $response->mensaje;
+                                }
+                            }
+                        } else {
+                            $mensaje = 'CONTRIBUYENTE: No se pudo registrar el contribuyente y la tasa.';
+                        }
                     }
                 } else {
                     $mensaje = 'No se pudo iniciar sesión en RUAT';

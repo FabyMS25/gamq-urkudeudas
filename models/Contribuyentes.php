@@ -50,6 +50,9 @@ class Contribuyentes extends \yii\db\ActiveRecord
             [['contri_ci','contri_nombres','contri_paterno','contri_materno','contri_apellidocasada'], 'trim'],
             [['contri_nombres','contri_paterno','contri_materno','contri_apellidocasada'], 'filter', 'filter' => 'strtoupper'],
             [['contri_ci'], 'string', 'max' => 15],
+            [['contri_sexo'], 'string', 'max' => 2],
+            [['contri_estadocivil'], 'string', 'max' => 2],
+            [['contri_fechanac'],'safe'],
             [['contri_ci'], 'unique', 'targetAttribute' => ['contri_ci'], 'message'=>'El carnet de identidad del contribuyente ya existe. Por favor prueba con otro.'],
             [['contri_direccion'], 'string', 'max' => 250],
             [['ext_id'], 'exist', 'skipOnError' => true, 'targetClass' => Extensiones::className(), 'targetAttribute' => ['ext_id' => 'ext_id']],
@@ -76,6 +79,9 @@ class Contribuyentes extends \yii\db\ActiveRecord
             'contri_nit' => 'Nit',
             'contri_fecharegistro' => 'Fecha de registro',
             'contri_estado' => 'Estado',
+            'contri_sexo' => 'Sexo',
+            'contri_estadocivil' => 'Estado Civil',
+            'contri_fechanac' => 'Fecha Nacimiento',
         ];
     }
 

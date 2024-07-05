@@ -9,6 +9,6 @@ return [
     'dsn'   =>   'pgsql:host=localhost;dbname=db_urkupina',
     // 'dsn'   =>   'pgsql:host=181.177.143.185;dbname=test_urku',
     'username' => 'postgres',
-    'password' => 'devgamq',
+    'password' => 'admin123',
     'charset' => 'utf8',
 ];
