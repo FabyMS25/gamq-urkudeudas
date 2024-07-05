@@ -950,7 +950,56 @@ class PagosEventualesController extends Controller
                             }
                         }
                     } else {
-                        $mensaje = 'No se pudo registrar la preliquidación, porque el contribuyente seleccionado no se encuentra registrado en RUAT, por favor registrar contribuyente.';
+                        $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
+                        if ($codigoContrib != null) {
+                             $actividadEconomica = ActividadesEconomicas::findOne($model->activi_id);
+                            $tipoActividad = $actividadEconomica->activi_descripcion;
+                            $cantDias = $model->eventual_cantidad_dia;
+                            $FechaInicio = $model->eventual_fecha_inicio;
+                            $FechaFin = $model->eventual_fecha_limite;
+                            $cantSitio = $model->eventual_cantidad_sitio;
+                            $montoTotal = $model->eventual_importe_total;
+
+                            $obs = 'Datos publicidad: '  .
+                                ', Nro dias: ' . $cantDias .
+                                ', Fecha inicio: ' . $FechaInicio .
+                                ', Fecha fin: ' . $FechaFin .
+                                ', Cantidad puestos: ' . $cantSitio .
+                                ', Actividad economica: ' . $tipoActividad;
+                            $obsCut = mb_substr($obs, 0, 250);
+                            $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
+                            $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
+
+                            // $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, '24979', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, '22979', $montoTotal, $obs);
+                            if ($response->continuarFlujo) {
+                                $nroTasa = $response->numeroTasa;
+                                $model->eventual_tasa = $nroTasa;
+                                if ($model->save()) {
+                                    $resultado = true;
+                                    $mensaje = 'CONTRIBUYENTE: Se registro los datos de la preliquidación con exito';
+                                } else {
+                                    $mensaje = 'CONTRIBUYENTE: No se pudo registrar los datos de la preliquidación';
+                                }
+                            } else {
+                                $mensaje = 'CONTRIBUYENTE: No se pudo registrar la tasa en RUAT <br>';
+                                if (is_array($response->mensaje)) {
+                                    $messages = $response->mensaje;
+                                    foreach ($messages as $message) {
+                                        foreach ($message as $key => $errorMessages) {
+                                            $mensaje = $mensaje . "Error en: $key, ";
+                                            foreach ($errorMessages as $errorMessage) {
+                                                $mensaje = $mensaje . $errorMessage;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    $mensaje = $mensaje . $response->mensaje;
+                                }
+                            }
+                        } else {
+                            $mensaje = 'CONTRIBUYENTE: No se pudo registrar el contribuyente y la tasa.';
+                        }
                     }
                 } else {
                     $mensaje = 'No se pudo iniciar sesión en RUAT';
