@@ -2,7 +2,9 @@
 
 namespace app\components;
 
+use Yii;
 use yii\base\Component;
+use yii\helpers\VarDumper;
 use yii\httpclient\Client;
 
 
@@ -64,31 +66,31 @@ class RuatServices extends Component
         }
     }
 
-    public function registerContribuyente($token, $ci, $tipoDocumento)
+    public function registerContribuyente($token, $codigoUsuario, $contribuyente)
     {
         $client = new Client();
         $request = $client->createRequest()
             ->setMethod('POST')
             ->setFormat(Client::FORMAT_JSON)
-            ->setUrl($this->baseUrl . '/RuatServiciosWebContribuyentes/contribuyentes/comun/registroContribuyente')
+            ->setUrl($this->baseUrl . '/RuatServiciosWebContribuyentes/contribuyentes/registroContribuyente')
             ->setHeaders([
                 'Authorization' => "Bearer $token"
             ])
             ->setData([
-                'codigoAlcaldia' => '',
-                'codigoUsuario' => '',
-                'numeroDocumento' => '',
-                'tipoDocumento' => '',
-                'expedido' => '',
-                'nombre' => '',
-                'primerApellido' => '',
-                'segundoApellido' => '',
-                'estadoCivil' => '',
-                'fechaNacimiento' => '',
-                'genero' => '',
-                'apellidoEsposo' => '',
-                'motivo' => '',
-                'observacion' => '',
+                'codigoAlcaldia' => 'QUI',
+                'codigoUsuario' => $codigoUsuario,
+                'numeroDocumento' => $contribuyente->contri_ci,
+                'tipoDocumento' => $contribuyente->ext_id == 12 ? 'CE' : 'CI',
+                'expedido' => $contribuyente->ext_id == 12 ? '' : $contribuyente->ext_id,
+                'nombre' => $contribuyente->contri_nombres,
+                'primerApellido' => $contribuyente->contri_paterno ? $contribuyente->contri_paterno : 'NO LLEVA',
+                'segundoApellido' => $contribuyente->contri_materno ? $contribuyente->contri_materno : 'NO LLEVA',
+                'estadoCivil' => 'CA',
+                'fechaNacimiento' => '22/03/1977',
+                'genero' => 'M',
+                'apellidoEsposo' => $contribuyente->contri_apellidocasada,
+                'motivo' => 'REGISTRO TASAS Y OTROS INGRESOS',
+                'observacion' => 'REGISTRO URKUPINA 2024'
             ]);
 
         $response = $request->send();
