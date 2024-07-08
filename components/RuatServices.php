@@ -82,7 +82,7 @@ class RuatServices extends Component
                 'codigoUsuario' => $codigoUsuario,
                 'numeroDocumento' => $contribuyente->contri_ci,
                 'tipoDocumento' => $contribuyente->ext_id == 12 ? 'CE' : 'CI',
-                'expedido' => $contribuyente->ext_id == 12 ? '' : $contribuyente->ext_id,
+                'expedido' => $contribuyente->ext_id == 12 ? '' : $this->getExpedidoById($contribuyente->ext_id),
                 'nombre' => $contribuyente->contri_nombres,
                 'primerApellido' => $contribuyente->contri_paterno ? $contribuyente->contri_paterno : 'NO LLEVA',
                 'segundoApellido' => $contribuyente->contri_materno ? $contribuyente->contri_materno : 'NO LLEVA',
@@ -93,7 +93,6 @@ class RuatServices extends Component
                 'motivo' => 'REGISTRO TASAS Y OTROS INGRESOS',
                 'observacion' => 'REGISTRO URKUPINA 2024'
             ]);
-
         $response = $request->send();
         if ($response->isOk) {
             $data = json_decode($response->content);
@@ -252,5 +251,47 @@ class RuatServices extends Component
             $data = json_decode($response->content);
             return $data->pagoTasa;
         }
+    }
+
+    /**Utils */
+    private function getExpedidoById($id)
+    {
+        $res = 0;
+        switch ($id) {
+            case 4:
+                $res = 1;
+                break;
+            case 5:
+                $res = 2;
+                break;
+            case 3:
+                $res = 3;
+                break;
+            case 6:
+                $res = 4;
+                break;
+            case 8:
+                $res = 5;
+                break;
+            case 11:
+                $res = 6;
+                break;
+            case 7:
+                $res = 7;
+                break;
+            case 9:
+                $res = 8;
+                break;
+            case 10:
+                $res = 9;
+                break;
+            case 12:
+                $res = 12;
+                break;
+            default:
+                $res = 3;
+                break;
+        }
+        return $res;
     }
 }
