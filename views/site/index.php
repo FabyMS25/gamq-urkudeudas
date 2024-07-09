@@ -14,7 +14,7 @@ $this->title = 'SisUrku2023';
 ?>
 <style>
 body { 
-    background-image: url("https://quillacollo.gob.bo/images/gallery-masonry-5-original.jpg");
+    background-image: url("https://cba.ucb.edu.bo/blog/wp-content/uploads/2022/09/virgen-de-urcupina.jpg");
     width: 100%;
     height: 100%;
     position: relative;
