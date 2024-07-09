@@ -85,7 +85,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
                                 $("#precio_patente").val(patente);
                                 $("#precio_sentaje").val(sentaje);
                                 $("#precio_aseo").val(aseo); 
-                                impTotal= parseFloat(patente)+parseFloat(sentaje)+parseFloat(aseo)+10.5;  
+                                impTotal= parseFloat(patente)+parseFloat(sentaje)+parseFloat(aseo)+11;  
                                 $("#'.Html::getInputId($model, 'eventual_importe_patente').'").val(patente);
                                 $("#'.Html::getInputId($model, 'eventual_costo_sentaje').'").val(sentaje); 
                                 $("#'.Html::getInputId($model, 'eventual_costo_aseo').'").val(aseo);                                                             

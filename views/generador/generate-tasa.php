@@ -106,7 +106,7 @@ $listaActividades = []; // ArrayHelper::map($modelActividadesEconomicas->listaAc
                                     $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
                                     $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(sentaje);
                                     $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(aseo*b); 
-                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje)+parseFloat(aseo*b)+10.5;
+                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje)+parseFloat(aseo*b)+11;
                                     $("#' . Html::getInputId($model, 'eventual_importe_total') . '").val(impTotal); 
                                 }
                             }
