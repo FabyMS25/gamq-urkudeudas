@@ -9,7 +9,7 @@ use miloschuman\highcharts\Highcharts;
 
 /* @var $this yii\web\View */
 CrudAsset::register($this);
-$this->title = 'SisUrku2023';
+$this->title = 'SisUrku';
 
 ?>
 <style>
@@ -26,7 +26,7 @@ body {
     z-index: -100;
 }
 .panel {
-    /*border: 1px solid; opacity: 0.5; */'
+    /*border: 1px solid; opacity: 0.5; */
     border: none;
 }
 .p1 { box-shadow: 5px 10px 18px #FF0000; }

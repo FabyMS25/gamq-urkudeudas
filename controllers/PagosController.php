@@ -273,6 +273,7 @@ class PagosController extends Controller
                             $zona = Zonas::findOne($modelSitio->zona_id);
                             $tipoArmado = TipoArmados::findOne($model->tip_arm_id);
                             $obs = 'Datos graderia silla: ' .
+                                ' Longitud: ' . $model->pago_longitud_modificada . ' mts.' .
                                 ' Zona: ' . $zona->zona_nombre .
                                 ', Codigo: ' . $modelSitio->grad_codigo .
                                 ', Direccion: ' . $modelSitio->grad_direccion  .
