@@ -216,7 +216,7 @@ class PagosController extends Controller
     public function actionPreliquidar($id)
     {
         $mensaje = '';
-        $codigoClasificador = '29156';
+        $codigoClasificador = '22976';
         $resultado = false;
         $this->verificarSesion();
         $request = Yii::$app->request;
