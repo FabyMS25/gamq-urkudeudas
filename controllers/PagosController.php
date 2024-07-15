@@ -216,6 +216,7 @@ class PagosController extends Controller
     public function actionPreliquidar($id)
     {
         $mensaje = '';
+        $codigoClasificador = '29156';
         $resultado = false;
         $this->verificarSesion();
         $request = Yii::$app->request;
@@ -284,7 +285,7 @@ class PagosController extends Controller
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '22976', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, $codigoClasificador, $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->pago_tasa = $nroTasa;
@@ -335,7 +336,7 @@ class PagosController extends Controller
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, '22976', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, $codigoClasificador, $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->pago_tasa = $nroTasa;

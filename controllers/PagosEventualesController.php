@@ -259,9 +259,10 @@ class PagosEventualesController extends Controller
         }
     }
 
+    /*Liquidacion de act. economicas EVENTUALES*/
     public function actionCreateEventual($id)
     {
-        $codigoClasificador = '22977';
+        $codigoClasificador = '29157';
         $mensaje = '';
         $resultado = false;
 
@@ -462,7 +463,7 @@ class PagosEventualesController extends Controller
     /*Liquidacion de act. economicas eventuales ALASITAS*/
     public function actionCreateAlasitas($id)
     {
-        $codigoClasificador = '22983';
+        $codigoClasificador = '29163';
         $mensaje = '';
         $result = false;
 
@@ -653,10 +654,11 @@ class PagosEventualesController extends Controller
         }
     }
 
-    /*Liquidacion de act. economicas eventuales*/
+    /*Liquidacion de act. economicas eventuales ESPECTACULOS*/
     public function actionCreateEspectaculo()
     {
         $this->verificarSesion();
+        $codigoClasificador = '29158';
         $mensaje = '';
         $resultado = false;
 
@@ -726,8 +728,7 @@ class PagosEventualesController extends Controller
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            // $nroTasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContribuyente, '24978', $montoTotal, $obs);
-                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '22978', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, $codigoClasificador, $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
@@ -773,8 +774,7 @@ class PagosEventualesController extends Controller
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            // $nroTasa = Yii::$app->ruatServices->createTasa($token, $ci_usuarioAutenticado, $codigoContrib, '24978', $montoTotal, $obs);
-                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, '22978', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, $codigoClasificador, $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
@@ -848,10 +848,11 @@ class PagosEventualesController extends Controller
         }
     }
 
-    // liquidacion de act. economicas eventuales
+    /*Liquidacion de act. economicas eventuales PUBLICIDAD*/
     public function actionCreatePublicidad()
     {
         $this->verificarSesion();
+        $codigoClasificador = '29159';
         $mensaje = '';
         $resultado = false;
         $request = Yii::$app->request;
@@ -921,8 +922,7 @@ class PagosEventualesController extends Controller
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            // $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '24979', $montoTotal, $obs);
-                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, '22979', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContribuyente, $codigoClasificador, $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
@@ -952,7 +952,7 @@ class PagosEventualesController extends Controller
                     } else {
                         $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
                         if ($codigoContrib != null) {
-                             $actividadEconomica = ActividadesEconomicas::findOne($model->activi_id);
+                            $actividadEconomica = ActividadesEconomicas::findOne($model->activi_id);
                             $tipoActividad = $actividadEconomica->activi_descripcion;
                             $cantDias = $model->eventual_cantidad_dia;
                             $FechaInicio = $model->eventual_fecha_inicio;
@@ -970,8 +970,7 @@ class PagosEventualesController extends Controller
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
 
-                            // $nroTasa = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, '24979', $montoTotal, $obs);
-                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, '22979', $montoTotal, $obs);
+                            $response = Yii::$app->ruatServices->createTasa($token, $codigoUsuario, $codigoContrib, $codigoClasificador, $montoTotal, $obs);
                             if ($response->continuarFlujo) {
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
