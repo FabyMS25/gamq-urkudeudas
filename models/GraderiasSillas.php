@@ -44,7 +44,7 @@ class GraderiasSillas extends \yii\db\ActiveRecord
             [['zona_id', 'gest_id', 'grad_vendido', 'grad_estado', 'grad_reservado'], 'integer'],
             [['grad_codigo', 'grad_direccion', 'grad_longitud', 'grad_acera', 'grad_tipo_armado', 'grad_tipo_sitio', 'grad_estado'], 'required'],
             [['grad_longitud'], 'number', 'min'=>0],
-            [['grad_codigo', 'grad_tipo_sitio'], 'string', 'max' => 10],
+            [['grad_codigo', 'grad_tipo_sitio'], 'string', 'max' => 20],
             [['grad_direccion'], 'string', 'max' => 300],
           //  [['grad_codigo', 'gest_id'], 'unique'],
             [['grad_codigo'], 'trim'],
