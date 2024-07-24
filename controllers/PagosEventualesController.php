@@ -317,9 +317,17 @@ class PagosEventualesController extends Controller
                     }
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
-                        $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $codigoContribuyente);
-                        if ($tieneDeudas) {
-                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
+                        $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
+                        if ($response->continuarFlujo) {
+                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
+                            if (is_array($response->deudas)) {
+                                $deudas = $response->deudas;
+                                foreach ($deudas as $deuda) {
+                                    $mensaje = $mensaje . "Tipo deuda: $deuda->tipoDeuda, Numero de tasa: $deuda->numeroTasa, Fecha: $deuda->fechaRegistro <br>";
+                                }
+                            } else {
+                                $mensaje = $mensaje . $response->mensaje;
+                            }
                         } else {
                             $idactividad = $model->activi_id;
                             $acti = ActividadesEconomicas::findOne($idactividad);
@@ -517,9 +525,17 @@ class PagosEventualesController extends Controller
                     }
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
-                        $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
-                        if ($tieneDeudas) {
-                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
+                        $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
+                        if ($response->continuarFlujo) {
+                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
+                            if (is_array($response->deudas)) {
+                                $deudas = $response->deudas;
+                                foreach ($deudas as $deuda) {
+                                    $mensaje = $mensaje . "Tipo deuda: $deuda->tipoDeuda, Numero de tasa: $deuda->numeroTasa, Fecha: $deuda->fechaRegistro <br>";
+                                }
+                            } else {
+                                $mensaje = $mensaje . $response->mensaje;
+                            }
                         } else {
                             $actividad = ActividadesEconomicas::findOne($model->activi_id);
                             $sitio = SitiosEventuales::findOne($model->sitios_id);
@@ -708,9 +724,17 @@ class PagosEventualesController extends Controller
                     }
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
-                        $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
-                        if ($tieneDeudas) {
-                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
+                        $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
+                        if ($response->continuarFlujo) {
+                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
+                            if (is_array($response->deudas)) {
+                                $deudas = $response->deudas;
+                                foreach ($deudas as $deuda) {
+                                    $mensaje = $mensaje . "Tipo deuda: $deuda->tipoDeuda, Numero de tasa: $deuda->numeroTasa, Fecha: $deuda->fechaRegistro <br>";
+                                }
+                            } else {
+                                $mensaje = $mensaje . $response->mensaje;
+                            }
                         } else {
                             $actividadEconomica = ActividadesEconomicas::findOne($model->activi_id);
                             $tipoActividad = $actividadEconomica->activi_descripcion;
@@ -900,9 +924,17 @@ class PagosEventualesController extends Controller
                     }
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente != null) {
-                        $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $ci_contribuyente);
-                        if ($tieneDeudas) {
-                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
+                        $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
+                        if ($response->continuarFlujo) {
+                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
+                            if (is_array($response->deudas)) {
+                                $deudas = $response->deudas;
+                                foreach ($deudas as $deuda) {
+                                    $mensaje = $mensaje . "Tipo deuda: $deuda->tipoDeuda, Numero de tasa: $deuda->numeroTasa, Fecha: $deuda->fechaRegistro <br>";
+                                }
+                            } else {
+                                $mensaje = $mensaje . $response->mensaje;
+                            }
                         } else {
                             $actividadEconomica = ActividadesEconomicas::findOne($model->activi_id);
                             $tipoActividad = $actividadEconomica->activi_descripcion;

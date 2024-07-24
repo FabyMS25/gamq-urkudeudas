@@ -102,12 +102,7 @@ class RuatServices extends Component
         }
     }
 
-    public function getTieneDeudaContribuyente($token, $ciContribuyente)
-    {
-        return false;
-    }
-
-    public function getTieneDeudaContribuyentePorNroDocumento($token, $tipoConsulta, $nroDocumento, $tipoDocumento)
+    public function getTieneDeudaContribuyentePorNroDocumento($token, $contribuyente)
     {
         $client = new Client();
         $request = $client->createRequest()
@@ -119,9 +114,10 @@ class RuatServices extends Component
             ])
             ->setData([
                 'codigoAlcaldia' => 'QUI',
-                'tipoConsulta' => $tipoConsulta,
-                'numeroDocumento' => $nroDocumento,
-                'tipoDocumento' => $tipoDocumento,
+                'tipoConsulta' => 1,
+                'numeroDocumento' => $contribuyente->contri_ci,
+                'tipoDocumento' => $contribuyente->ext_id == 12 ? 'CE' : 'CI',
+                'expedido' => ''
             ]);
 
         $response = $request->send();
