@@ -2,10 +2,8 @@
 
 namespace app\controllers;
 
-use app\models\Contribuyentes;
 use app\models\Descargos;
 use Yii;
-use app\models\DetalleDescargos;
 use app\models\GeneradorDescargos;
 use app\models\SearchGeneradores;
 use yii\web\Controller;
@@ -13,8 +11,6 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
-use chrmorandi\jasper\Jasper;
-use app\models\Pagos;
 use app\models\RazonSociales;
 use app\models\Usuario;
 use yii\helpers\VarDumper;
@@ -37,10 +33,6 @@ class GeneradorController extends Controller
         ];
     }
 
-    /**
-     * Lists all Descargos models.
-     * @return mixed
-     */
     public function actionIndex()
     {
         $this->verificarSesion();
@@ -53,32 +45,6 @@ class GeneradorController extends Controller
         ]);
     }
 
-
-    /**
-     * Displays a single Descargos model.
-     * @param integer $id
-     * @return mixed
-     */
-    /*public function actionView($id)
-    {   
-        $this->verificarSesion();
-        $request = Yii::$app->request;
-        if($request->isAjax){
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return [
-                    'title'=> "Descargos #".$id,
-                    'content'=>$this->renderAjax('view', [
-                        'model' => $this->findModel($id),
-                    ]),
-                    'footer'=> Html::button('Cerrar',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"])
-                ];    
-        }else{
-            return $this->render('view', [
-                'model' => $this->findModel($id),
-            ]);
-        } 
-    }*/
-
     public function actionGenerarTasa($id)
     {
         $this->verificarSesion();
@@ -87,6 +53,7 @@ class GeneradorController extends Controller
         $titulo = "Generar Tasa";
         $resultado = false;
         $mensaje = '';
+        $codigoClasificador = '29160';
 
         $idUsuarioAutenticado = Yii::$app->user->id;
         $datos = Usuario::findOne($idUsuarioAutenticado);
@@ -121,9 +88,8 @@ class GeneradorController extends Controller
                         $tipo_doc = "CE";
                     }
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
-                    //$codigoContribuyente = 'codigo-contribuyente';
                     if ($codigoContribuyente) {
-                        $tieneDeudas = Yii::$app->ruatServices->getTieneDeudaContribuyente($token, $codigoContribuyente);
+                        $tieneDeudas = false;
                         if ($tieneDeudas) {
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos registrar la preliquidación';
                         } else {
@@ -134,10 +100,8 @@ class GeneradorController extends Controller
                             $obsCut = mb_substr($obs, 0, 250);
                             $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obsCut);
                             $obs = preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
-                            $response = Yii::$app->ruatServices->createTasa($token, $username, $codigoContribuyente, '22980', $montoTotal['sum'], $obs);
-                            //$response = true;
+                            $response = Yii::$app->ruatServices->createTasa($token, $username, $codigoContribuyente, $codigoClasificador, $montoTotal['sum'], $obs);
                             if ($response->continuarFlujo) {
-                                //$nroTasa = rand(10000, 12000);
                                 $nroTasa = $response->numeroTasa;
                                 $sql = 'UPDATE detalle_descargos SET detalle_tasa=:tasa WHERE desc_id = :desc_id AND detalle_estado_pago=:pagado AND detalle_estado=:estado AND detalle_tasa IS NULL';
                                 $command = Yii::$app->db->createCommand($sql)
@@ -196,7 +160,6 @@ class GeneradorController extends Controller
     public function actionUpdatePagados()
     {
         $sql = 'SELECT DISTINCT detalle_tasa FROM detalle_descargos WHERE detalle_estado_pago=:pagado AND detalle_estado =:estado';
-        //$sql = 'SELECT * FROM detalle_descargos WHERE detalle_estado_pago=:d_pago AND detalle_estado=:d_estado AND detalle_tasa IS NOT NULL';
         $listaTasasNoPagadas = Yii::$app->db->createCommand($sql)
             ->bindValue(':pagado', 0)
             ->bindValue(':estado', 1)
@@ -208,9 +171,7 @@ class GeneradorController extends Controller
             for ($i = 0; $i < count($listaTasasNoPagadas); $i++) {
                 $tasa = $listaTasasNoPagadas[$i];
                 $nroTasa = $tasa['detalle_tasa'];
-                //VarDumper::dump($nroTasa);
                 $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
-                //$response = true;
                 if ($response == true) {
                     $pagoTasa = Yii::$app->ruatServices->buscarPagadoPorNroTasas($token, $nroTasa);
                     $usua_id = Yii::$app->user->id;
@@ -347,7 +308,6 @@ class GeneradorController extends Controller
         }
     }
 
-
     public function actionReciboLiquidacion($id)
     {
         $this->verificarSesion();
@@ -400,13 +360,6 @@ class GeneradorController extends Controller
         return $url;
     }
 
-    /**
-     * Updates an existing Descargos model.
-     * For ajax request will return json object
-     * and for non-ajax request if update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
     public function actionUpdate($id)
     {
         $this->verificarSesion();
