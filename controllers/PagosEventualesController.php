@@ -71,9 +71,9 @@ class PagosEventualesController extends Controller
         $this->verificarSesion();
         $searchModel = new SearchPagosEventuales();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andWhere(['IS NOT ', 'eventual_fecha_hora_pago',  NULL]);
-        $dataProvider->query->andWhere(['eventual_anulado' => 1]);
-        $dataProvider->query->andFilterWhere(['eventual_estado' => 1]);
+        //$dataProvider->query->andWhere(['IS NOT ', 'eventual_fecha_hora_pago',  NULL]);
+        $dataProvider->query->andWhere(['eventual_anulado' => 0]);
+        $dataProvider->query->andFilterWhere(['eventual_estado' => 0]);
         if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }

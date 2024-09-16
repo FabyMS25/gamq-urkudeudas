@@ -50,7 +50,7 @@
 				(usuario.usua_nombres|| ' '||usuario.usua_apellidos) AS cajero
        FROM view_graderias_sillas
        INNER JOIN  usuario ON usuario.usua_id = view_graderias_sillas.usua_id
-       WHERE  pago_estado = 1 AND (pago_anulado = 0  OR pago_anulado = 1)
+       WHERE  pago_estado = 1 AND (pago_cobrado = 1)
        AND pago_cobrado = 0 AND pago_nro_comprobante IS NULL
        --AND (pago_fecha_hora_cobro BETWEEN '2022/08/05 00:00' AND '2022/08/20 23:59')
        ORDER BY zona_nombre, pago_nro_liquidacion::INT ASC]]>

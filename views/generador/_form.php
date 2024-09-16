@@ -95,7 +95,7 @@ $sentajeroCantidad = 10;
         var limite = document.getElementById("detalle_nro_limite").value;
         var anulado = document.getElementById("detalle_cantidad_anulado").value;
         if (precio >= 0 && inicio > 0 && limite > 0 && anulado >= 0) {
-            if (limite > inicio) {
+            if (limite >= inicio) {
                 var cantidad = (parseFloat(limite) - parseFloat(inicio)) + 1;
                 var totalCantidad = (parseFloat(cantidad) - parseFloat(anulado));
                 var totalImporte = parseFloat(precio) * parseFloat(totalCantidad);

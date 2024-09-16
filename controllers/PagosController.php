@@ -98,7 +98,7 @@ class PagosController extends Controller
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado' => 1, 'pago_preliquidacion' => 1, 'pago_anulado' => 1,]);
+        $dataProvider->query->andFilterWhere(['pago_estado' => 0, 'pago_preliquidacion' => 1, 'pago_anulado' => 0,]);
         if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
@@ -866,8 +866,8 @@ class PagosController extends Controller
     {
         $this->verificarSesion();
         $request = Yii::$app->request;
-        $titulo = "REPORTE COMPROBANTES PAGADOS Y ANULADOS - FECHA " . date("d/m/Y H:m");
-        $archivo = "reporte_general_graderias_sillas";
+        $titulo = "REPORTE COMPROBANTES PAGADOS - FECHA " . date("d/m/Y H:m");
+        $archivo = "reporte_general_graderias_sillas_bk2";
         $carpeta = "reportes/graderias_sillas";
         $logoImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
 

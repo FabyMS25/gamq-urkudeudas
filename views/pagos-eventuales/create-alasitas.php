@@ -124,7 +124,7 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
     <div class="row">    
                   
     <div  class="col-md-6 col-sm-6">            
-            <?php  echo $form->field($model, 'rango_fechas')->textInput(['value'=>'2023-08-19 a 2023-08-27','readonly' => true])?>
+            <?php  echo $form->field($model, 'rango_fechas')->textInput(['value'=>'2024-08-17 a 2024-08-30','readonly' => true])?>
         </div> 
         <div class="col-md-3 col-sm-3">
             <?=

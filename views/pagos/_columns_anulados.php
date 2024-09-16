@@ -10,7 +10,7 @@ return [
     ],
    [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute' => 'pago_nro_comprobante',
+        'attribute' => 'pago_nro_liquidacion',
         
     ],
     [

@@ -51,7 +51,7 @@
 				(usuario.usua_nombres|| ' '||usuario.usua_apellidos) AS cajero
        FROM view_graderias_sillas
        INNER JOIN  usuario ON usuario.usua_id = view_graderias_sillas.usua_id
-       WHERE  pago_estado = 1 AND (pago_anulado = 0  OR pago_anulado = 1)
+       WHERE  pago_estado = 1 AND (pago_cobrado = 1)
        --AND (pago_fecha_hora_cobro BETWEEN '2022/08/05 00:00' AND '2022/08/09 23:59')
        ORDER BY zona_nombre, pago_nro_comprobante::INT ASC]]>
 	</queryString>
@@ -129,7 +129,7 @@
 				<textElement textAlignment="Center">
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[	REPORTE DE PAGOS  Y COMPROBANTES ANULADOS(GRADERIAS O SILLA)]]></text>
+				<text><![CDATA[	REPORTE DE PAGOS (GRADERIAS O SILLAS)]]></text>
 			</staticText>
 			<image onErrorType="Blank">
 				<reportElement x="2" y="2" width="115" height="70" uuid="f2251c97-399b-4cf4-9998-39389106b1b4"/>
