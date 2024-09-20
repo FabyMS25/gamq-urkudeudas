@@ -62,10 +62,6 @@
 	</title>
 	<pageHeader>
 		<band height="81" splitType="Stretch">
-			<image onErrorType="Blank">
-				<reportElement x="15" y="2" width="115" height="70" uuid="2b21e602-3b12-42fa-87fe-5c6367fe11c7"/>
-				<imageExpression><![CDATA[$P{logo_path} + "/logo/logo_gamq.jpg"]]></imageExpression>
-			</image>
 			<staticText>
 				<reportElement x="142" y="1" width="350" height="15" uuid="c66b1656-c27b-460e-93d4-78e494aee73f"/>
 				<textElement textAlignment="Center">
@@ -97,6 +93,10 @@
 				</textElement>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
+			<image onErrorType="Blank">
+				<reportElement x="3" y="2" width="115" height="70" uuid="622ac54c-8e70-4259-a476-e90cc7aa7d8d"/>
+				<imageExpression><![CDATA[$P{logo_path} + "/proyecto-urkupina/web/logo/logo_gamq.jpg"]]></imageExpression>
+			</image>
 		</band>
 	</pageHeader>
 	<columnHeader>

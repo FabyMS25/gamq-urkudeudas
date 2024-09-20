@@ -7,13 +7,13 @@
 	<queryString language="SQL">
 		<![CDATA[SELECT RE.concepto,SUM(RE.total_importe) AS importe_total
         FROM
-        (SELECT 'Sitios eventuales: ' AS concepto,
-        SUM(eventual_importe_total) AS total_importe
-        FROM pagos_eventuales PE
-        INNER JOIN sitios_eventuales SE ON SE.sitios_id = PE.sitios_id
-        WHERE PE.eventual_cobrado=1 AND PE.eventual_estado = 1
-        AND SE.sitios_es_alasita=false
-        GROUP BY SE.sitios_es_alasita) AS RE
+        (UNION ALL
+		SELECT INITCAP(CA.categ_codigo) AS concepto,SUM(PE.eventual_importe_total) AS total_importe
+		FROM pagos_eventuales PE
+		INNER JOIN actividades_economicas AE ON AE.activi_id = PE.activi_id
+		INNER JOIN categorias CA ON CA.categ_id = AE.categ_id
+		WHERE sitios_id IS NULL AND eventual_nro_comprobante IS NOT NULL
+		GROUP BY CA.categ_codigo) AS RE
 		GROUP BY RE.concepto
         ORDER BY importe_total ASC]]>
 	</queryString>
@@ -47,7 +47,7 @@
 				<textElement textAlignment="Center">
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[REPORTE RESUMEN GENERAL DE SITIOS EVENTUALES]]></text>
+				<text><![CDATA[REPORTE RESUMEN GENERAL DE ALASITAS]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="142" y="16" width="350" height="15" uuid="1592c62e-cef1-4b79-a974-355995e2bcc1"/>
