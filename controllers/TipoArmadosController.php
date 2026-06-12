@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use Yii;
+use Yii; 
 use app\models\TipoArmados;
 use app\models\SearchTipoArmados;
 use yii\web\Controller;
@@ -38,19 +38,16 @@ class TipoArmadosController extends Controller
      */
     public function actionIndex($id)
     {   
-        $this->verificarSesion();
-        
+        $this->verificarSesion();        
         $searchModel = new SearchTipoArmados();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andWhere(['zona_id'=>$id, 'tip_arm_estado'=>1]);
+        $dataProvider->query->andWhere(['tip_arm_estado'=>1]);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'zona'=>$id
+            'dataProvider' => $dataProvider
         ]);
     }
-
 
     /**
      * Displays a single TipoArmados model.

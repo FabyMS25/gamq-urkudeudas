@@ -20,7 +20,9 @@ use yii\widgets\DetailView;
                 'value' =>$model->zona->zona_nombre
             ],   
             'grad_codigo',
+            'grad_codigo_catastral',
             'grad_direccion',
+            'grad_propietario',
             'grad_longitud',
             'grad_acera',
             'grad_tipo_armado',

@@ -16,7 +16,7 @@ class SearchGraderiasSillas extends GraderiasSillas {
     public function rules() {
         return [
                 [['grad_id', 'zona_id', 'gest_id', 'grad_vendido', 'grad_estado'], 'integer'],
-                [['grad_codigo', 'grad_direccion', 'grad_acera', 'grad_tipo_armado', 'grad_tipo_sitio'], 'safe'],
+                [['grad_codigo', 'grad_direccion', 'grad_acera', 'grad_tipo_armado', 'grad_tipo_sitio', 'grad_propietario', 'grad_codigo_catastral'], 'safe'],
                 [['grad_longitud'], 'number'],
                 [['zona', 'grad_reservado'], 'safe']
         ];
@@ -70,6 +70,8 @@ class SearchGraderiasSillas extends GraderiasSillas {
 
     $query->andFilterWhere(['ilike', 'grad_codigo', $this->grad_codigo])
             ->andFilterWhere(['ilike', 'grad_direccion', $this->grad_direccion])
+            ->andFilterWhere(['ilike', 'grad_propietario', $this->grad_propietario])
+            ->andFilterWhere(['ilike', 'grad_codigo_catastral', $this->grad_codigo_catastral])
             ->andFilterWhere(['ilike', 'grad_acera', $this->grad_acera])
             ->andFilterWhere(['ilike', 'grad_tipo_armado', $this->grad_tipo_armado])
             ->andFilterWhere(['ilike', 'grad_tipo_sitio', $this->grad_tipo_sitio]);
@@ -116,6 +118,8 @@ class SearchGraderiasSillas extends GraderiasSillas {
 
         $query->andFilterWhere(['ilike', 'grad_codigo', $this->grad_codigo])
                 ->andFilterWhere(['ilike', 'grad_direccion', $this->grad_direccion])
+                ->andFilterWhere(['ilike', 'grad_propietario', $this->grad_propietario])
+                ->andFilterWhere(['ilike', 'grad_codigo_catastral', $this->grad_codigo_catastral])
                 ->andFilterWhere(['ilike', 'grad_acera', $this->grad_acera])
                 ->andFilterWhere(['ilike', 'grad_tipo_armado', $this->grad_tipo_armado])
                 ->andFilterWhere(['ilike', 'grad_tipo_sitio', $this->grad_tipo_sitio])

@@ -28,7 +28,15 @@ return [
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
+        'attribute'=>'grad_codigo_catastral',
+    ],
+    [
+        'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'grad_direccion',
+    ],
+    [
+        'class'=>'\kartik\grid\DataColumn',
+        'attribute'=>'grad_propietario',
     ],
      [
          'class'=>'\kartik\grid\DataColumn',

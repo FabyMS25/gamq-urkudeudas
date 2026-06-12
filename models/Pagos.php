@@ -74,7 +74,7 @@ class Pagos extends \yii\db\ActiveRecord
             [['pago_anulado_fecha_hora', 'pago_fecha_hora_preliquidacion', 'pago_fecha_hora_cobro'], 'safe'],
             [['pago_nro_liquidacion'], 'string', 'max' => 15],
             [['pago_anulado_detalle'], 'string', 'max' => 250],
-            [['pago_observaciones'], 'string', 'max' => 300],
+            [['pago_observaciones'], 'string'],
             //
             //'usua_id'
             // personlaizado

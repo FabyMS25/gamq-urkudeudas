@@ -124,7 +124,7 @@ class Jasper extends Component
             throw new Exception('No input file', 1);
         }
 
-        $command = __DIR__.$this->executable;
+        $command = $this->executableCommand();
         $command .= ' compile ';
         $command .= $input_file;
 
@@ -132,7 +132,7 @@ class Jasper extends Component
             $command .= ' -o '.$output_file;
         }
         
-        $this->the_command = escapeshellcmd($command);
+        $this->the_command = $command;
 
         return $this;
     }
@@ -173,7 +173,7 @@ class Jasper extends Component
             }
         }
 
-        $command = __DIR__.$this->executable;
+        $command = $this->executableCommand();
         $command .= ' process ';
         $command .= $input_file;
 
@@ -206,7 +206,7 @@ class Jasper extends Component
             $command .= $this->databaseParams();
         }
 
-        $this->the_command = escapeshellcmd($command);
+        $this->the_command = $command;
 
         return $this;
     }
@@ -224,11 +224,11 @@ class Jasper extends Component
             throw new Exception('No input file', 1);
         }
 
-        $command = __DIR__.$this->executable;
+        $command = $this->executableCommand();
         $command .= ' list_parameters ';
         $command .= $input_file;
 
-        $this->the_command = escapeshellcmd($command);
+        $this->the_command = $command;
 
         return $this;
     }
@@ -240,7 +240,7 @@ class Jasper extends Component
      */
     public function output()
     {
-        return escapeshellcmd($this->the_command);
+        return $this->the_command;
     }
 
     /**
@@ -260,7 +260,7 @@ class Jasper extends Component
         if ($return_var !== 0) {
             throw new Exception(
                 'Your report has an error and couldn\'t be processed! Try to output the command: '.
-                escapeshellcmd($this->the_command),
+                $this->the_command,
                 1
             );
         }
@@ -282,6 +282,14 @@ class Jasper extends Component
         $this->the_command = $this->run_as_user 
                 ? 'su -u '.$this->run_as_user.' -c "'.$this->the_command.'"' 
                 : $this->the_command;
+    }
+
+    /**
+     * JasperStarter can live under paths with spaces, especially on Windows.
+     */
+    protected function executableCommand()
+    {
+        return escapeshellarg(__DIR__.$this->executable);
     }
 
 

@@ -9,7 +9,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
-use yii\helpers\Html;
+use yii\helpers\Html; 
 
 /**
  * CategoriasController implements the CRUD actions for Categorias model.

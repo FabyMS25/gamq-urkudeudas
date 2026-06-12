@@ -10,10 +10,16 @@ return [
         'width' => '30px',
     ],
    //pago_id
+    
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute' => 'pago_nro_liquidacion',
         'width' => '120px',
+    ],
+    [
+        'class'=>'\kartik\grid\DataColumn',
+        'attribute' => 'pago_tasa',
+        'width' => '80px',
     ],
     [
         'class'=>'\kartik\grid\DataColumn',

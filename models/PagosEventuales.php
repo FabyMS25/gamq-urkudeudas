@@ -68,7 +68,7 @@ class PagosEventuales extends \yii\db\ActiveRecord
             [['eventual_fecha_hora_pago', 'eventual_fecha_inicio', 'eventual_fecha_limite', 'eventual_anulado_fecha_hora'], 'safe'],
             [['eventual_importe_patente', 'eventual_costo_comprobante', 'eventual_costo_sentaje', 'eventual_costo_aseo', 'eventual_importe_total'], 'number'],
             [['eventual_anulado_detalle'], 'string', 'max' => 250],
-            [['eventual_descripcion'], 'string', 'max' => 250],
+            [['eventual_descripcion'], 'string'],
             
             // personalizados
             [['categoria'  ], 'required', 'on'=>'crear_eventual_liquidacion' ],

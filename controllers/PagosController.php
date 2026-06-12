@@ -216,7 +216,7 @@ class PagosController extends Controller
     public function actionPreliquidar($id)
     {
         $mensaje = '';
-        $codigoClasificador = '29156';
+        $codigoClasificador = '30436';
         $resultado = false;
         $this->verificarSesion();
         $request = Yii::$app->request;
@@ -285,6 +285,7 @@ class PagosController extends Controller
                                 ' Longitud: ' . $model->pago_longitud_modificada . ' mts.' .
                                 ' Zona: ' . $zona->zona_nombre .
                                 ', Codigo: ' . $modelSitio->grad_codigo .
+                                ', Codigo catastral: ' . $modelSitio->grad_codigo_catastral .
                                 ', Direccion: ' . $modelSitio->grad_direccion  .
                                 ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio .
                                 ', Tipo armado: ' . $tipoArmado->tip_arm_descricpion .
@@ -336,6 +337,7 @@ class PagosController extends Controller
                             $obs = 'Datos graderia silla: ' .
                                 ' Zona: ' . $zona->zona_nombre .
                                 ', Codigo: ' . $modelSitio->grad_codigo .
+                                ', Codigo catastral: ' . $modelSitio->grad_codigo_catastral .
                                 ', Direccion: ' . $modelSitio->grad_direccion  .
                                 ', Tipo sitio: ' . $modelSitio->grad_tipo_sitio .
                                 ', Tipo armado: ' . $tipoArmado->tip_arm_descricpion .
@@ -782,17 +784,10 @@ class PagosController extends Controller
         $this->verificarSesion();
         $request = Yii::$app->request;
         $titulo = "COMPROBANTE DE PAGO - GRADERIA O SILLAS";
-        $url = "";
-        $model = $this->findModel($id);
-        $montoLiteral = $model->montoTotalLiteral();
-        //$qrImagePath = realpath($_SERVER['DOCUMENT_ROOT']);
-        $qrImagePath = "C:\laragon\www\proyecto-urkupina\web";
+        $url = $this->generarComprobantePagoPdf($id);
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            $archivo = "comprobante_graderia_silla";
-            $parametros = ['id_pago' => $id, 'monto_literal' => '"' . $montoLiteral . '"', 'image_path' => '"' . $qrImagePath . '"'];
-            $url = $this->generarURLReportePdf('reportes', $archivo, $parametros);
             return [
                 'title' => $titulo,
                 'content' => $this->renderAjax('comprobante-pago', [
@@ -806,6 +801,18 @@ class PagosController extends Controller
                 'url' => $url,
             ]);
         }
+    }
+
+    public function actionComprobantePagoPdf($id)
+    {
+        $this->verificarSesion();
+        $url = $this->generarComprobantePagoPdf($id);
+        $path = Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $url);
+
+        return Yii::$app->response->sendFile($path, 'comprobante_pago_' . $id . '.pdf', [
+            'inline' => true,
+            'mimeType' => 'application/pdf',
+        ]);
     }
 
     public function actionReportePagoCajero()
@@ -1097,19 +1104,40 @@ class PagosController extends Controller
     protected function generarURLReportePdf($carpeta, $file, $parametros = [])
     {
         $archivo = $file;
-        Yii::setAlias('@ruta', $carpeta);
-
         $jasper = Yii::$app->jasper;
-        $jasper->compile(Yii::getAlias('@ruta') . '/' . $archivo . '.jrxml')->execute();
-        $jasper->process(
-            Yii::getAlias('@ruta') . '/' . $archivo . '.jasper',
-            $parametros,
-            ['pdf'],
-            false
-        )->execute();
-        $url = \Yii::getAlias('@ruta') . '/' . $archivo . '.pdf';
+        $directorioActual = getcwd();
+        chdir(Yii::getAlias('@webroot'));
+
+        try {
+            $jasper->compile($carpeta . '/' . $archivo . '.jrxml')->execute();
+            $jasper->process(
+                $carpeta . '/' . $archivo . '.jasper',
+                $parametros,
+                ['pdf'],
+                false
+            )->execute();
+        } finally {
+            chdir($directorioActual);
+        }
+
+        $url = $carpeta . '/' . $archivo . '.pdf';
 
         return $url;
+    }
+
+    protected function generarComprobantePagoPdf($id)
+    {
+        $model = $this->findModel($id);
+        $archivo = "comprobante_graderia_silla";
+        $montoLiteral = $model->montoTotalLiteral();
+        $qrImagePath = Yii::getAlias('@webroot');
+        $parametros = [
+            'id_pago' => $id,
+            'monto_literal' => '"' . $montoLiteral . '"',
+            'image_path' => '"' . $qrImagePath . '"',
+        ];
+
+        return $this->generarURLReportePdf('reportes', $archivo, $parametros);
     }
 
     protected function findModel($id)

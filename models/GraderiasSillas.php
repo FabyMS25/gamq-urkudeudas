@@ -16,6 +16,8 @@ use Yii;
  * @property string $grad_acera
  * @property string $grad_tipo_armado
  * @property string $grad_tipo_sitio
+ * @property string $grad_propietario
+ * @property string $grad_codigo_catastral
  * @property integer $grad_vendido
  * @property integer $grad_estado
  *
@@ -44,8 +46,11 @@ class GraderiasSillas extends \yii\db\ActiveRecord
             [['zona_id', 'gest_id', 'grad_vendido', 'grad_estado', 'grad_reservado'], 'integer'],
             [['grad_codigo', 'grad_direccion', 'grad_longitud', 'grad_acera', 'grad_tipo_armado', 'grad_tipo_sitio', 'grad_estado'], 'required'],
             [['grad_longitud'], 'number', 'min'=>0],
+            [['grad_resto'], 'number', 'min'=>0],
             [['grad_codigo', 'grad_tipo_sitio'], 'string', 'max' => 20],
             [['grad_direccion'], 'string', 'max' => 300],
+            [['grad_propietario', 'grad_codigo_catastral'], 'string', 'max' => 150],
+            [['grad_propietario', 'grad_codigo_catastral'], 'trim'],
           //  [['grad_codigo', 'gest_id'], 'unique'],
             [['grad_codigo'], 'trim'],
             [['grad_codigo'], 'filter', 'filter' => 'strtoupper'],
@@ -67,8 +72,13 @@ class GraderiasSillas extends \yii\db\ActiveRecord
             'zona_id' => 'Zona ', //ID
             'gest_id' => 'Gestion',//ID
             'grad_codigo' => 'Codigo',
+            'grad_codigo_catastral' => 'Codigo Catastral',
             'grad_direccion' => 'Direccion',
-            'grad_longitud' => 'Longitud',
+                'gs.grad_longitud'=> 'Longitud',
+                'gs.grad_resto' => 'Rest',
+                'gs.grad_propietario' => 'Propietario',
+                'gs.grad_codigo_catastral' => 'Codigo Catastral',
+            'grad_propietario' => 'Propietario',
             'grad_acera' => ' Acera',
             'grad_tipo_armado' => 'Tipo armado',
             'grad_tipo_sitio' => 'Tipo sitio',

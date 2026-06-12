@@ -16,9 +16,10 @@ class RuatServices extends Component
     public function init()
     {
         /**Testing */
-        //$this->baseUrl = 'https://verificacionjboss.ruat.gob.bo';
+        $this->baseUrl = 'https://consolidacionjboss.ruat.gob.bo';
+//         $this->baseUrl = 'https://verificacionjboss.ruat.gob.bo';
         /**Production */
-        $this->baseUrl = 'https://aplicaciones.ruat.gob.bo';
+//         $this->baseUrl = 'https://aplicaciones.ruat.gob.bo';
     }
 
     public function login($username, $password)
@@ -91,7 +92,7 @@ class RuatServices extends Component
                 'genero' => $contribuyente->contri_sexo ? $contribuyente->contri_sexo : 'M',
                 'apellidoEsposo' => $contribuyente->contri_apellidocasada,
                 'motivo' => 'REGISTRO TASAS Y OTROS INGRESOS',
-                'observacion' => 'REGISTRO URKUPINA 2024'
+                'observacion' => 'REGISTRO URKUPINA 2025'
             ]);
         $response = $request->send();
         if ($response->isOk) {

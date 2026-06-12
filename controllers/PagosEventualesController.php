@@ -262,7 +262,7 @@ class PagosEventualesController extends Controller
     /*Liquidacion de act. economicas EVENTUALES*/
     public function actionCreateEventual($id)
     {
-        $codigoClasificador = '29157';
+        $codigoClasificador = '30437';
         $mensaje = '';
         $resultado = false;
 
@@ -318,7 +318,7 @@ class PagosEventualesController extends Controller
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
                         $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
-                        if ($response->continuarFlujo) {
+                       /* if ($response->continuarFlujo) {
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
                             if (is_array($response->deudas)) {
                                 $deudas = $response->deudas;
@@ -328,7 +328,7 @@ class PagosEventualesController extends Controller
                             } else {
                                 $mensaje = $mensaje . $response->mensaje;
                             }
-                        } else {
+                        }  else {*/
                             $idactividad = $model->activi_id;
                             $acti = ActividadesEconomicas::findOne($idactividad);
                             $idsitio = $model->sitios_id;
@@ -374,7 +374,7 @@ class PagosEventualesController extends Controller
                                     $mensaje = $mensaje . $response->mensaje;
                                 }
                             }
-                        }
+                        //}
                     } else {
                         $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
                         if ($codigoContrib != null) {
@@ -471,7 +471,7 @@ class PagosEventualesController extends Controller
     /*Liquidacion de act. economicas eventuales ALASITAS*/
     public function actionCreateAlasitas($id)
     {
-        $codigoClasificador = '29163';
+        $codigoClasificador = '30443';
         $mensaje = '';
         $result = false;
 
@@ -526,7 +526,7 @@ class PagosEventualesController extends Controller
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
                         $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
-                        if ($response->continuarFlujo) {
+                        /*if ($response->continuarFlujo) {
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
                             if (is_array($response->deudas)) {
                                 $deudas = $response->deudas;
@@ -536,7 +536,7 @@ class PagosEventualesController extends Controller
                             } else {
                                 $mensaje = $mensaje . $response->mensaje;
                             }
-                        } else {
+                        } else {*/
                             $actividad = ActividadesEconomicas::findOne($model->activi_id);
                             $sitio = SitiosEventuales::findOne($model->sitios_id);
                             $montoTotal = $model->eventual_importe_total;
@@ -580,7 +580,7 @@ class PagosEventualesController extends Controller
                                     $mensaje = $mensaje . $response->mensaje;
                                 }
                             }
-                        }
+                       // }
                     } else {
                         $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
                         if ($codigoContrib != null) {
@@ -674,7 +674,7 @@ class PagosEventualesController extends Controller
     public function actionCreateEspectaculo()
     {
         $this->verificarSesion();
-        $codigoClasificador = '29158';
+        $codigoClasificador = '30438';
         $mensaje = '';
         $resultado = false;
 
@@ -725,7 +725,7 @@ class PagosEventualesController extends Controller
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
                         $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
-                        if ($response->continuarFlujo) {
+                        /*if ($response->continuarFlujo) {
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
                             if (is_array($response->deudas)) {
                                 $deudas = $response->deudas;
@@ -735,7 +735,7 @@ class PagosEventualesController extends Controller
                             } else {
                                 $mensaje = $mensaje . $response->mensaje;
                             }
-                        } else {
+                        } else {*/
                             $actividadEconomica = ActividadesEconomicas::findOne($model->activi_id);
                             $tipoActividad = $actividadEconomica->activi_descripcion;
                             $cantDias = $model->eventual_cantidad_dia;
@@ -778,7 +778,7 @@ class PagosEventualesController extends Controller
                                     $mensaje = $mensaje . $response->mensaje;
                                 }
                             }
-                        }
+                        //}
                     } else {
                         $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
                         if ($codigoContrib != null) {
@@ -876,7 +876,7 @@ class PagosEventualesController extends Controller
     public function actionCreatePublicidad()
     {
         $this->verificarSesion();
-        $codigoClasificador = '29159';
+        $codigoClasificador = '30439';
         $mensaje = '';
         $resultado = false;
         $request = Yii::$app->request;
@@ -925,7 +925,7 @@ class PagosEventualesController extends Controller
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente != null) {
                         $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
-                        if ($response->continuarFlujo) {
+                        /*if ($response->continuarFlujo) {
                             $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
                             if (is_array($response->deudas)) {
                                 $deudas = $response->deudas;
@@ -935,7 +935,7 @@ class PagosEventualesController extends Controller
                             } else {
                                 $mensaje = $mensaje . $response->mensaje;
                             }
-                        } else {
+                        } else {*/
                             $actividadEconomica = ActividadesEconomicas::findOne($model->activi_id);
                             $tipoActividad = $actividadEconomica->activi_descripcion;
                             $cantDias = $model->eventual_cantidad_dia;
@@ -980,7 +980,7 @@ class PagosEventualesController extends Controller
                                     $mensaje = $mensaje . $response->mensaje;
                                 }
                             }
-                        }
+                        //}
                     } else {
                         $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
                         if ($codigoContrib != null) {

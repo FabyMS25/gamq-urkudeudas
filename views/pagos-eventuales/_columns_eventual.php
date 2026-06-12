@@ -14,6 +14,12 @@ return [
         'attribute'=>'eventual_nro_liquidacion',
         'width' => '50px',
     ],
+    [
+        'class'=>'\kartik\grid\DataColumn',
+        'attribute'=>'eventual_tasa',
+        'width' => '50px',
+    ],
+    
      [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'actividad.activi_descripcion',

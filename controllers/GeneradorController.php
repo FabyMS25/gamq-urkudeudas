@@ -53,7 +53,7 @@ class GeneradorController extends Controller
         $titulo = "Generar Tasa";
         $resultado = false;
         $mensaje = '';
-        $codigoClasificador = '29160';
+        $codigoClasificador = '30440';
 
         $idUsuarioAutenticado = Yii::$app->user->id;
         $datos = Usuario::findOne($idUsuarioAutenticado);

@@ -28,6 +28,10 @@ $tipoSitios = ['BOCA CALLE' => "Boca calle", "FRONTIS" => "Frontis"];
 
     <?= $form->field($model, 'grad_direccion')->textarea(['maxlength' => true, 'rows'=>2]) ?>    
 
+    <?= $form->field($model, 'grad_propietario')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'grad_codigo_catastral')->textInput(['maxlength' => true]) ?>
+
     <?= $form->field($model, 'grad_tipo_armado')->dropDownList($tipos,['prompt' => "** Seleccione el tipo **"]) ?>
 
     <?= $form->field($model, 'grad_tipo_sitio')->dropDownList($tipoSitios,['prompt' => "** Seleccione el tipo de sitio **"]) ?>   
