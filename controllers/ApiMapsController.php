@@ -34,6 +34,7 @@ class ApiMapsController extends Controller
                         'http://127.0.0.1:4200',
                         'http://127.0.0.1:5200',
                         'http://127.0.0.1:5173',
+                        'http://181.177.143.185:4205'
                     ],
                     'Access-Control-Allow-Credentials' => true,
                     'Access-Control-Request-Method' => ['GET', 'POST', 'OPTIONS'],

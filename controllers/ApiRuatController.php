@@ -31,8 +31,12 @@ class ApiRuatController extends Controller
                 'actions' => [
                     'login' => ['POST', 'OPTIONS'],
                     'busqueda-contribuyente' => ['POST', 'OPTIONS'],
+                    'buscar-contribuyente-by-ci' => ['POST', 'OPTIONS'],
                     'consulta-deudas-contribuyente' => ['POST', 'OPTIONS'],
                     'consulta-pago-tasa-otros-ingresos' => ['POST', 'OPTIONS'],
+                    'create-contribuyente' => ['POST', 'OPTIONS'],
+                    'create-tasa' => ['POST', 'OPTIONS'],
+                    'anular-tasa' => ['POST', 'OPTIONS'],
                 ],
             ],
         ];
@@ -60,6 +64,7 @@ class ApiRuatController extends Controller
             'http://127.0.0.1:4200',
             'http://127.0.0.1:5200',
             'http://127.0.0.1:5173',
+            'http://181.177.143.185:4205'
         ];
     }
 
@@ -97,8 +102,8 @@ class ApiRuatController extends Controller
         $body = $this->requestBodyParams();
         $token = $this->tokenFromRequest($body);
 
-        $numeroDocumento = $this->requiredString($body, 'numeroDocumento');
-        $tipoDocumento = $this->tipoDocumento($this->requiredString($body, 'tipoDocumento'));
+        $numeroDocumento = $this->firstRequiredString($body, ['numeroDocumento', 'ci']);
+        $tipoDocumento = $this->tipoDocumento($this->stringValue($body, 'tipoDocumento', 'CI'));
 
         $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi(
             $token,
@@ -110,6 +115,81 @@ class ApiRuatController extends Controller
             'success' => $codigoContribuyente !== null,
             'existe' => $codigoContribuyente !== null,
             'codigoContribuyente' => $codigoContribuyente,
+        ];
+    }
+
+    public function actionBuscarContribuyenteByCi()
+    {
+        return $this->actionBusquedaContribuyente();
+    }
+
+    public function actionCreateContribuyente()
+    {
+        $body = $this->requestBodyParams();
+        $token = $this->tokenFromRequest($body);
+        $codigoUsuario = $this->firstRequiredString($body, ['codigoUsuario', 'usuario']);
+        $contribuyente = $this->contribuyenteRegistroFromRequest($body);
+
+        $codigoContribuyente = Yii::$app->ruatServices->registerContribuyente(
+            $token,
+            $codigoUsuario,
+            $contribuyente
+        );
+
+        return [
+            'success' => $codigoContribuyente !== null,
+            'codigoContribuyente' => $codigoContribuyente,
+        ];
+    }
+
+    public function actionCreateTasa()
+    {
+        $body = $this->requestBodyParams();
+        $token = $this->tokenFromRequest($body);
+
+        $codigoUsuario = $this->firstRequiredString($body, ['codigoUsuario', 'usuario']);
+        $codigoContribuyente = $this->requiredString($body, 'codigoContribuyente');
+        $codigoClasificador = $this->requiredString($body, 'codigoClasificador');
+        $monto = $this->requiredNumber($body, 'monto');
+        $observacion = $this->stringValue($body, 'observacion', '');
+
+        $response = Yii::$app->ruatServices->createTasa(
+            $token,
+            $codigoUsuario,
+            $codigoContribuyente,
+            $codigoClasificador,
+            $monto,
+            $observacion
+        );
+
+        return [
+            'success' => $this->ruatResponseWasSuccessful($response),
+            'numeroTasa' => isset($response->numeroTasa) ? $response->numeroTasa : null,
+            'data' => $response,
+        ];
+    }
+
+    public function actionAnularTasa()
+    {
+        $body = $this->requestBodyParams();
+        $token = $this->tokenFromRequest($body);
+
+        $codigoUsuario = $this->firstRequiredString($body, ['codigoUsuario', 'usuario']);
+        $numeroTasa = $this->firstRequiredString($body, ['numeroTasa', 'nroTasa']);
+        $motivo = $this->requiredString($body, 'motivo');
+        $observacion = $this->stringValue($body, 'observacion', '');
+
+        $response = Yii::$app->ruatServices->anularTasa(
+            $token,
+            $codigoUsuario,
+            $numeroTasa,
+            $motivo,
+            $observacion
+        );
+
+        return [
+            'success' => $this->ruatResponseWasSuccessful($response),
+            'data' => $response,
         ];
     }
 
@@ -150,6 +230,12 @@ class ApiRuatController extends Controller
 
     private function tokenFromRequest(array $body)
     {
+        $authorization = Yii::$app->request->headers->get('Authorization');
+
+        if ($authorization && preg_match('/^Bearer\s+(.+)$/i', $authorization, $matches)) {
+            return trim($matches[1]);
+        }
+
         if (isset($body['token']) && trim((string)$body['token']) !== '') {
             return trim((string)$body['token']);
         }
@@ -181,10 +267,33 @@ class ApiRuatController extends Controller
     private function contribuyenteFromRequest(array $body)
     {
         $contribuyente = new \stdClass();
-        $tipoDocumento = $this->tipoDocumento($this->requiredString($body, 'tipoDocumento'));
+        $tipoDocumento = $this->tipoDocumento($this->stringValue($body, 'tipoDocumento', 'CI'));
 
-        $contribuyente->contri_ci = $this->requiredString($body, 'numeroDocumento');
+        $contribuyente->contri_ci = $this->firstRequiredString($body, ['numeroDocumento', 'ci']);
         $contribuyente->ext_id = $tipoDocumento === 'CE' ? 12 : 0;
+
+        return $contribuyente;
+    }
+
+    private function contribuyenteRegistroFromRequest(array $body)
+    {
+        $data = isset($body['contribuyente']) && is_array($body['contribuyente'])
+            ? array_merge($body, $body['contribuyente'])
+            : $body;
+
+        $contribuyente = $this->contribuyenteFromRequest($data);
+        $tipoDocumento = $this->tipoDocumento($this->stringValue($data, 'tipoDocumento', 'CI'));
+
+        $contribuyente->ext_id = $tipoDocumento === 'CE'
+            ? 12
+            : (int)$this->stringValue($data, 'extId', $this->stringValue($data, 'ext_id', '0'));
+        $contribuyente->contri_nombres = $this->firstRequiredString($data, ['nombres', 'nombre', 'contri_nombres']);
+        $contribuyente->contri_paterno = $this->stringValue($data, 'primerApellido', $this->stringValue($data, 'paterno', $this->stringValue($data, 'contri_paterno', null)));
+        $contribuyente->contri_materno = $this->stringValue($data, 'segundoApellido', $this->stringValue($data, 'materno', $this->stringValue($data, 'contri_materno', null)));
+        $contribuyente->contri_estadocivil = $this->stringValue($data, 'estadoCivil', $this->stringValue($data, 'contri_estadocivil', 'SO'));
+        $contribuyente->contri_fechanac = $this->stringValue($data, 'fechaNacimiento', $this->stringValue($data, 'contri_fechanac', null));
+        $contribuyente->contri_sexo = $this->stringValue($data, 'genero', $this->stringValue($data, 'sexo', $this->stringValue($data, 'contri_sexo', 'M')));
+        $contribuyente->contri_apellidocasada = $this->stringValue($data, 'apellidoEsposo', $this->stringValue($data, 'apellidoCasada', $this->stringValue($data, 'contri_apellidocasada', null)));
 
         return $contribuyente;
     }
@@ -226,7 +335,42 @@ class ApiRuatController extends Controller
             }
         }
 
-        throw new BadRequestHttpException('Las credenciales de RUAT son requeridas.');
+        throw new BadRequestHttpException('Uno de los campos es requerido: ' . implode(', ', $keys) . '.');
+    }
+
+    private function stringValue(array $params, $key, $default = null)
+    {
+        if (!isset($params[$key]) || trim((string)$params[$key]) === '') {
+            return $default;
+        }
+
+        return trim((string)$params[$key]);
+    }
+
+    private function requiredNumber(array $params, $key)
+    {
+        if (!isset($params[$key]) || !is_numeric($params[$key])) {
+            throw new BadRequestHttpException("El campo $key debe ser numerico.");
+        }
+
+        return $params[$key] + 0;
+    }
+
+    private function ruatResponseWasSuccessful($response)
+    {
+        if ($response === null) {
+            return false;
+        }
+
+        if (isset($response->continuarFlujo)) {
+            return (bool)$response->continuarFlujo;
+        }
+
+        if (isset($response->numeroTasa) || isset($response->codigoContribuyente)) {
+            return true;
+        }
+
+        return true;
     }
 
     private function tipoDocumento($tipoDocumento)
