@@ -31,11 +31,14 @@ class ApiRuatController extends Controller
                 'actions' => [
                     'login' => ['POST', 'OPTIONS'],
                     'busqueda-contribuyente' => ['POST', 'OPTIONS'],
+                    'buscar-contribuyente-ci' => ['POST', 'OPTIONS'],
                     'buscar-contribuyente-by-ci' => ['POST', 'OPTIONS'],
                     'consulta-deudas-contribuyente' => ['POST', 'OPTIONS'],
                     'consulta-pago-tasa-otros-ingresos' => ['POST', 'OPTIONS'],
                     'create-contribuyente' => ['POST', 'OPTIONS'],
+                    'crear-contribuyente' => ['POST', 'OPTIONS'],
                     'create-tasa' => ['POST', 'OPTIONS'],
+                    'crear-tasa' => ['POST', 'OPTIONS'],
                     'anular-tasa' => ['POST', 'OPTIONS'],
                 ],
             ],
@@ -123,6 +126,11 @@ class ApiRuatController extends Controller
         return $this->actionBusquedaContribuyente();
     }
 
+    public function actionBuscarContribuyenteCi()
+    {
+        return $this->actionBusquedaContribuyente();
+    }
+
     public function actionCreateContribuyente()
     {
         $body = $this->requestBodyParams();
@@ -142,16 +150,24 @@ class ApiRuatController extends Controller
         ];
     }
 
+    public function actionCrearContribuyente()
+    {
+        return $this->actionCreateContribuyente();
+    }
+
     public function actionCreateTasa()
     {
         $body = $this->requestBodyParams();
         $token = $this->tokenFromRequest($body);
+        $data = isset($body['tasa']) && is_array($body['tasa'])
+            ? array_merge($body, $body['tasa'])
+            : $body;
 
-        $codigoUsuario = $this->firstRequiredString($body, ['codigoUsuario', 'usuario']);
-        $codigoContribuyente = $this->requiredString($body, 'codigoContribuyente');
-        $codigoClasificador = $this->requiredString($body, 'codigoClasificador');
-        $monto = $this->requiredNumber($body, 'monto');
-        $observacion = $this->stringValue($body, 'observacion', '');
+        $codigoUsuario = $this->firstRequiredString($data, ['codigoUsuario', 'usuario']);
+        $codigoContribuyente = $this->requiredString($data, 'codigoContribuyente');
+        $codigoClasificador = $this->requiredString($data, 'codigoClasificador');
+        $monto = $this->requiredNumber($data, 'monto');
+        $observacion = $this->stringValue($data, 'observacion', '');
 
         $response = Yii::$app->ruatServices->createTasa(
             $token,
@@ -169,15 +185,23 @@ class ApiRuatController extends Controller
         ];
     }
 
+    public function actionCrearTasa()
+    {
+        return $this->actionCreateTasa();
+    }
+
     public function actionAnularTasa()
     {
         $body = $this->requestBodyParams();
         $token = $this->tokenFromRequest($body);
+        $data = isset($body['tasa']) && is_array($body['tasa'])
+            ? array_merge($body, $body['tasa'])
+            : $body;
 
-        $codigoUsuario = $this->firstRequiredString($body, ['codigoUsuario', 'usuario']);
-        $numeroTasa = $this->firstRequiredString($body, ['numeroTasa', 'nroTasa']);
-        $motivo = $this->requiredString($body, 'motivo');
-        $observacion = $this->stringValue($body, 'observacion', '');
+        $codigoUsuario = $this->firstRequiredString($data, ['codigoUsuario', 'usuario']);
+        $numeroTasa = $this->firstRequiredString($data, ['numeroTasa', 'nroTasa']);
+        $motivo = $this->requiredString($data, 'motivo');
+        $observacion = $this->stringValue($data, 'observacion', '');
 
         $response = Yii::$app->ruatServices->anularTasa(
             $token,
