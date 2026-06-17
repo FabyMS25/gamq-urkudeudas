@@ -19,7 +19,11 @@ class SearchContribuyentes extends Contribuyentes
     {
         return [
             [['contri_id', 'ext_id', 'sindi_id', 'contri_telefono', 'contri_nit', 'contri_estado'], 'integer'],
-            [['contri_nombres', 'contri_paterno', 'contri_materno', 'contri_apellidocasada', 'contri_ci', 'contri_direccion', 'contri_fecharegistro'], 'safe'],
+            [[
+                'contri_nombres', 'contri_paterno', 'contri_materno', 'contri_apellidocasada', 'contri_ci',
+                'contri_direccion', 'contri_fecharegistro', 'contri_codigo_ruat', 'contri_tipo_contribuyente_ruat',
+                'contri_tipo_documento_ruat', 'contri_estado_ruat', 'contri_ruat_sync_at'
+            ], 'safe'],
         ];
     }
 
@@ -70,7 +74,8 @@ class SearchContribuyentes extends Contribuyentes
             ->andFilterWhere(['ilike', 'contri_materno', $this->contri_materno])
             ->andFilterWhere(['ilike', 'contri_apellidocasada', $this->contri_apellidocasada])
             ->andFilterWhere(['ilike', 'contri_ci', $this->contri_ci])
-            ->andFilterWhere(['ilike', 'contri_direccion', $this->contri_direccion]);
+            ->andFilterWhere(['ilike', 'contri_direccion', $this->contri_direccion])
+            ->andFilterWhere(['ilike', 'contri_codigo_ruat', $this->contri_codigo_ruat]);
 
         return $dataProvider;
     }

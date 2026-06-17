@@ -19,6 +19,7 @@ use Yii;
  * @property Descargos[] $descargos
  * @property Pagos[] $pagos
  * @property PagosEventuales[] $pagosEventuales
+ * @property PagosInfracciones[] $pagosInfracciones
  */
 class Usuario extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface {
 
@@ -80,6 +81,10 @@ class Usuario extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getPagosEventuales() {
         return $this->hasMany(PagosEventuales::className(), ['usua_id' => 'usua_id']);
+    }
+
+    public function getPagosInfracciones() {
+        return $this->hasMany(PagosInfracciones::className(), ['usua_id' => 'usua_id']);
     }
 
     // nombre completo del usuario

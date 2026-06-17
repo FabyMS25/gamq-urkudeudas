@@ -20,11 +20,18 @@ use Yii;
  * @property integer $contri_nit
  * @property string $contri_fecharegistro
  * @property integer $contri_estado
+ * @property string $contri_codigo_ruat
+ * @property string $contri_tipo_contribuyente_ruat
+ * @property string $contri_tipo_documento_ruat
+ * @property string $contri_estado_ruat
+ * @property string $contri_ruat_sync_at
+ * @property string $contri_estado_operativo
  *
  * @property Extensiones $ext
  * @property Sindicatos $sindi
  * @property Pagos[] $pagos
  * @property PagosEventuales[] $pagosEventuales
+ * @property PagosInfracciones[] $pagosInfracciones
  */
 class Contribuyentes extends \yii\db\ActiveRecord
 {
@@ -44,12 +51,17 @@ class Contribuyentes extends \yii\db\ActiveRecord
         return [
             [['ext_id', 'contri_nombres', 'contri_ci', 'contri_direccion', 'contri_fecharegistro', 'contri_estado','sindi_id'], 'required'],
             [['ext_id', 'sindi_id', 'contri_telefono', 'contri_nit', 'contri_estado'], 'integer'],
-            [['contri_fecharegistro'], 'safe'],
+            [['contri_estado_operativo'], 'string', 'max' => 30],
+            [['contri_fecharegistro', 'contri_ruat_sync_at'], 'safe'],
             [['contri_nombres'], 'string', 'max' => 100],
             [['contri_paterno', 'contri_materno', 'contri_apellidocasada'], 'string', 'max' => 80],
             [['contri_ci','contri_nombres','contri_paterno','contri_materno','contri_apellidocasada'], 'trim'],
             [['contri_nombres','contri_paterno','contri_materno','contri_apellidocasada'], 'filter', 'filter' => 'strtoupper'],
             [['contri_ci'], 'string', 'max' => 15],
+            [['contri_codigo_ruat'], 'string', 'max' => 64],
+            [['contri_tipo_documento_ruat'], 'string', 'max' => 50],
+            [['contri_estado_ruat'], 'string', 'max' => 20],
+            [['contri_tipo_contribuyente_ruat'], 'string', 'max' => 10],
             [['contri_sexo'], 'string', 'max' => 2],
             [['contri_estadocivil'], 'string', 'max' => 2],
             [['contri_fechanac'],'safe'],
@@ -82,6 +94,12 @@ class Contribuyentes extends \yii\db\ActiveRecord
             'contri_sexo' => 'Sexo',
             'contri_estadocivil' => 'Estado Civil',
             'contri_fechanac' => 'Fecha Nacimiento',
+            'contri_codigo_ruat' => 'Codigo RUAT',
+            'contri_tipo_contribuyente_ruat' => 'Tipo contribuyente RUAT',
+            'contri_tipo_documento_ruat' => 'Tipo documento RUAT',
+            'contri_estado_ruat' => 'Estado RUAT',
+            'contri_ruat_sync_at' => 'Fecha sincronizacion RUAT',
+            'contri_estado_operativo' => 'Estado operativo',
         ];
     }
 
@@ -115,6 +133,11 @@ class Contribuyentes extends \yii\db\ActiveRecord
     public function getPagosEventuales()
     {
         return $this->hasMany(PagosEventuales::className(), ['contri_id' => 'contri_id']);
+    }
+
+    public function getPagosInfracciones()
+    {
+        return $this->hasMany(PagosInfracciones::className(), ['contri_id' => 'contri_id']);
     }
     
     // Listar contribuyentes vigentes

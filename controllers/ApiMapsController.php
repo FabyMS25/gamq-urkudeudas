@@ -5,17 +5,17 @@ use Yii;
 use yii\filters\Cors;
 use yii\filters\VerbFilter;
 use yii\helpers\Url;
-use app\models\Gestiones;
-use app\models\GraderiasSillas;
-use app\models\Pagos;
-use app\models\PagosEventuales;
-use app\models\Usuario;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\web\BadRequestHttpException;
 use yii\web\ConflictHttpException;
 use yii\web\MethodNotAllowedHttpException;
 use yii\web\NotFoundHttpException;
+use app\models\Gestiones;
+use app\models\GraderiasSillas;
+use app\models\Pagos;
+use app\models\PagosEventuales;
+use app\models\Usuario;
 
 class ApiMapsController extends Controller
 {
@@ -46,16 +46,18 @@ class ApiMapsController extends Controller
                 'actions' => [
                     'contexto-actual' => ['GET', 'OPTIONS'],
                     'zonas' => ['GET', 'OPTIONS'],
-                    'categorias' => ['GET', 'OPTIONS'],
                     'tipo-armados' => ['GET', 'OPTIONS'],
+                    'categorias' => ['GET', 'OPTIONS'],
+                    'sindicatos' => ['GET', 'OPTIONS'],
                     'actividades-economicas' => ['GET', 'OPTIONS'],
-                    'graderias-sillas' => ['GET', 'OPTIONS'],
-                    'actualizar-reserva-graderia-silla' => ['POST', 'OPTIONS'],
-                    'sitios-eventuales' => ['GET', 'OPTIONS'],
                     'contribuyentes' => ['GET', 'OPTIONS'],
                     'usuarios' => ['GET', 'OPTIONS'],
+                    'sitios-eventuales' => ['GET', 'OPTIONS'],
+                    'graderias-sillas' => ['GET', 'OPTIONS'],
+                    'actualizar-reserva-graderia-silla' => ['POST', 'OPTIONS'],
                     'pagos' => ['GET', 'OPTIONS'],
                     'pagos-eventuales' => ['GET', 'OPTIONS'],
+                    'pagos-infracciones' => ['GET', 'OPTIONS'],
                     'comprobante-pago' => ['GET', 'OPTIONS'],
                     'comprobante-pago-pdf' => ['GET', 'OPTIONS'],
                     'comprobante-pago-eventual' => ['GET', 'OPTIONS'],
@@ -88,82 +90,10 @@ class ApiMapsController extends Controller
         ];
     }
 
-    public function actionGraderiasSillas()
-    {
-        $gestion = (new Gestiones())->gestionVigente();
-        $gestId = $gestion ? $gestion->gest_id : null;
-
-        $query = (new \yii\db\Query())
-            ->select([
-                'gs.grad_id',
-                'gs.zona_id',
-                'gs.gest_id',
-                'gs.grad_codigo',
-                'gs.grad_propietario',
-                'gs.grad_codigo_catastral',
-                'gs.grad_direccion',
-                'gs.grad_acera',
-                'gs.grad_tipo_armado',
-                'gs.grad_tipo_sitio',
-                'gs.grad_resto',
-                'gs.grad_longitud',
-                'gs.grad_vendido',
-                'gs.grad_reservado',
-                'gs.grad_estado',
-                'z.zona_nombre',
-                'z.zona_color',
-                'z.zona_color_hexadecimal',
-            ])
-            ->from(['gs' => 'graderias_sillas'])
-            ->leftJoin(['z' => 'zonas'], 'z.zona_id = gs.zona_id')
-            ->where(['gs.grad_estado' => 1])
-            ->orderBy(['z.zona_nombre' => SORT_ASC, 'gs.grad_codigo' => SORT_ASC]);
-
-        if ($gestId !== null) {
-            $query->andWhere(['gs.gest_id' => $gestId]);
-        }
-
-        return $query->all();
-    }
-
-    public function actionActualizarReservaGraderiaSilla($id = null)
-    {
-        $this->ensureWriteMethod(['POST']);
-        $body = $this->requestBodyParams();
-        $reservado = $this->parseReservadoValue($body);
-
-        return $this->updateReservaGraderiaSilla($id, $reservado, $reservado ? 'reservar' : 'unreservar');
-    }
-
-    public function actionSitiosEventuales()
-    {
-        $query = (new \yii\db\Query())
-            ->select([
-                'sitios_id',
-                'sitios_codigo',
-                'sitios_descripcion',
-                'sitios_numero_sitio',
-                'sitios_vendido',
-                'sitios_es_alasita',
-                'sitios_estado',
-            ])
-            ->from('sitios_eventuales')
-            ->where(['sitios_estado' => 1])
-            ->orderBy(['sitios_codigo' => SORT_ASC, 'sitios_numero_sitio' => SORT_ASC]);
-
-        $id = Yii::$app->request->get('id');
-        if ($id !== null && $id !== '') {
-            return $query->andWhere(['sitios_id' => $id])->one();
-        }
-
-        return $query->all();
-    }
-
     public function actionZonas()
     {
         $gestion = (new Gestiones())->gestionVigente();
         $gestId = $gestion ? $gestion->gest_id : null;
-
         $query = (new \yii\db\Query())
             ->select([
                 'zona_id',
@@ -177,14 +107,11 @@ class ApiMapsController extends Controller
             ->from('zonas')
             ->where(['zona_estado' => 1])
             ->orderBy(['zona_nombre' => SORT_ASC]);
-
         if ($gestId !== null) {
             $query->andWhere(['gest_id' => $gestId]);
         }
-
         return $query->all();
     }
-
 
     public function actionTipoArmados()
     {
@@ -234,6 +161,20 @@ class ApiMapsController extends Controller
             ->from('categorias')
             ->where(['categ_estado' => 1])
             ->orderBy(['categ_nombre' => SORT_ASC])
+            ->all();
+    }
+    public function actionSindicatos()
+    {
+        return (new \yii\db\Query())
+            ->select([
+                'sindi_id',
+                'sindi_nombre',
+                'sindi_descripcion',
+                'sindi_estado',
+            ])
+            ->from('sindicatos')
+            ->where(['sindi_estado' => 1])
+            ->orderBy(['sindi_nombre' => SORT_ASC])
             ->all();
     }
 
@@ -293,6 +234,11 @@ class ApiMapsController extends Controller
                 'contri_sexo',
                 'contri_estadocivil',
                 'contri_estado',
+                'contri_codigo_ruat',
+                'contri_tipo_contribuyente_ruat',
+                'contri_tipo_documento_ruat',
+                'contri_estado_ruat',
+                'contri_ruat_sync_at',
             ])
             ->from('contribuyentes')
             ->where(['contri_estado' => 1])
@@ -333,6 +279,75 @@ class ApiMapsController extends Controller
         }
 
         return $query->all();
+    }
+
+    public function actionSitiosEventuales()
+    {
+        $query = (new \yii\db\Query())
+            ->select([
+                'sitios_id',
+                'sitios_codigo',
+                'sitios_descripcion',
+                'sitios_numero_sitio',
+                'sitios_vendido',
+                'sitios_es_alasita',
+                'sitios_estado',
+            ])
+            ->from('sitios_eventuales')
+            ->where(['sitios_estado' => 1])
+            ->orderBy(['sitios_codigo' => SORT_ASC, 'sitios_numero_sitio' => SORT_ASC]);
+
+        $id = Yii::$app->request->get('id');
+        if ($id !== null && $id !== '') {
+            return $query->andWhere(['sitios_id' => $id])->one();
+        }
+
+        return $query->all();
+    }
+
+    public function actionGraderiasSillas()
+    {
+        $gestion = (new Gestiones())->gestionVigente();
+        $gestId = $gestion ? $gestion->gest_id : null;
+
+        $query = (new \yii\db\Query())
+            ->select([
+                'gs.grad_id',
+                'gs.zona_id',
+                'gs.gest_id',
+                'gs.grad_codigo',
+                'gs.grad_propietario',
+                'gs.grad_codigo_catastral',
+                'gs.grad_direccion',
+                'gs.grad_acera',
+                'gs.grad_tipo_armado',
+                'gs.grad_tipo_sitio',
+                'gs.grad_resto',
+                'gs.grad_longitud',
+                'gs.grad_vendido',
+                'gs.grad_reservado',
+                'gs.grad_estado',
+                'z.zona_nombre',
+                'z.zona_color',
+                'z.zona_color_hexadecimal',
+            ])
+            ->from(['gs' => 'graderias_sillas'])
+            ->leftJoin(['z' => 'zonas'], 'z.zona_id = gs.zona_id')
+            ->where(['gs.grad_estado' => 1])
+            ->orderBy(['z.zona_nombre' => SORT_ASC, 'gs.grad_codigo' => SORT_ASC]);
+        if ($gestId !== null) {
+            $query->andWhere(['gs.gest_id' => $gestId]);
+        }
+        return $query->all();
+    }
+
+    public function actionActualizarReservaGraderiaSilla($id = null)
+    {
+        $this->ensureWriteMethod(['POST']);
+        $body = $this->requestBodyParams();
+        $reservado = $this->parseReservadoValue($body);
+
+        return $this->updateReservaGraderiaSilla($id, $reservado, $reservado ? 'reservar' : 'unreservar');
     }
 
     public function actionPagos()
@@ -389,6 +404,11 @@ class ApiMapsController extends Controller
                 'c.contri_sexo',
                 'c.contri_estadocivil',
                 'c.contri_estado',
+                'c.contri_codigo_ruat',
+                'c.contri_tipo_contribuyente_ruat',
+                'c.contri_tipo_documento_ruat',
+                'c.contri_estado_ruat',
+                'c.contri_ruat_sync_at',
 
                 'gs.grad_codigo',
                 'gs.grad_direccion',
@@ -487,6 +507,11 @@ class ApiMapsController extends Controller
                 'c.contri_sexo',
                 'c.contri_estadocivil',
                 'c.contri_estado',
+                'c.contri_codigo_ruat',
+                'c.contri_tipo_contribuyente_ruat',
+                'c.contri_tipo_documento_ruat',
+                'c.contri_estado_ruat',
+                'c.contri_ruat_sync_at',
 
                 's.sitios_codigo',
                 's.sitios_descripcion',
@@ -530,6 +555,124 @@ class ApiMapsController extends Controller
         return array_map([$this, 'pagoEventualPayload'], $query->all());
     }
 
+    public function actionPagosInfracciones()
+    {
+        $query = (new \yii\db\Query())
+            ->select([
+                'pi.infraccion_id',
+                'pi.usua_id',
+                'pi.contri_id',
+                'pi.codigo_usuario',
+                'pi.codigo_contribuyente',
+                'pi.numero_documento',
+                'pi.tipo_documento',
+                'pi.expedido',
+                'pi.tipo_infraccion',
+                'pi.descripcion_infraccion',
+                'pi.lugar_infraccion',
+                'pi.fecha_infraccion',
+                'pi.gestion',
+                'pi.codigo_clasificador',
+                'pi.monto',
+                'pi.observacion',
+                'pi.numero_tasa',
+                'pi.infraccion_estado',
+                'pi.infraccion_pagado',
+                'pi.infraccion_anulado',
+                'pi.fecha_pago',
+                'pi.anulado_motivo',
+                'pi.anulado_observacion',
+                'pi.anulado_fecha_hora',
+                'pi.created_at',
+                'pi.updated_at',
+
+                'u.usua_nombres',
+                'u.usua_apellidos',
+                'u.usua_ci',
+                'u.usua_cuenta',
+                'u.usua_rol',
+                'u.usua_estado',
+
+                'c.contri_nombres',
+                'c.contri_paterno',
+                'c.contri_materno',
+                'c.contri_ci',
+                'c.ext_id',
+                'c.sindi_id',
+                'c.contri_apellidocasada',
+                'c.contri_direccion',
+                'c.contri_telefono',
+                'c.contri_nit',
+                'c.contri_fecharegistro',
+                'c.contri_fechanac',
+                'c.contri_sexo',
+                'c.contri_estadocivil',
+                'c.contri_estado',
+                'c.contri_codigo_ruat',
+                'c.contri_tipo_contribuyente_ruat',
+                'c.contri_tipo_documento_ruat',
+                'c.contri_estado_ruat',
+                'c.contri_ruat_sync_at',
+            ])
+            ->from(['pi' => 'pagos_infracciones'])
+            ->leftJoin(['c' => 'contribuyentes'], 'c.contri_id = pi.contri_id')
+            ->leftJoin(['u' => 'usuario'], 'u.usua_id = pi.usua_id')
+            ->orderBy(['pi.created_at' => SORT_DESC, 'pi.infraccion_id' => SORT_DESC]);
+
+        $id = Yii::$app->request->get('id');
+        if ($id !== null && $id !== '') {
+            $row = $query->andWhere(['pi.infraccion_id' => $id])->one();
+            return $row === false ? null : $this->pagoInfraccionPayload($row);
+        }
+
+        $numeroTasa = Yii::$app->request->get('numero_tasa', Yii::$app->request->get('numeroTasa'));
+        if ($numeroTasa !== null && $numeroTasa !== '') {
+            $query->andWhere(['pi.numero_tasa' => $numeroTasa]);
+        }
+
+        $numeroDocumento = Yii::$app->request->get('numero_documento', Yii::$app->request->get('numeroDocumento', Yii::$app->request->get('ci')));
+        if ($numeroDocumento !== null && $numeroDocumento !== '') {
+            $query->andWhere(['ilike', 'pi.numero_documento', $numeroDocumento]);
+        }
+
+        $tipoInfraccion = Yii::$app->request->get('tipo_infraccion', Yii::$app->request->get('tipoInfraccion'));
+        if ($tipoInfraccion !== null && $tipoInfraccion !== '') {
+            $query->andWhere(['ilike', 'pi.tipo_infraccion', $tipoInfraccion]);
+        }
+
+        $gestion = Yii::$app->request->get('gestion');
+        if ($gestion !== null && $gestion !== '') {
+            $query->andWhere(['pi.gestion' => $gestion]);
+        }
+
+        $estado = Yii::$app->request->get('estado', Yii::$app->request->get('infraccion_estado'));
+        if ($estado !== null && $estado !== '') {
+            $query->andWhere(['pi.infraccion_estado' => (int)$estado]);
+        }
+
+        $pagado = Yii::$app->request->get('pagado', Yii::$app->request->get('infraccion_pagado'));
+        if ($pagado !== null && $pagado !== '') {
+            $query->andWhere(['pi.infraccion_pagado' => (int)$pagado]);
+        }
+
+        $anulado = Yii::$app->request->get('anulado', Yii::$app->request->get('infraccion_anulado'));
+        if ($anulado !== null && $anulado !== '') {
+            $query->andWhere(['pi.infraccion_anulado' => (int)$anulado]);
+        }
+
+        $fechaDesde = Yii::$app->request->get('fecha_desde', Yii::$app->request->get('fechaDesde'));
+        if ($fechaDesde !== null && $fechaDesde !== '') {
+            $query->andWhere(['>=', 'pi.fecha_infraccion', $fechaDesde]);
+        }
+
+        $fechaHasta = Yii::$app->request->get('fecha_hasta', Yii::$app->request->get('fechaHasta'));
+        if ($fechaHasta !== null && $fechaHasta !== '') {
+            $query->andWhere(['<=', 'pi.fecha_infraccion', $fechaHasta]);
+        }
+
+        return array_map([$this, 'pagoInfraccionPayload'], $query->all());
+    }
+
     public function actionComprobantePago($id = null)
     {
         $pagoId = $this->resolvePositiveInteger($id, 'id');
@@ -566,6 +709,8 @@ class ApiMapsController extends Controller
         return $this->sendPdfFile($url, 'comprobante_pago_eventual_' . $eventualId . '.pdf');
     }
 
+
+
     private function updateReservaGraderiaSilla($id, $reservado, $action)
     {
         $gradId = $this->resolveGradId($id);
@@ -590,7 +735,6 @@ class ApiMapsController extends Controller
         } else {
             $changed = false;
         }
-
         return [
             'success' => true,
             'action' => $action,
@@ -599,13 +743,11 @@ class ApiMapsController extends Controller
             'graderia_silla' => $this->graderiaSillaPayload($model),
         ];
     }
-
     private function resolveGradId($id)
     {
         if ($id === null || $id === '') {
             $id = Yii::$app->request->get('id');
         }
-
         if ($id === null || $id === '') {
             $body = $this->requestBodyParams();
 
@@ -615,26 +757,32 @@ class ApiMapsController extends Controller
                 $id = $body['id'];
             }
         }
-
         if ($id === null || $id === '' || !ctype_digit((string)$id)) {
             throw new BadRequestHttpException('Debe enviar el parametro id o grad_id.');
         }
-
         return (int)$id;
     }
-
-    private function resolvePositiveInteger($value, $paramName)
+    private function graderiaSillaPayload(GraderiasSillas $model)
     {
-        if ($value === null || $value === '') {
-            $value = Yii::$app->request->get($paramName);
-        }
-
-        if ($value === null || $value === '' || !ctype_digit((string)$value) || (int)$value <= 0) {
-            throw new BadRequestHttpException('Debe enviar el parametro ' . $paramName . '.');
-        }
-
-        return (int)$value;
+        return [
+            'grad_id' => (int)$model->grad_id,
+            'zona_id' => $model->zona_id !== null ? (int)$model->zona_id : null,
+            'gest_id' => $model->gest_id !== null ? (int)$model->gest_id : null,
+            'grad_codigo' => $model->grad_codigo,
+            'grad_codigo_catastral' => $model->grad_codigo_catastral,
+            'grad_direccion' => $model->grad_direccion,
+            'grad_longitud' => $model->grad_longitud,
+            'grad_propietario' => $model->grad_propietario,
+            'grad_acera' => $model->grad_acera,
+            'grad_tipo_armado' => $model->grad_tipo_armado,
+            'grad_tipo_sitio' => $model->grad_tipo_sitio,
+            'grad_vendido' => (int)$model->grad_vendido,
+            'grad_reservado' => (int)$model->grad_reservado,
+            'grad_estado' => (int)$model->grad_estado,
+        ];
     }
+
+
 
     private function parseReservadoValue($body)
     {
@@ -723,22 +871,6 @@ class ApiMapsController extends Controller
         return $carpeta . '/' . $archivo . '.pdf';
     }
 
-    private function sendPdfFile($url, $filename)
-    {
-        $path = Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $url);
-
-        if (!is_file($path)) {
-            throw new NotFoundHttpException('No se pudo generar el comprobante.');
-        }
-
-        Yii::$app->response->format = Response::FORMAT_RAW;
-
-        return Yii::$app->response->sendFile($path, $filename, [
-            'inline' => true,
-            'mimeType' => 'application/pdf',
-        ]);
-    }
-
     private function pagoPayload(array $row)
     {
         $row['contribuyente'] = $this->contribuyentePayload($row);
@@ -763,6 +895,11 @@ class ApiMapsController extends Controller
             'contri_sexo',
             'contri_estadocivil',
             'contri_estado',
+            'contri_codigo_ruat',
+            'contri_tipo_contribuyente_ruat',
+            'contri_tipo_documento_ruat',
+            'contri_estado_ruat',
+            'contri_ruat_sync_at',
             'grad_codigo',
             'grad_direccion',
             'zona_id',
@@ -820,6 +957,11 @@ class ApiMapsController extends Controller
             'contri_sexo',
             'contri_estadocivil',
             'contri_estado',
+            'contri_codigo_ruat',
+            'contri_tipo_contribuyente_ruat',
+            'contri_tipo_documento_ruat',
+            'contri_estado_ruat',
+            'contri_ruat_sync_at',
             'sitios_codigo',
             'sitios_descripcion',
             'sitios_numero_sitio',
@@ -840,6 +982,42 @@ class ApiMapsController extends Controller
             'categ_nombre',
             'categ_codigo',
             'categ_estado',
+            'usua_nombres',
+            'usua_apellidos',
+            'usua_ci',
+            'usua_cuenta',
+            'usua_rol',
+            'usua_estado',
+        ]);
+
+        return $row;
+    }
+
+    private function pagoInfraccionPayload(array $row)
+    {
+        $row['contribuyente'] = $this->contribuyentePayload($row);
+        $row['usuario'] = $this->usuarioPayload($row, 'usua_id');
+        $this->unsetKeys($row, [
+            'contri_nombres',
+            'contri_paterno',
+            'contri_materno',
+            'contri_ci',
+            'ext_id',
+            'sindi_id',
+            'contri_apellidocasada',
+            'contri_direccion',
+            'contri_telefono',
+            'contri_nit',
+            'contri_fecharegistro',
+            'contri_fechanac',
+            'contri_sexo',
+            'contri_estadocivil',
+            'contri_estado',
+            'contri_codigo_ruat',
+            'contri_tipo_contribuyente_ruat',
+            'contri_tipo_documento_ruat',
+            'contri_estado_ruat',
+            'contri_ruat_sync_at',
             'usua_nombres',
             'usua_apellidos',
             'usua_ci',
@@ -874,6 +1052,11 @@ class ApiMapsController extends Controller
             'contri_sexo' => $this->value($row, 'contri_sexo'),
             'contri_estadocivil' => $this->value($row, 'contri_estadocivil'),
             'contri_estado' => $this->nullableInt($row, 'contri_estado'),
+            'contri_codigo_ruat' => $this->value($row, 'contri_codigo_ruat'),
+            'contri_tipo_contribuyente_ruat' => $this->value($row, 'contri_tipo_contribuyente_ruat'),
+            'contri_tipo_documento_ruat' => $this->value($row, 'contri_tipo_documento_ruat'),
+            'contri_estado_ruat' => $this->value($row, 'contri_estado_ruat'),
+            'contri_ruat_sync_at' => $this->value($row, 'contri_ruat_sync_at'),
             'nombre_completo' => trim(implode(' ', array_filter([
                 $this->value($row, 'contri_nombres'),
                 $this->value($row, 'contri_paterno'),
@@ -1021,13 +1204,11 @@ class ApiMapsController extends Controller
             'categoria' => $this->categoriaPayload($row),
         ];
     }
-
     private function categoriaPayload(array $row)
     {
         if (!isset($row['categ_id']) || $row['categ_id'] === null) {
             return null;
         }
-
         return [
             'categ_id' => (int)$row['categ_id'],
             'categ_nombre' => $this->value($row, 'categ_nombre'),
@@ -1036,6 +1217,18 @@ class ApiMapsController extends Controller
         ];
     }
 
+
+
+    private function resolvePositiveInteger($value, $paramName)
+    {
+        if ($value === null || $value === '') {
+            $value = Yii::$app->request->get($paramName);
+        }
+        if ($value === null || $value === '' || !ctype_digit((string)$value) || (int)$value <= 0) {
+            throw new BadRequestHttpException('Debe enviar el parametro ' . $paramName . '.');
+        }
+        return (int)$value;
+    }
     private function value(array $row, $key)
     {
         return array_key_exists($key, $row) ? $row[$key] : null;
@@ -1051,15 +1244,12 @@ class ApiMapsController extends Controller
         if (!isset($row[$key])) {
             return null;
         }
-
         if ($row[$key] === true || $row[$key] === 1 || $row[$key] === '1' || $row[$key] === 't' || $row[$key] === 'true') {
             return true;
         }
-
         if ($row[$key] === false || $row[$key] === 0 || $row[$key] === '0' || $row[$key] === 'f' || $row[$key] === 'false') {
             return false;
         }
-
         return (bool)$row[$key];
     }
 
@@ -1076,24 +1266,16 @@ class ApiMapsController extends Controller
             throw new MethodNotAllowedHttpException('Metodo no permitido.');
         }
     }
-
-    private function graderiaSillaPayload(GraderiasSillas $model)
+    private function sendPdfFile($url, $filename)
     {
-        return [
-            'grad_id' => (int)$model->grad_id,
-            'zona_id' => $model->zona_id !== null ? (int)$model->zona_id : null,
-            'gest_id' => $model->gest_id !== null ? (int)$model->gest_id : null,
-            'grad_codigo' => $model->grad_codigo,
-            'grad_codigo_catastral' => $model->grad_codigo_catastral,
-            'grad_direccion' => $model->grad_direccion,
-            'grad_longitud' => $model->grad_longitud,
-            'grad_propietario' => $model->grad_propietario,
-            'grad_acera' => $model->grad_acera,
-            'grad_tipo_armado' => $model->grad_tipo_armado,
-            'grad_tipo_sitio' => $model->grad_tipo_sitio,
-            'grad_vendido' => (int)$model->grad_vendido,
-            'grad_reservado' => (int)$model->grad_reservado,
-            'grad_estado' => (int)$model->grad_estado,
-        ];
+        $path = Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $url);
+        if (!is_file($path)) {
+            throw new NotFoundHttpException('No se pudo generar el comprobante.');
+        }
+        Yii::$app->response->format = Response::FORMAT_RAW;
+        return Yii::$app->response->sendFile($path, $filename, [
+            'inline' => true,
+            'mimeType' => 'application/pdf',
+        ]);
     }
 }

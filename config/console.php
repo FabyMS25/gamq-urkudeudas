@@ -14,6 +14,9 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
+        'ruatServices' => [
+            'class' => 'app\components\RuatServices',
+        ],
         'log' => [
             'targets' => [
                 [
