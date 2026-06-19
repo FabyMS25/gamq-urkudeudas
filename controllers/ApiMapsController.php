@@ -56,6 +56,7 @@ class ApiMapsController extends Controller
                     'graderias-sillas' => ['GET', 'OPTIONS'],
                     'actualizar-reserva-graderia-silla' => ['POST', 'OPTIONS'],
                     'pagos' => ['GET', 'OPTIONS'],
+                    'pago-graderia-silla' => ['GET', 'OPTIONS'],
                     'pagos-eventuales' => ['GET', 'OPTIONS'],
                     'pagos-infracciones' => ['GET', 'OPTIONS'],
                     'comprobante-pago' => ['GET', 'OPTIONS'],
@@ -330,7 +331,30 @@ class ApiMapsController extends Controller
 
 public function actionPagos()
 {
-    $query = (new \yii\db\Query())
+    $query = $this->pagoQuery();
+
+    $this->applyPagoFilters($query, 'p');
+
+    return $this->paginatedList($query, [$this, 'pagoPayload']);
+}
+
+public function actionPagoGraderiaSilla($grad_id = null)
+{
+    $gradId = $this->resolvePositiveInteger($grad_id, 'grad_id');
+    $row = $this->pagoQuery()
+        ->andWhere(['p.grad_id' => $gradId])
+        ->one();
+
+    if ($row === false) {
+        throw new NotFoundHttpException('No existe un pago activo para la graderia o silla indicada.');
+    }
+
+    return $this->pagoPayload($row);
+}
+
+private function pagoQuery()
+{
+    return (new \yii\db\Query())
         ->select([
             'p.*',
             'c.ext_id', 'c.sindi_id', 'c.contri_nombres', 'c.contri_paterno',
@@ -361,10 +385,6 @@ public function actionPagos()
             'p.pago_fecha_hora_preliquidacion' => SORT_DESC,
             'p.pago_id' => SORT_DESC,
         ]);
-
-    $this->applyPagoFilters($query, 'p');
-
-    return $this->paginatedList($query, [$this, 'pagoPayload']);
 }
 public function actionPagosEventuales()
 {
