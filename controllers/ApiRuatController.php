@@ -283,15 +283,19 @@ class ApiRuatController extends Controller
         $existeRuat = $ruatResponse !== null && isset($ruatResponse->codigoContribuyente);
 
         if ($localExistente !== null && $existeRuat) {
-            $this->applyRuatContribuyenteMetadata($localExistente, $ruatResponse);
-            $localExistente->save(false);
+            $localContribuyente = $this->syncLocalContribuyenteFromRuat($body, $ruatResponse, false);
 
             return [
-                'success' => true,
+                'success' => $localContribuyente !== null && !$localContribuyente->hasErrors(),
                 'accion' => 'YA_EXISTE_EN_RUAT_Y_LOCAL',
                 'mensaje' => 'El contribuyente ya existe en RUAT y en la base local.',
                 'codigoContribuyente' => $ruatResponse->codigoContribuyente,
-                'localContribuyente' => $localExistente->attributes,
+                'localContribuyente' => $localContribuyente && !$localContribuyente->hasErrors()
+                    ? $localContribuyente->attributes
+                    : null,
+                'localErrors' => $localContribuyente && $localContribuyente->hasErrors()
+                    ? $localContribuyente->getErrors()
+                    : null,
                 'ruat' => $ruatResponse,
             ];
         }
@@ -540,12 +544,17 @@ class ApiRuatController extends Controller
     {
         $data = $this->taxpayerDataFromRequest($body);
 
-        $numeroDocumento = isset($ruatResponse->contribuyente->numeroDocumento)
+        $numeroDocumentoRuat = isset($ruatResponse->contribuyente->numeroDocumento)
             ? trim((string)$ruatResponse->contribuyente->numeroDocumento)
-            : $this->firstRequiredString($data, ['contri_ci']);
+            : null;
+        $numeroDocumentoLocal = $this->firstRequiredString($data, ['contri_ci']);
+        $numeroDocumento = $numeroDocumentoRuat ?: $numeroDocumentoLocal;
 
-        $model = Contribuyentes::findOne(['contri_ci' => $numeroDocumento]);
-        $isNew = ($model === null);
+        $models = $this->findLocalContribuyentesByDocumentCandidates([
+            $numeroDocumentoRuat,
+            $numeroDocumentoLocal,
+        ]);
+        $isNew = empty($models);
 
         if ($isNew && !$createIfMissing) {
             return null;
@@ -556,37 +565,69 @@ class ApiRuatController extends Controller
             $model->contri_ci = $numeroDocumento;
             $model->contri_estado = 1;
             $model->contri_fecharegistro = date('Y-m-d');
+            $models = [$model];
         }
 
         $ruatContribuyente = isset($ruatResponse->contribuyente) ? $ruatResponse->contribuyente : null;
 
-        $model->ext_id = $this->localExtIdFromData($data, $ruatContribuyente);
-        $model->sindi_id = $this->optionalInteger($data, ['sindi_id'], 'sindi_id') ?: $model->sindi_id;
-        $model->contri_nombres = $this->localValue($data, ['contri_nombres'], $ruatContribuyente, 'nombre') ?: $model->contri_nombres;
-        $model->contri_paterno = $this->localValue($data, ['contri_paterno'], $ruatContribuyente, 'primerApellido') ?: $model->contri_paterno;
-        $model->contri_materno = $this->localValue($data, ['contri_materno'], $ruatContribuyente, 'segundoApellido') ?: $model->contri_materno;
-        $model->contri_apellidocasada = $this->localValue($data, ['contri_apellidocasada'], $ruatContribuyente, 'apellidoEsposo') ?? $model->contri_apellidocasada;
-        $model->contri_direccion = $this->localDireccion($data, $ruatContribuyente, $model->contri_direccion);
-        $model->contri_telefono = $this->localTelefono($data, $ruatContribuyente, $model->contri_telefono);
-        $model->contri_nit = $this->localNit($data, $ruatContribuyente, $model->contri_nit);
+        foreach ($models as $index => $model) {
+            $modelIsNew = $model->isNewRecord;
+            $model->ext_id = $this->localExtIdFromData($data, $ruatContribuyente);
+            $model->sindi_id = $this->optionalInteger($data, ['sindi_id'], 'sindi_id') ?: $model->sindi_id;
+            $model->contri_nombres = $this->localValue($data, ['contri_nombres'], $ruatContribuyente, 'nombre') ?: $model->contri_nombres;
+            $model->contri_paterno = $this->localValue($data, ['contri_paterno'], $ruatContribuyente, 'primerApellido') ?: $model->contri_paterno;
+            $model->contri_materno = $this->localValue($data, ['contri_materno'], $ruatContribuyente, 'segundoApellido') ?: $model->contri_materno;
+            $model->contri_apellidocasada = $this->localValue($data, ['contri_apellidocasada'], $ruatContribuyente, 'apellidoEsposo') ?? $model->contri_apellidocasada;
+            $model->contri_direccion = $this->localDireccion($data, $ruatContribuyente, $model->contri_direccion);
+            $model->contri_telefono = $this->localTelefono($data, $ruatContribuyente, $model->contri_telefono);
+            $model->contri_nit = $this->localNit($data, $ruatContribuyente, $model->contri_nit);
 
-        $fechaNacimiento = $this->localValue($data, ['contri_fechanac'], $ruatContribuyente, 'fechaNacimiento');
-        $model->contri_fechanac = $fechaNacimiento !== null
-            ? $this->localDateValue($fechaNacimiento)
-            : $model->contri_fechanac;
-        $model->contri_sexo = $this->localSexo($data, $ruatContribuyente, $model->contri_sexo);
-        $model->contri_estadocivil = $this->localEstadoCivil($data, $ruatContribuyente, $model->contri_estadocivil);
-        $model->contri_estado = $this->optionalInteger($data, ['contri_estado'], 'contri_estado') ?? $model->contri_estado ?? 1;
+            $fechaNacimiento = $this->localValue($data, ['contri_fechanac'], $ruatContribuyente, 'fechaNacimiento');
+            $model->contri_fechanac = $fechaNacimiento !== null
+                ? $this->localDateValue($fechaNacimiento)
+                : $model->contri_fechanac;
+            $model->contri_sexo = $this->localSexo($data, $ruatContribuyente, $model->contri_sexo);
+            $model->contri_estadocivil = $this->localEstadoCivil($data, $ruatContribuyente, $model->contri_estadocivil);
+            $model->contri_estado = $this->optionalInteger($data, ['contri_estado'], 'contri_estado') ?? $model->contri_estado ?? 1;
 
-        if ($model->sindi_id === null) {
-            $model->sindi_id = $this->requiredInteger($data, ['sindi_id'], 'sindi_id');
+            if ($model->sindi_id === null) {
+                $model->sindi_id = $this->requiredInteger($data, ['sindi_id'], 'sindi_id');
+            }
+
+            $this->applyRuatContribuyenteMetadata($model, $ruatResponse);
+
+            if ($modelIsNew) {
+                $model->save();
+            } else {
+                $model->save(false);
+            }
+
+            $models[$index] = $model;
         }
 
-        $this->applyRuatContribuyenteMetadata($model, $ruatResponse);
+        return reset($models);
+    }
 
-        $model->save();
+    private function findLocalContribuyentesByDocumentCandidates(array $candidates): array
+    {
+        $modelsById = [];
 
-        return $model;
+        foreach ($candidates as $candidate) {
+            if ($candidate === null || trim((string)$candidate) === '') {
+                continue;
+            }
+
+            $models = Contribuyentes::find()
+                ->where(['contri_ci' => trim((string)$candidate)])
+                ->orderBy(['contri_id' => SORT_ASC])
+                ->all();
+
+            foreach ($models as $model) {
+                $modelsById[$model->contri_id] = $model;
+            }
+        }
+
+        return array_values($modelsById);
     }
 
     private function applyRuatContribuyenteMetadata(Contribuyentes $model, $ruatResponse)

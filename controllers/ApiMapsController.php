@@ -217,41 +217,19 @@ class ApiMapsController extends Controller
     public function actionContribuyentes()
     {
         $query = (new \yii\db\Query())
-            ->select([
-                'contri_id',
-                'ext_id',
-                'sindi_id',
-                'contri_nombres',
-                'contri_paterno',
-                'contri_materno',
-                'contri_apellidocasada',
-                'contri_ci',
-                'contri_direccion',
-                'contri_telefono',
-                'contri_nit',
-                'contri_fecharegistro',
-                'contri_fechanac',
-                'contri_sexo',
-                'contri_estadocivil',
-                'contri_estado',
-                'contri_codigo_ruat',
-                'contri_tipo_contribuyente_ruat',
-                'contri_tipo_documento_ruat',
-                'contri_estado_ruat',
-                'contri_ruat_sync_at',
-            ])
-            ->from('contribuyentes')
-            ->where(['contri_estado' => 1])
+            ->select('c.*')
+            ->from(['c' => 'contribuyentes'])
+            ->where(['c.contri_estado' => 1])
             ->orderBy([
-                'contri_nombres' => SORT_ASC,
-                'contri_paterno' => SORT_ASC,
-                'contri_materno' => SORT_ASC,
+                'c.contri_nombres' => SORT_ASC,
+                'c.contri_paterno' => SORT_ASC,
+                'c.contri_materno' => SORT_ASC,
+                'c.contri_id' => SORT_ASC,
             ]);
-        $id = Yii::$app->request->get('id');
-        if ($id !== null && $id !== '') {
-            return $query->andWhere(['contri_id' => $id])->one();
-        }
-        return $query->all();
+
+        $this->applyContribuyenteFilters($query, 'c');
+
+        return $this->paginatedList($query);
     }
 
     public function actionUsuarios()
@@ -350,329 +328,109 @@ class ApiMapsController extends Controller
         return $this->updateReservaGraderiaSilla($id, $reservado, $reservado ? 'reservar' : 'unreservar');
     }
 
-    public function actionPagos()
-    {
-        $query = (new \yii\db\Query())
-            ->select([
-                'p.pago_id',
-                'p.pago_estado',
-                'p.pago_id_user_preliquidacion',
-                'p.usua_id',
-                'p.contri_id',
-                'p.grad_id',
-                'p.tip_arm_id',
-                'p.pago_nro_comprobante',
-                'p.pago_nro_liquidacion',
-                'p.pago_tasa',
-                'p.pago_longitud_modificada',
-                'p.pago_descuento_porcentaje',
-                'p.pago_descuento_monto',
-                'p.pago_importe_patente',
-                'p.pago_aseo',
-                'p.pago_reposicion',
-                'p.pago_importe_total',
-                'p.pago_preliquidacion',
-                'p.pago_fecha_hora_preliquidacion',
-                'p.pago_fecha_hora_cobro',
-                'p.pago_cobrado',
-                'p.pago_con_exencion',
-                'p.pago_anulado',
-                'p.pago_anulado_detalle',
-                'p.pago_anulado_fecha_hora',
-                'p.pago_observaciones',
+public function actionPagos()
+{
+    $query = (new \yii\db\Query())
+        ->select([
+            'p.*',
+            'c.ext_id', 'c.sindi_id', 'c.contri_nombres', 'c.contri_paterno',
+            'c.contri_materno', 'c.contri_apellidocasada', 'c.contri_ci',
+            'c.contri_direccion', 'c.contri_telefono', 'c.contri_nit',
+            'c.contri_fecharegistro', 'c.contri_fechanac', 'c.contri_sexo',
+            'c.contri_estadocivil', 'c.contri_estado', 'c.contri_codigo_ruat',
+            'c.contri_tipo_contribuyente_ruat', 'c.contri_tipo_documento_ruat',
+            'c.contri_estado_ruat', 'c.contri_ruat_sync_at',
+            'u.usua_nombres', 'u.usua_apellidos', 'u.usua_ci',
+            'u.usua_cuenta', 'u.usua_rol', 'u.usua_estado',
+            'gs.zona_id', 'gs.gest_id', 'gs.grad_codigo', 'gs.grad_propietario',
+            'gs.grad_codigo_catastral', 'gs.grad_direccion', 'gs.grad_acera',
+            'gs.grad_tipo_armado', 'gs.grad_tipo_sitio', 'gs.grad_resto',
+            'gs.grad_longitud', 'gs.grad_vendido', 'gs.grad_reservado', 'gs.grad_estado',
+            'z.zona_nombre', 'z.zona_color', 'z.zona_color_hexadecimal',
+            'ta.tip_arm_descricpion', 'ta.tip_arm_patente', 'ta.tip_arm_tasa_aseo',
+            'ta.tip_arm_unidad_medida', 'ta.tip_arm_estado',
+        ])
+        ->from(['p' => 'pagos'])
+        ->leftJoin(['c' => 'contribuyentes'], 'c.contri_id = p.contri_id')
+        ->leftJoin(['gs' => 'graderias_sillas'], 'gs.grad_id = p.grad_id')
+        ->leftJoin(['z' => 'zonas'], 'z.zona_id = gs.zona_id')
+        ->leftJoin(['ta' => 'tipo_armados'], 'ta.tip_arm_id = p.tip_arm_id')
+        ->leftJoin(['u' => 'usuario'], 'u.usua_id = p.usua_id')
+        ->where(['p.pago_estado' => 1])
+        ->orderBy([
+            'p.pago_fecha_hora_preliquidacion' => SORT_DESC,
+            'p.pago_id' => SORT_DESC,
+        ]);
 
-                'u.usua_nombres',
-                'u.usua_apellidos',
-                'u.usua_ci',
-                'u.usua_cuenta',
-                'u.usua_rol',
-                'u.usua_estado',
+    $this->applyPagoFilters($query, 'p');
 
-                'c.contri_nombres',
-                'c.contri_paterno',
-                'c.contri_materno',
-                'c.contri_ci',
-                'c.contri_id',
-                'c.ext_id',
-                'c.sindi_id',
-                'c.contri_apellidocasada',
-                'c.contri_direccion',
-                'c.contri_telefono',
-                'c.contri_nit',
-                'c.contri_fecharegistro',
-                'c.contri_fechanac',
-                'c.contri_sexo',
-                'c.contri_estadocivil',
-                'c.contri_estado',
-                'c.contri_codigo_ruat',
-                'c.contri_tipo_contribuyente_ruat',
-                'c.contri_tipo_documento_ruat',
-                'c.contri_estado_ruat',
-                'c.contri_ruat_sync_at',
+    return $this->paginatedList($query, [$this, 'pagoPayload']);
+}
+public function actionPagosEventuales()
+{
+    $query = (new \yii\db\Query())
+        ->select([
+            'pe.*',
+            'c.ext_id', 'c.sindi_id', 'c.contri_nombres', 'c.contri_paterno',
+            'c.contri_materno', 'c.contri_apellidocasada', 'c.contri_ci',
+            'c.contri_direccion', 'c.contri_telefono', 'c.contri_nit',
+            'c.contri_fecharegistro', 'c.contri_fechanac', 'c.contri_sexo',
+            'c.contri_estadocivil', 'c.contri_estado', 'c.contri_codigo_ruat',
+            'c.contri_tipo_contribuyente_ruat', 'c.contri_tipo_documento_ruat',
+            'c.contri_estado_ruat', 'c.contri_ruat_sync_at',
+            'u.usua_nombres', 'u.usua_apellidos', 'u.usua_ci',
+            'u.usua_cuenta', 'u.usua_rol', 'u.usua_estado',
+            's.sitios_codigo', 's.sitios_descripcion', 's.sitios_numero_sitio',
+            's.sitios_vendido', 's.sitios_es_alasita', 's.sitios_estado',
+            'a.categ_id', 'a.activi_descripcion', 'a.activi_largo_mts',
+            'a.activi_ancho_mts', 'a.activi_superficie', 'a.activi_costo_patente',
+            'a.activi_costo_sentaje_dia', 'a.activi_costo_aseo_por_dia',
+            'a.activi_costo_aseo_por_sitio', 'a.activi_cobro_por_dia', 'a.activi_estado',
+            'cat.categ_nombre', 'cat.categ_codigo', 'cat.categ_estado',
+        ])
+        ->from(['pe' => 'pagos_eventuales'])
+        ->leftJoin(['c' => 'contribuyentes'], 'c.contri_id = pe.contri_id')
+        ->leftJoin(['s' => 'sitios_eventuales'], 's.sitios_id = pe.sitios_id')
+        ->leftJoin(['a' => 'actividades_economicas'], 'a.activi_id = pe.activi_id')
+        ->leftJoin(['cat' => 'categorias'], 'cat.categ_id = a.categ_id')
+        ->leftJoin(['u' => 'usuario'], 'u.usua_id = pe.usua_id')
+        ->where(['pe.eventual_estado' => 1])
+        ->orderBy([
+            'pe.eventual_fecha_hora_liquidacion' => SORT_DESC,
+            'pe.eventual_id' => SORT_DESC,
+        ]);
 
-                'gs.grad_codigo',
-                'gs.grad_direccion',
-                'gs.zona_id',
-                'gs.gest_id',
-                'gs.grad_propietario',
-                'gs.grad_codigo_catastral',
-                'gs.grad_acera',
-                'gs.grad_tipo_armado',
-                'gs.grad_tipo_sitio',
-                'gs.grad_resto',
-                'gs.grad_longitud',
-                'gs.grad_vendido',
-                'gs.grad_reservado',
-                'gs.grad_estado',
-                'z.zona_nombre',
-                'z.zona_color',
-                'z.zona_color_hexadecimal',
+    $this->applyPagoEventualFilters($query, 'pe');
 
-                'ta.tip_arm_descricpion',
-                'ta.tip_arm_patente',
-                'ta.tip_arm_tasa_aseo',
-                'ta.tip_arm_unidad_medida',
-                'ta.tip_arm_estado',
-            ])
-            ->from(['p' => 'pagos'])
-            ->leftJoin(['c' => 'contribuyentes'], 'c.contri_id = p.contri_id')
-            ->leftJoin(['gs' => 'graderias_sillas'], 'gs.grad_id = p.grad_id')
-            ->leftJoin(['z' => 'zonas'], 'z.zona_id = gs.zona_id')
-            ->leftJoin(['ta' => 'tipo_armados'], 'ta.tip_arm_id = p.tip_arm_id')
-            ->leftJoin(['u' => 'usuario'], 'u.usua_id = p.usua_id')
-            ->where(['p.pago_estado' => 1])
-            ->orderBy(['p.pago_fecha_hora_preliquidacion' => SORT_DESC, 'p.pago_id' => SORT_DESC]);
+    return $this->paginatedList($query, [$this, 'pagoEventualPayload']);
+}
+public function actionPagosInfracciones()
+{
+    $query = (new \yii\db\Query())
+        ->select([
+            'pi.*',
+            'c.ext_id', 'c.sindi_id', 'c.contri_nombres', 'c.contri_paterno',
+            'c.contri_materno', 'c.contri_apellidocasada', 'c.contri_ci',
+            'c.contri_direccion', 'c.contri_telefono', 'c.contri_nit',
+            'c.contri_fecharegistro', 'c.contri_fechanac', 'c.contri_sexo',
+            'c.contri_estadocivil', 'c.contri_estado', 'c.contri_codigo_ruat',
+            'c.contri_tipo_contribuyente_ruat', 'c.contri_tipo_documento_ruat',
+            'c.contri_estado_ruat', 'c.contri_ruat_sync_at',
+            'u.usua_nombres', 'u.usua_apellidos', 'u.usua_ci',
+            'u.usua_cuenta', 'u.usua_rol', 'u.usua_estado',
+        ])
+        ->from(['pi' => 'pagos_infracciones'])
+        ->leftJoin(['c' => 'contribuyentes'], 'c.contri_id = pi.contri_id')
+        ->leftJoin(['u' => 'usuario'], 'u.usua_id = pi.usua_id')
+        ->orderBy([
+            'pi.created_at' => SORT_DESC,
+            'pi.infraccion_id' => SORT_DESC,
+        ]);
 
-        $id = Yii::$app->request->get('id');
-        if ($id !== null && $id !== '') {
-            $row = $query->andWhere(['p.pago_id' => $id])->one();
-            return $row === false ? null : $this->pagoPayload($row);
-        }
+    $this->applyPagoInfraccionFilters($query, 'pi');
 
-        return array_map([$this, 'pagoPayload'], $query->all() );
-    }
-
-    public function actionPagosEventuales()
-    {
-        $query = (new \yii\db\Query())
-            ->select([
-                'pe.eventual_id',
-                'pe.eventual_estado',
-                'pe.eventual_user_id_preliquidacion',
-                'pe.usua_id',
-                'pe.contri_id',
-                'pe.sitios_id',
-                'pe.activi_id',
-                'pe.eventual_nro_comprobante',
-                'pe.eventual_nro_liquidacion',
-                'pe.eventual_tasa',
-                'pe.eventual_fecha_hora_pago',
-                'pe.eventual_fecha_inicio',
-                'pe.eventual_fecha_limite',
-                'pe.eventual_cantidad_dia',
-                'pe.eventual_importe_patente',
-                'pe.eventual_costo_comprobante',
-                'pe.eventual_costo_sentaje',
-                'pe.eventual_costo_aseo',
-                'pe.eventual_importe_total',
-                'pe.eventual_preliquidacion',
-                'pe.eventual_fecha_hora_liquidacion',
-                'pe.eventual_cantidad_sitio',
-                'pe.eventual_cobrado',
-                'pe.eventual_anulado',
-                'pe.eventual_anulado_detalle',
-                'pe.eventual_anulado_fecha_hora',
-                'pe.eventual_descripcion',
-
-                'u.usua_nombres',
-                'u.usua_apellidos',
-                'u.usua_ci',
-                'u.usua_cuenta',
-                'u.usua_rol',
-                'u.usua_estado',
-
-                'c.contri_nombres',
-                'c.contri_paterno',
-                'c.contri_materno',
-                'c.contri_ci',
-                'c.contri_id',
-                'c.ext_id',
-                'c.sindi_id',
-                'c.contri_apellidocasada',
-                'c.contri_direccion',
-                'c.contri_telefono',
-                'c.contri_nit',
-                'c.contri_fecharegistro',
-                'c.contri_fechanac',
-                'c.contri_sexo',
-                'c.contri_estadocivil',
-                'c.contri_estado',
-                'c.contri_codigo_ruat',
-                'c.contri_tipo_contribuyente_ruat',
-                'c.contri_tipo_documento_ruat',
-                'c.contri_estado_ruat',
-                'c.contri_ruat_sync_at',
-
-                's.sitios_codigo',
-                's.sitios_descripcion',
-                's.sitios_numero_sitio',
-                's.sitios_vendido',
-                's.sitios_es_alasita',
-                's.sitios_estado',
-
-                'a.activi_descripcion',
-                'a.categ_id',
-                'a.activi_largo_mts',
-                'a.activi_ancho_mts',
-                'a.activi_superficie',
-                'a.activi_costo_patente',
-                'a.activi_costo_sentaje_dia',
-                'a.activi_costo_aseo_por_dia',
-                'a.activi_costo_aseo_por_sitio',
-                'a.activi_cobro_por_dia',
-                'a.activi_estado',
-
-                'cat.categ_id',
-                'cat.categ_nombre',
-                'cat.categ_codigo',
-                'cat.categ_estado',
-            ])
-            ->from(['pe' => 'pagos_eventuales'])
-            ->leftJoin(['c' => 'contribuyentes'], 'c.contri_id = pe.contri_id')
-            ->leftJoin(['s' => 'sitios_eventuales'], 's.sitios_id = pe.sitios_id')
-            ->leftJoin(['a' => 'actividades_economicas'], 'a.activi_id = pe.activi_id')
-            ->leftJoin(['cat' => 'categorias'], 'cat.categ_id = a.categ_id')
-            ->leftJoin(['u' => 'usuario'], 'u.usua_id = pe.usua_id')
-            ->where(['pe.eventual_estado' => 1])
-            ->orderBy(['pe.eventual_fecha_hora_liquidacion' => SORT_DESC, 'pe.eventual_id' => SORT_DESC]);
-
-        $id = Yii::$app->request->get('id');
-        if ($id !== null && $id !== '') {
-            $row = $query->andWhere(['pe.eventual_id' => $id])->one();
-            return $row === false ? null : $this->pagoEventualPayload($row);
-        }
-
-        return array_map([$this, 'pagoEventualPayload'], $query->all());
-    }
-
-    public function actionPagosInfracciones()
-    {
-        $query = (new \yii\db\Query())
-            ->select([
-                'pi.infraccion_id',
-                'pi.usua_id',
-                'pi.contri_id',
-                'pi.codigo_usuario',
-                'pi.codigo_contribuyente',
-                'pi.numero_documento',
-                'pi.tipo_documento',
-                'pi.expedido',
-                'pi.tipo_infraccion',
-                'pi.descripcion_infraccion',
-                'pi.lugar_infraccion',
-                'pi.fecha_infraccion',
-                'pi.gestion',
-                'pi.codigo_clasificador',
-                'pi.monto',
-                'pi.observacion',
-                'pi.numero_tasa',
-                'pi.infraccion_estado',
-                'pi.infraccion_pagado',
-                'pi.infraccion_anulado',
-                'pi.fecha_pago',
-                'pi.anulado_motivo',
-                'pi.anulado_observacion',
-                'pi.anulado_fecha_hora',
-                'pi.created_at',
-                'pi.updated_at',
-
-                'u.usua_nombres',
-                'u.usua_apellidos',
-                'u.usua_ci',
-                'u.usua_cuenta',
-                'u.usua_rol',
-                'u.usua_estado',
-
-                'c.contri_nombres',
-                'c.contri_paterno',
-                'c.contri_materno',
-                'c.contri_ci',
-                'c.ext_id',
-                'c.sindi_id',
-                'c.contri_apellidocasada',
-                'c.contri_direccion',
-                'c.contri_telefono',
-                'c.contri_nit',
-                'c.contri_fecharegistro',
-                'c.contri_fechanac',
-                'c.contri_sexo',
-                'c.contri_estadocivil',
-                'c.contri_estado',
-                'c.contri_codigo_ruat',
-                'c.contri_tipo_contribuyente_ruat',
-                'c.contri_tipo_documento_ruat',
-                'c.contri_estado_ruat',
-                'c.contri_ruat_sync_at',
-            ])
-            ->from(['pi' => 'pagos_infracciones'])
-            ->leftJoin(['c' => 'contribuyentes'], 'c.contri_id = pi.contri_id')
-            ->leftJoin(['u' => 'usuario'], 'u.usua_id = pi.usua_id')
-            ->orderBy(['pi.created_at' => SORT_DESC, 'pi.infraccion_id' => SORT_DESC]);
-
-        $id = Yii::$app->request->get('id');
-        if ($id !== null && $id !== '') {
-            $row = $query->andWhere(['pi.infraccion_id' => $id])->one();
-            return $row === false ? null : $this->pagoInfraccionPayload($row);
-        }
-
-        $numeroTasa = Yii::$app->request->get('numero_tasa', Yii::$app->request->get('numeroTasa'));
-        if ($numeroTasa !== null && $numeroTasa !== '') {
-            $query->andWhere(['pi.numero_tasa' => $numeroTasa]);
-        }
-
-        $numeroDocumento = Yii::$app->request->get('numero_documento', Yii::$app->request->get('numeroDocumento', Yii::$app->request->get('ci')));
-        if ($numeroDocumento !== null && $numeroDocumento !== '') {
-            $query->andWhere(['ilike', 'pi.numero_documento', $numeroDocumento]);
-        }
-
-        $tipoInfraccion = Yii::$app->request->get('tipo_infraccion', Yii::$app->request->get('tipoInfraccion'));
-        if ($tipoInfraccion !== null && $tipoInfraccion !== '') {
-            $query->andWhere(['ilike', 'pi.tipo_infraccion', $tipoInfraccion]);
-        }
-
-        $gestion = Yii::$app->request->get('gestion');
-        if ($gestion !== null && $gestion !== '') {
-            $query->andWhere(['pi.gestion' => $gestion]);
-        }
-
-        $estado = Yii::$app->request->get('estado', Yii::$app->request->get('infraccion_estado'));
-        if ($estado !== null && $estado !== '') {
-            $query->andWhere(['pi.infraccion_estado' => (int)$estado]);
-        }
-
-        $pagado = Yii::$app->request->get('pagado', Yii::$app->request->get('infraccion_pagado'));
-        if ($pagado !== null && $pagado !== '') {
-            $query->andWhere(['pi.infraccion_pagado' => (int)$pagado]);
-        }
-
-        $anulado = Yii::$app->request->get('anulado', Yii::$app->request->get('infraccion_anulado'));
-        if ($anulado !== null && $anulado !== '') {
-            $query->andWhere(['pi.infraccion_anulado' => (int)$anulado]);
-        }
-
-        $fechaDesde = Yii::$app->request->get('fecha_desde', Yii::$app->request->get('fechaDesde'));
-        if ($fechaDesde !== null && $fechaDesde !== '') {
-            $query->andWhere(['>=', 'pi.fecha_infraccion', $fechaDesde]);
-        }
-
-        $fechaHasta = Yii::$app->request->get('fecha_hasta', Yii::$app->request->get('fechaHasta'));
-        if ($fechaHasta !== null && $fechaHasta !== '') {
-            $query->andWhere(['<=', 'pi.fecha_infraccion', $fechaHasta]);
-        }
-
-        return array_map([$this, 'pagoInfraccionPayload'], $query->all());
-    }
-
+    return $this->paginatedList($query, [$this, 'pagoInfraccionPayload']);
+}
     public function actionComprobantePago($id = null)
     {
         $pagoId = $this->resolvePositiveInteger($id, 'id');
@@ -871,164 +629,6 @@ class ApiMapsController extends Controller
         return $carpeta . '/' . $archivo . '.pdf';
     }
 
-    private function pagoPayload(array $row)
-    {
-        $row['contribuyente'] = $this->contribuyentePayload($row);
-        $row['usuario'] = $this->usuarioPayload($row, 'usua_id');
-        $row['usuario_preliquidacion'] = $this->usuarioByIdPayload($this->nullableInt($row, 'pago_id_user_preliquidacion'));
-        $row['graderia_silla'] = $this->graderiaSillaRowPayload($row);
-        $row['tipo_armado'] = $this->tipoArmadoPayload($row);
-        $this->unsetKeys($row, [
-            'observaciones',
-            'contri_nombres',
-            'contri_paterno',
-            'contri_materno',
-            'contri_ci',
-            'ext_id',
-            'sindi_id',
-            'contri_apellidocasada',
-            'contri_direccion',
-            'contri_telefono',
-            'contri_nit',
-            'contri_fecharegistro',
-            'contri_fechanac',
-            'contri_sexo',
-            'contri_estadocivil',
-            'contri_estado',
-            'contri_codigo_ruat',
-            'contri_tipo_contribuyente_ruat',
-            'contri_tipo_documento_ruat',
-            'contri_estado_ruat',
-            'contri_ruat_sync_at',
-            'grad_codigo',
-            'grad_direccion',
-            'zona_id',
-            'gest_id',
-            'grad_propietario',
-            'grad_codigo_catastral',
-            'grad_acera',
-            'grad_tipo_armado',
-            'grad_tipo_sitio',
-            'grad_resto',
-            'grad_longitud',
-            'grad_vendido',
-            'grad_reservado',
-            'grad_estado',
-            'zona_nombre',
-            'zona_color',
-            'zona_color_hexadecimal',
-            'tip_arm_descricpion',
-            'tip_arm_patente',
-            'tip_arm_tasa_aseo',
-            'tip_arm_unidad_medida',
-            'tip_arm_estado',
-            'usua_nombres',
-            'usua_apellidos',
-            'usua_ci',
-            'usua_cuenta',
-            'usua_rol',
-            'usua_estado',
-        ]);
-
-        return $row;
-    }
-
-    private function pagoEventualPayload(array $row)
-    {
-        $row['contribuyente'] = $this->contribuyentePayload($row);
-        $row['usuario'] = $this->usuarioPayload($row, 'usua_id');
-        $row['usuario_preliquidacion'] = $this->usuarioByIdPayload($this->nullableInt($row, 'eventual_user_id_preliquidacion'));
-        $row['sitio_eventual'] = $this->sitioEventualPayload($row);
-        $row['actividad_economica'] = $this->actividadEconomicaPayload($row);
-        $this->unsetKeys($row, [
-            'observaciones',
-            'contri_nombres',
-            'contri_paterno',
-            'contri_materno',
-            'contri_ci',
-            'ext_id',
-            'sindi_id',
-            'contri_apellidocasada',
-            'contri_direccion',
-            'contri_telefono',
-            'contri_nit',
-            'contri_fecharegistro',
-            'contri_fechanac',
-            'contri_sexo',
-            'contri_estadocivil',
-            'contri_estado',
-            'contri_codigo_ruat',
-            'contri_tipo_contribuyente_ruat',
-            'contri_tipo_documento_ruat',
-            'contri_estado_ruat',
-            'contri_ruat_sync_at',
-            'sitios_codigo',
-            'sitios_descripcion',
-            'sitios_numero_sitio',
-            'sitios_vendido',
-            'sitios_es_alasita',
-            'sitios_estado',
-            'activi_descripcion',
-            'categ_id',
-            'activi_largo_mts',
-            'activi_ancho_mts',
-            'activi_superficie',
-            'activi_costo_patente',
-            'activi_costo_sentaje_dia',
-            'activi_costo_aseo_por_dia',
-            'activi_costo_aseo_por_sitio',
-            'activi_cobro_por_dia',
-            'activi_estado',
-            'categ_nombre',
-            'categ_codigo',
-            'categ_estado',
-            'usua_nombres',
-            'usua_apellidos',
-            'usua_ci',
-            'usua_cuenta',
-            'usua_rol',
-            'usua_estado',
-        ]);
-
-        return $row;
-    }
-
-    private function pagoInfraccionPayload(array $row)
-    {
-        $row['contribuyente'] = $this->contribuyentePayload($row);
-        $row['usuario'] = $this->usuarioPayload($row, 'usua_id');
-        $this->unsetKeys($row, [
-            'contri_nombres',
-            'contri_paterno',
-            'contri_materno',
-            'contri_ci',
-            'ext_id',
-            'sindi_id',
-            'contri_apellidocasada',
-            'contri_direccion',
-            'contri_telefono',
-            'contri_nit',
-            'contri_fecharegistro',
-            'contri_fechanac',
-            'contri_sexo',
-            'contri_estadocivil',
-            'contri_estado',
-            'contri_codigo_ruat',
-            'contri_tipo_contribuyente_ruat',
-            'contri_tipo_documento_ruat',
-            'contri_estado_ruat',
-            'contri_ruat_sync_at',
-            'usua_nombres',
-            'usua_apellidos',
-            'usua_ci',
-            'usua_cuenta',
-            'usua_rol',
-            'usua_estado',
-        ]);
-
-        return $row;
-    }
-
     private function contribuyentePayload(array $row)
     {
         if (!isset($row['contri_id']) || $row['contri_id'] === null) {
@@ -1217,8 +817,181 @@ class ApiMapsController extends Controller
         ];
     }
 
+    private function pagoPayload(array $row)
+    {
+        $row['contribuyente'] = $this->contribuyentePayload($row);
+        $row['usuario'] = $this->usuarioPayload($row, 'usua_id');
+        $row['usuario_preliquidacion'] = $this->usuarioByIdPayload($this->nullableInt($row, 'pago_id_user_preliquidacion'));
+        $row['graderia_silla'] = $this->graderiaSillaRowPayload($row);
+        $row['tipo_armado'] = $this->tipoArmadoPayload($row);
 
+        $this->unsetRelatedKeys($row);
 
+        return $row;
+    }
+
+    private function pagoEventualPayload(array $row)
+    {
+        $row['contribuyente'] = $this->contribuyentePayload($row);
+        $row['usuario'] = $this->usuarioPayload($row, 'usua_id');
+        $row['usuario_preliquidacion'] = $this->usuarioByIdPayload($this->nullableInt($row, 'eventual_user_id_preliquidacion'));
+        $row['sitio_eventual'] = $this->sitioEventualPayload($row);
+        $row['actividad_economica'] = $this->actividadEconomicaPayload($row);
+
+        $this->unsetRelatedKeys($row);
+
+        return $row;
+    }
+
+    private function pagoInfraccionPayload(array $row)
+    {
+        $row['contribuyente'] = $this->contribuyentePayload($row);
+        $row['usuario'] = $this->usuarioPayload($row, 'usua_id');
+
+        $this->unsetRelatedKeys($row);
+
+        return $row;
+    }
+
+    private function applyContribuyenteFilters(&$query, $alias)
+    {
+        $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
+        $this->filterPositiveInteger($query, $alias . '.ext_id', 'ext_id');
+        $this->filterPositiveInteger($query, $alias . '.sindi_id', 'sindi_id');
+        $this->filterLike($query, $alias . '.contri_nombres', 'contri_nombres');
+        $this->filterLike($query, $alias . '.contri_paterno', 'contri_paterno');
+        $this->filterLike($query, $alias . '.contri_materno', 'contri_materno');
+        $this->filterLike($query, $alias . '.contri_apellidocasada', 'contri_apellidocasada');
+        $this->filterLike($query, $alias . '.contri_ci', 'contri_ci');
+        $this->filterLike($query, $alias . '.contri_direccion', 'contri_direccion');
+        $this->filterPositiveInteger($query, $alias . '.contri_telefono', 'contri_telefono');
+        $this->filterPositiveInteger($query, $alias . '.contri_nit', 'contri_nit');
+        $this->filterExact($query, $alias . '.contri_sexo', 'contri_sexo');
+        $this->filterExact($query, $alias . '.contri_estadocivil', 'contri_estadocivil');
+        $this->filterLike($query, $alias . '.contri_codigo_ruat', 'contri_codigo_ruat');
+        $this->filterExact($query, $alias . '.contri_tipo_contribuyente_ruat', 'contri_tipo_contribuyente_ruat');
+        $this->filterExact($query, $alias . '.contri_tipo_documento_ruat', 'contri_tipo_documento_ruat');
+        $this->filterExact($query, $alias . '.contri_estado_ruat', 'contri_estado_ruat');
+        $this->filterExact($query, $alias . '.contri_estado_operativo', 'contri_estado_operativo');
+        $this->filterDateRange($query, $alias . '.contri_fecharegistro', 'contri_fecharegistro_desde', 'contri_fecharegistro_hasta');
+        $this->filterDateRange($query, $alias . '.contri_fechanac', 'contri_fechanac_desde', 'contri_fechanac_hasta');
+        $this->filterDateRange($query, $alias . '.contri_ruat_sync_at', 'contri_ruat_sync_at_desde', 'contri_ruat_sync_at_hasta');
+    }
+
+private function applyPagoInfraccionFilters(&$query, $alias)
+{
+    $this->filterPositiveInteger($query, $alias . '.infraccion_id', 'infraccion_id');
+    $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
+    $this->filterPositiveInteger($query, $alias . '.usua_id', 'usua_id');
+    $this->filterExact($query, $alias . '.numero_tasa', 'numero_tasa');
+    $this->filterLike($query, $alias . '.numero_documento', 'numero_documento');
+    $this->filterLike($query, $alias . '.tipo_infraccion', 'tipo_infraccion');
+    $this->filterLike($query, $alias . '.descripcion_infraccion', 'descripcion_infraccion');
+    $this->filterLike($query, $alias . '.lugar_infraccion', 'lugar_infraccion');
+    $this->filterExact($query, $alias . '.gestion', 'gestion');
+    $this->filterBinary($query, $alias . '.infraccion_estado', 'infraccion_estado');
+    $this->filterBinary($query, $alias . '.infraccion_pagado', 'infraccion_pagado');
+    $this->filterBinary($query, $alias . '.infraccion_anulado', 'infraccion_anulado');
+    $this->filterDateRange($query, $alias . '.fecha_infraccion', 'fecha_infraccion_desde', 'fecha_infraccion_hasta');
+    $this->filterDateRange($query, $alias . '.fecha_pago', 'fecha_pago_desde', 'fecha_pago_hasta');
+    $this->filterDateRange($query, $alias . '.anulado_fecha_hora', 'anulado_fecha_hora_desde', 'anulado_fecha_hora_hasta');
+    $search = $this->filterValue('search');
+
+    if ($search !== null) {
+        $query->andWhere([
+            'or',
+            ['ilike', $alias . '.numero_tasa', $search],
+            ['ilike', $alias . '.numero_documento', $search],
+            ['ilike', $alias . '.codigo_contribuyente', $search],
+            ['ilike', $alias . '.tipo_documento', $search],
+            ['ilike', $alias . '.tipo_infraccion', $search],
+            ['ilike', $alias . '.descripcion_infraccion', $search],
+            ['ilike', $alias . '.lugar_infraccion', $search],
+            ['ilike', $alias . '.gestion', $search],
+            ['ilike', $alias . '.codigo_clasificador', $search],
+            ['ilike', $alias . '.observacion', $search],
+            ['ilike', 'c.contri_nombres', $search],
+            ['ilike', 'c.contri_paterno', $search],
+            ['ilike', 'c.contri_materno', $search],
+            ['ilike', 'u.usua_nombres', $search],
+            ['ilike', 'u.usua_apellidos', $search],
+            ['ilike', 'u.usua_cuenta', $search],
+        ]);
+    }$search = $this->filterValue('search');
+
+     if ($search !== null) {
+         $query->andWhere([
+             'or',
+             ['ilike', $alias . '.numero_tasa', $search],
+             ['ilike', $alias . '.numero_documento', $search],
+             ['ilike', $alias . '.codigo_contribuyente', $search],
+             ['ilike', $alias . '.tipo_documento', $search],
+             ['ilike', $alias . '.tipo_infraccion', $search],
+             ['ilike', $alias . '.descripcion_infraccion', $search],
+             ['ilike', $alias . '.lugar_infraccion', $search],
+             ['ilike', $alias . '.gestion', $search],
+             ['ilike', $alias . '.codigo_clasificador', $search],
+             ['ilike', $alias . '.observacion', $search],
+             ['ilike', 'c.contri_nombres', $search],
+             ['ilike', 'c.contri_paterno', $search],
+             ['ilike', 'c.contri_materno', $search],
+             ['ilike', 'u.usua_nombres', $search],
+             ['ilike', 'u.usua_apellidos', $search],
+             ['ilike', 'u.usua_cuenta', $search],
+         ]);
+     }
+}
+private function applyPagoFilters(&$query, $alias)
+ {
+     $this->filterPositiveInteger($query, $alias . '.pago_id', 'pago_id');
+     $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
+     $this->filterPositiveInteger($query, $alias . '.usua_id', 'usua_id');
+     $this->filterPositiveInteger($query, $alias . '.grad_id', 'grad_id');
+     $this->filterPositiveInteger($query, $alias . '.tip_arm_id', 'tip_arm_id');
+     $this->filterExact($query, $alias . '.pago_nro_liquidacion', 'pago_nro_liquidacion');
+     $this->filterPositiveInteger($query, $alias . '.pago_nro_comprobante', 'pago_nro_comprobante');
+     $this->filterExact($query, $alias . '.pago_tasa', 'pago_tasa');
+     $this->filterBinary($query, $alias . '.pago_preliquidacion', 'pago_preliquidacion');
+     $this->filterBinary($query, $alias . '.pago_cobrado', 'pago_cobrado');
+     $this->filterBinary($query, $alias . '.pago_anulado', 'pago_anulado');
+     $this->filterBinary($query, $alias . '.pago_con_exencion', 'pago_con_exencion');
+     $this->filterLike($query, 'c.contri_ci', 'contri_ci');
+     $this->filterLike($query, 'c.contri_nombres', 'contri_nombres');
+     $this->filterLike($query, 'c.contri_paterno', 'contri_paterno');
+     $this->filterLike($query, 'c.contri_materno', 'contri_materno');
+     $this->filterLike($query, 'gs.grad_codigo', 'grad_codigo');
+     $this->filterLike($query, 'gs.grad_direccion', 'grad_direccion');
+     $this->filterLike($query, 'z.zona_nombre', 'zona_nombre');
+     $this->filterLike($query, 'ta.tip_arm_descricpion', 'tip_arm_descricpion');
+     $this->filterDateRange($query, $alias . '.pago_fecha_hora_preliquidacion', 'pago_fecha_hora_preliquidacion_desde', 'pago_fecha_hora_preliquidacion_hasta');
+     $this->filterDateRange($query, $alias . '.pago_fecha_hora_cobro', 'pago_fecha_hora_cobro_desde', 'pago_fecha_hora_cobro_hasta');
+ }
+private function applyPagoEventualFilters(&$query, $alias)
+  {
+      $this->filterPositiveInteger($query, $alias . '.eventual_id', 'eventual_id');
+      $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
+      $this->filterPositiveInteger($query, $alias . '.usua_id', 'usua_id');
+      $this->filterPositiveInteger($query, $alias . '.sitios_id', 'sitios_id');
+      $this->filterPositiveInteger($query, $alias . '.activi_id', 'activi_id');
+      $this->filterExact($query, $alias . '.eventual_nro_liquidacion', 'eventual_nro_liquidacion');
+      $this->filterPositiveInteger($query, $alias . '.eventual_nro_comprobante', 'eventual_nro_comprobante');
+      $this->filterExact($query, $alias . '.eventual_tasa', 'eventual_tasa');
+      $this->filterBinary($query, $alias . '.eventual_preliquidacion', 'eventual_preliquidacion');
+      $this->filterBinary($query, $alias . '.eventual_cobrado', 'eventual_cobrado');
+      $this->filterBinary($query, $alias . '.eventual_anulado', 'eventual_anulado');
+      $this->filterLike($query, 'c.contri_ci', 'contri_ci');
+      $this->filterLike($query, 'c.contri_nombres', 'contri_nombres');
+      $this->filterLike($query, 'c.contri_paterno', 'contri_paterno');
+      $this->filterLike($query, 'c.contri_materno', 'contri_materno');
+      $this->filterLike($query, 's.sitios_codigo', 'sitios_codigo');
+      $this->filterLike($query, 's.sitios_descripcion', 'sitios_descripcion');
+      $this->filterLike($query, 'a.activi_descripcion', 'activi_descripcion');
+      $this->filterLike($query, 'cat.categ_nombre', 'categ_nombre');
+      $this->filterDateRange($query, $alias . '.eventual_fecha_hora_liquidacion', 'eventual_fecha_hora_liquidacion_desde', 'eventual_fecha_hora_liquidacion_hasta');
+      $this->filterDateRange($query, $alias . '.eventual_fecha_hora_pago', 'eventual_fecha_hora_pago_desde', 'eventual_fecha_hora_pago_hasta');
+      $this->filterDateRange($query, $alias . '.eventual_fecha_inicio', 'eventual_fecha_inicio_desde', 'eventual_fecha_inicio_hasta');
+      $this->filterDateRange($query, $alias . '.eventual_fecha_limite', 'eventual_fecha_limite_desde', 'eventual_fecha_limite_hasta');
+  }
     private function resolvePositiveInteger($value, $paramName)
     {
         if ($value === null || $value === '') {
@@ -1259,7 +1032,86 @@ class ApiMapsController extends Controller
             unset($row[$key]);
         }
     }
+private function unsetRelatedKeys(array &$row)
+{
+    $this->unsetKeys($row, [
+        'ext_id',
+        'sindi_id',
+        'contri_estado',
+        'contri_nombres',
+        'contri_paterno',
+        'contri_materno',
+        'contri_apellidocasada',
+        'contri_ci',
+        'contri_direccion',
+        'contri_telefono',
+        'contri_nit',
+        'contri_fecharegistro',
+        'contri_fechanac',
+        'contri_sexo',
+        'contri_estadocivil',
+        'contri_codigo_ruat',
+        'contri_tipo_contribuyente_ruat',
+        'contri_tipo_documento_ruat',
+        'contri_ruat_sync_at',
+        'contri_estado_ruat',
+        'contri_estado_operativo',
 
+        'usua_nombres',
+        'usua_apellidos',
+        'usua_ci',
+        'usua_cuenta',
+        'usua_rol',
+        'usua_estado',
+
+        'grad_codigo',
+        'grad_direccion',
+        'zona_id',
+        'gest_id',
+        'grad_propietario',
+        'grad_codigo_catastral',
+        'grad_acera',
+        'grad_tipo_armado',
+        'grad_tipo_sitio',
+        'grad_resto',
+        'grad_longitud',
+        'grad_vendido',
+        'grad_reservado',
+        'grad_estado',
+        'zona_nombre',
+        'zona_color',
+        'zona_color_hexadecimal',
+
+        'tip_arm_descricpion',
+        'tip_arm_patente',
+        'tip_arm_tasa_aseo',
+        'tip_arm_unidad_medida',
+        'tip_arm_estado',
+
+        'sitios_codigo',
+        'sitios_descripcion',
+        'sitios_numero_sitio',
+        'sitios_vendido',
+        'sitios_es_alasita',
+        'sitios_estado',
+
+        'activi_descripcion',
+        'categ_id',
+        'activi_largo_mts',
+        'activi_ancho_mts',
+        'activi_superficie',
+        'activi_costo_patente',
+        'activi_costo_sentaje_dia',
+        'activi_costo_aseo_por_dia',
+        'activi_costo_aseo_por_sitio',
+        'activi_cobro_por_dia',
+        'activi_estado',
+
+        'categ_nombre',
+        'categ_codigo',
+        'categ_estado',
+    ]);
+}
     private function ensureWriteMethod($allowedMethods)
     {
         if (!in_array(Yii::$app->request->method, $allowedMethods, true)) {
@@ -1277,5 +1129,156 @@ class ApiMapsController extends Controller
             'inline' => true,
             'mimeType' => 'application/pdf',
         ]);
+    }
+
+    private function filterExact(&$query, $column, $paramName)
+    {
+        $value = $this->filterValue($paramName);
+        if ($value !== null) {
+            $query->andWhere([$column => $value]);
+        }
+    }
+
+    private function filterLike(&$query, $column, $paramName)
+    {
+        $value = $this->filterValue($paramName);
+        if ($value !== null) {
+            $query->andWhere(['ilike', $column, $value]);
+        }
+    }
+
+    private function filterPositiveInteger(&$query, $column, $paramName)
+    {
+        $value = $this->filterValue($paramName);
+        if ($value === null) {
+            return;
+        }
+        if (!ctype_digit($value) || (int)$value < 1) {
+            throw new BadRequestHttpException($paramName . ' debe ser un entero positivo.');
+        }
+        $query->andWhere([$column => (int)$value]);
+    }
+
+    private function filterBinary(&$query, $column, $paramName)
+    {
+        $value = $this->filterValue($paramName);
+        if ($value === null) {
+            return;
+        }
+        if ($value !== '0' && $value !== '1') {
+            throw new BadRequestHttpException($paramName . ' debe ser 0 o 1.');
+        }
+        $query->andWhere([$column => (int)$value]);
+    }
+
+    private function filterValue($paramName)
+    {
+        $value = Yii::$app->request->get($paramName);
+        if ($value === null || $value === '') {
+            return null;
+        }
+        if (!is_scalar($value)) {
+            throw new BadRequestHttpException($paramName . ' debe ser un valor simple.');
+        }
+        $value = trim((string)$value);
+        return $value === '' ? null : $value;
+    }
+
+    private function filterDateRange(&$query, $column, $fromParam, $toParam)
+    {
+        $from = $this->parseDateFilter($fromParam);
+        $to = $this->parseDateFilter($toParam);
+
+        if ($from !== null) {
+            $query->andWhere(['>=', $column, $from['value']]);
+        }
+
+        if ($to !== null) {
+            if ($to['date_only']) {
+                $query->andWhere(['<', $column, $to['date']->modify('+1 day')->format('Y-m-d')]);
+            } else {
+                $query->andWhere(['<=', $column, $to['value']]);
+            }
+        }
+
+        if ($from !== null && $to !== null) {
+            $upperDate = $to['date_only'] ? $to['date']->modify('+1 day') : $to['date'];
+            $invalidRange = $to['date_only'] ? $from['date'] >= $upperDate : $from['date'] > $upperDate;
+            if ($invalidRange) {
+                throw new BadRequestHttpException($fromParam . ' no puede ser posterior a ' . $toParam . '.');
+            }
+        }
+    }
+
+    private function parseDateFilter($paramName)
+    {
+        $value = $this->filterValue($paramName);
+        if ($value === null) {
+            return null;
+        }
+
+        $formats = [
+            'Y-m-d' => true,
+            'Y-m-d H:i:s' => false,
+            'Y-m-d\TH:i:s' => false,
+        ];
+        foreach ($formats as $format => $dateOnly) {
+            $date = \DateTimeImmutable::createFromFormat('!' . $format, $value);
+            $errors = \DateTimeImmutable::getLastErrors();
+            if ($date !== false && ($errors === false || ($errors['warning_count'] === 0 && $errors['error_count'] === 0)) && $date->format($format) === $value) {
+                return [
+                    'date' => $date,
+                    'date_only' => $dateOnly,
+                    'value' => $dateOnly ? $date->format('Y-m-d') : $date->format('Y-m-d H:i:s'),
+                ];
+            }
+        }
+
+        throw new BadRequestHttpException($paramName . ' debe usar YYYY-MM-DD o YYYY-MM-DD HH:MM:SS.');
+    }
+    private function paginatedList($query, $mapper = null)
+    {
+        $paginate = Yii::$app->request->get('paginate');
+        if ($paginate !== '1') {
+            $rows = $query->all();
+            return $mapper === null
+                ? $rows
+                : array_map($mapper, $rows);
+        }
+        $page = $this->paginationInteger('page', 1, null);
+        $perPage = $this->paginationInteger('per_page', 50, 200);
+
+        $countQuery = clone $query;
+        $total = (int)$countQuery->count();
+
+        $rows = $query
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->all();
+
+        return [
+            'items' => $mapper === null ? $rows : array_map($mapper, $rows),
+            'pagination' => [
+                'page' => $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'total_pages' => (int)ceil($total / $perPage),
+                'has_previous' => $page > 1,
+                'has_next' => $page * $perPage < $total,
+            ],
+        ];
+    }
+
+    private function paginationInteger($paramName, $default, $maximum)
+    {
+        $value = Yii::$app->request->get($paramName, $default);
+        if (!is_scalar($value) || !ctype_digit((string)$value) || (int)$value < 1) {
+            throw new BadRequestHttpException($paramName . ' debe ser un entero positivo.');
+        }
+        $value = (int)$value;
+        if ($maximum !== null && $value > $maximum) {
+            throw new BadRequestHttpException($paramName . ' no puede ser mayor a ' . $maximum . '.');
+        }
+        return $value;
     }
 }
