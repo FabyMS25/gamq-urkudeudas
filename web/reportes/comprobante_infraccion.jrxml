@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="comprobante_infraccion" pageWidth="612" pageHeight="792" columnWidth="552" leftMargin="30" rightMargin="30" topMargin="24" bottomMargin="24" uuid="fe922b6a-3d2c-46e3-8d26-414109229e28">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="id_pago" class="java.lang.Integer"/>
+	<parameter name="monto_literal" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT
+            pi.infraccion_id,
+            lpad(pi.infraccion_id::text, 8, '0') AS nro_liquidacion,
+            pi.codigo_usuario,
+            pi.codigo_contribuyente,
+            pi.numero_documento,
+            pi.tipo_documento,
+            pi.expedido,
+            pi.tipo_infraccion,
+            COALESCE(pi.descripcion_infraccion, '') AS descripcion_infraccion,
+            COALESCE(pi.lugar_infraccion, '') AS lugar_infraccion,
+            pi.fecha_infraccion,
+            pi.gestion,
+            pi.codigo_clasificador,
+            pi.monto,
+            COALESCE(pi.observacion, '') AS observacion,
+            pi.numero_tasa,
+            pi.infraccion_pagado,
+            CASE WHEN pi.infraccion_pagado = 1 THEN 'PAGADO' ELSE 'PENDIENTE DE PAGO' END AS estado_pago,
+            pi.fecha_pago,
+            pi.created_at,
+            pi.updated_at,
+            trim(COALESCE(c.contri_nombres, '') || ' ' || COALESCE(c.contri_paterno, '') || ' ' || COALESCE(c.contri_materno, '')) AS contribuyente,
+            c.contri_ci,
+            c.contri_direccion,
+            c.contri_telefono::text AS contri_telefono,
+            c.contri_nit::text AS contri_nit,
+            c.contri_codigo_ruat,
+            trim(COALESCE(u.usua_nombres, '') || ' ' || COALESCE(u.usua_apellidos, '')) AS usuario
+        FROM pagos_infracciones pi
+        LEFT JOIN contribuyentes c ON c.contri_id = pi.contri_id
+        LEFT JOIN usuario u ON u.usua_id = pi.usua_id
+        WHERE pi.infraccion_id = $P{id_pago}]]>
+	</queryString>
+	<field name="infraccion_id" class="java.lang.Integer"/>
+	<field name="nro_liquidacion" class="java.lang.String"/>
+	<field name="codigo_usuario" class="java.lang.String"/>
+	<field name="codigo_contribuyente" class="java.lang.String"/>
+	<field name="numero_documento" class="java.lang.String"/>
+	<field name="tipo_documento" class="java.lang.String"/>
+	<field name="expedido" class="java.lang.String"/>
+	<field name="tipo_infraccion" class="java.lang.String"/>
+	<field name="descripcion_infraccion" class="java.lang.String"/>
+	<field name="lugar_infraccion" class="java.lang.String"/>
+	<field name="fecha_infraccion" class="java.sql.Date"/>
+	<field name="gestion" class="java.lang.String"/>
+	<field name="codigo_clasificador" class="java.lang.String"/>
+	<field name="monto" class="java.math.BigDecimal"/>
+	<field name="observacion" class="java.lang.String"/>
+	<field name="numero_tasa" class="java.lang.String"/>
+	<field name="infraccion_pagado" class="java.lang.Integer"/>
+	<field name="estado_pago" class="java.lang.String"/>
+	<field name="fecha_pago" class="java.sql.Timestamp"/>
+	<field name="created_at" class="java.sql.Timestamp"/>
+	<field name="updated_at" class="java.sql.Timestamp"/>
+	<field name="contribuyente" class="java.lang.String"/>
+	<field name="contri_ci" class="java.lang.String"/>
+	<field name="contri_direccion" class="java.lang.String"/>
+	<field name="contri_telefono" class="java.lang.String"/>
+	<field name="contri_nit" class="java.lang.String"/>
+	<field name="contri_codigo_ruat" class="java.lang.String"/>
+	<field name="usuario" class="java.lang.String"/>
+	<title>
+		<band height="120">
+			<rectangle>
+				<reportElement mode="Opaque" x="0" y="0" width="552" height="42" backcolor="#0B2A4A" uuid="0fb2b2fd-8d7d-4ba8-914c-200dcf650f3a"/>
+				<graphicElement><pen lineWidth="0"/></graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement x="0" y="8" width="552" height="26" forecolor="#FFFFFF" uuid="9f4bdb4b-2c72-4b55-bb04-099e6b09cb55"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="17" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CITACIÓN / BOLETA DE INFRACCIÓN]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement mode="Opaque" x="0" y="52" width="184" height="48" backcolor="#F4F6F9" uuid="22aac0c1-bd04-4021-94c6-11a8150604dc"/>
+				<graphicElement><pen lineWidth="0.6" lineColor="#2D4263"/></graphicElement>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="184" y="52" width="184" height="48" backcolor="#F4F6F9" uuid="5c1ac328-7756-495d-8f09-c2d707c9d874"/>
+				<graphicElement><pen lineWidth="0.6" lineColor="#2D4263"/></graphicElement>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="368" y="52" width="184" height="48" backcolor="#FFF8E3" uuid="20679a79-9f4c-43e0-ae1e-87393fc1bb93"/>
+				<graphicElement><pen lineWidth="0.6" lineColor="#2D4263"/></graphicElement>
+			</rectangle>
+			<staticText><reportElement x="12" y="60" width="116" height="12" forecolor="#4F5F73" uuid="cf0d7566-728b-411a-bd4d-7fec75b7280a"/><textElement><font fontName="Arial" size="7"/></textElement><text><![CDATA[Número de Boleta]]></text></staticText>
+			<textField><reportElement x="12" y="74" width="156" height="20" forecolor="#0B2A4A" uuid="e7294485-7829-4e3d-bfd1-a980e9bd0e2e"/><textElement verticalAlignment="Middle"><font fontName="Arial" size="12" isBold="true"/></textElement><textFieldExpression><![CDATA["Nro. " + $F{nro_liquidacion}]]></textFieldExpression></textField>
+			<staticText><reportElement x="196" y="60" width="116" height="12" forecolor="#4F5F73" uuid="ff695997-9cff-4e3f-bd0f-5f9102614b9a"/><textElement><font fontName="Arial" size="7"/></textElement><text><![CDATA[Gestión]]></text></staticText>
+			<textField><reportElement x="196" y="74" width="140" height="20" forecolor="#0B2A4A" uuid="f8524737-516d-43d5-a037-59c0f475945f"/><textElement verticalAlignment="Middle"><font fontName="Arial" size="12" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{gestion}]]></textFieldExpression></textField>
+			<staticText><reportElement x="380" y="60" width="116" height="12" forecolor="#4F5F73" uuid="46d903c5-7498-4fef-8c94-b15b6d37abf2"/><textElement><font fontName="Arial" size="7"/></textElement><text><![CDATA[Estado]]></text></staticText>
+			<textField><reportElement x="380" y="74" width="156" height="20" forecolor="#C5221F" uuid="8c864d61-5f7b-4281-bfd4-a59de8d799f1"/><textElement verticalAlignment="Middle"><font fontName="Arial" size="10" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{estado_pago}]]></textFieldExpression></textField>
+		</band>
+	</title>
+	<detail>
+		<band height="360">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="552" height="18" backcolor="#0B2A4A" forecolor="#FFFFFF" uuid="af41cf92-960a-4cf8-b3dc-00b41ad42735"/>
+				<textElement verticalAlignment="Middle"><font fontName="Arial" size="8" isBold="true"/></textElement>
+				<text><![CDATA[  PERSONA INFRACTORA]]></text>
+			</staticText>
+			<line><reportElement x="0" y="18" width="552" height="1" forecolor="#D4A918" uuid="d7c48f59-cf35-4eb4-ae5f-1d12f195cad9"/></line>
+			<rectangle><reportElement mode="Opaque" x="0" y="22" width="552" height="22" backcolor="#F4F6F9" uuid="71f15bf4-5acf-49c6-a16d-ddce7c558ef7"/><graphicElement><pen lineWidth="0.2" lineColor="#D8DEE8"/></graphicElement></rectangle>
+			<textField isStretchWithOverflow="true"><reportElement x="12" y="26" width="260" height="14" forecolor="#111827" uuid="fbf07b15-acbb-4d79-9e74-828d29ba7a04"/><textElement><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{contribuyente} == null || $F{contribuyente}.trim().equals("") ? "SIN REGISTRO LOCAL" : $F{contribuyente}]]></textFieldExpression></textField>
+			<staticText><reportElement x="296" y="26" width="124" height="14" forecolor="#5E6B80" uuid="5dce4f3a-c204-449b-bc0e-3f5b699e91f7"/><textElement><font fontName="Arial" size="7" isBold="true"/></textElement><text><![CDATA[Documento de Identidad]]></text></staticText>
+			<textField><reportElement x="420" y="26" width="120" height="14" forecolor="#111827" uuid="0b681c1f-d8e2-45e6-9434-e24729cfa2ff"/><textElement textAlignment="Right"><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{tipo_documento} + " " + $F{numero_documento} + ($F{expedido} == null ? "" : " " + $F{expedido})]]></textFieldExpression></textField>
+			<rectangle><reportElement mode="Opaque" x="0" y="44" width="552" height="22" backcolor="#FFFFFF" uuid="e451c8f7-731d-41c7-9fd6-e3e8020883db"/><graphicElement><pen lineWidth="0.2" lineColor="#D8DEE8"/></graphicElement></rectangle>
+			<textField isStretchWithOverflow="true"><reportElement x="12" y="48" width="260" height="14" forecolor="#111827" uuid="a2236b74-40b9-46cb-a870-551d5ada42a3"/><textElement><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{contri_direccion} == null ? "" : $F{contri_direccion}]]></textFieldExpression></textField>
+			<staticText><reportElement x="296" y="48" width="124" height="14" forecolor="#5E6B80" uuid="27ec6417-458b-44c0-b8d1-b4ac3ec26d15"/><textElement><font fontName="Arial" size="7" isBold="true"/></textElement><text><![CDATA[Telefono de Contacto]]></text></staticText>
+			<textField><reportElement x="420" y="48" width="120" height="14" forecolor="#111827" uuid="93c95e3c-bd70-4bcf-9762-03743c011b95"/><textElement textAlignment="Right"><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{contri_telefono} == null ? "" : $F{contri_telefono}]]></textFieldExpression></textField>
+			<rectangle><reportElement mode="Opaque" x="0" y="66" width="552" height="22" backcolor="#F4F6F9" uuid="99f58053-b6d9-4f11-9986-ddfe705cb9cd"/><graphicElement><pen lineWidth="0.2" lineColor="#D8DEE8"/></graphicElement></rectangle>
+			<staticText><reportElement x="12" y="70" width="94" height="14" forecolor="#5E6B80" uuid="d0d56f8d-dfa0-447c-930e-58664ab8153e"/><textElement><font fontName="Arial" size="7" isBold="true"/></textElement><text><![CDATA[Código RUAT]]></text></staticText>
+			<textField><reportElement x="104" y="70" width="168" height="14" forecolor="#111827" uuid="a9504769-5462-4039-8852-18f63bf43942"/><textElement><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{codigo_contribuyente}]]></textFieldExpression></textField>
+			<staticText><reportElement x="296" y="70" width="124" height="14" forecolor="#5E6B80" uuid="b7e1c7c7-259a-4a86-a9d0-84606c8d91df"/><textElement><font fontName="Arial" size="7" isBold="true"/></textElement><text><![CDATA[NIT]]></text></staticText>
+			<textField><reportElement x="420" y="70" width="120" height="14" forecolor="#111827" uuid="a61a7ce5-f24e-45da-9c6e-7b420f772eaf"/><textElement textAlignment="Right"><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{contri_nit} == null ? "" : $F{contri_nit}]]></textFieldExpression></textField>
+
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="104" width="552" height="18" backcolor="#0B2A4A" forecolor="#FFFFFF" uuid="13922384-814e-486f-abaf-5ee5247a9e31"/>
+				<textElement verticalAlignment="Middle"><font fontName="Arial" size="8" isBold="true"/></textElement>
+				<text><![CDATA[  DESCRIPCIÓN DE LA INFRACCIÓN]]></text>
+			</staticText>
+			<line><reportElement x="0" y="122" width="552" height="1" forecolor="#D4A918" uuid="e2bb8226-c33a-47c5-b974-2a1c8da57ea6"/></line>
+			<rectangle><reportElement mode="Opaque" x="0" y="126" width="552" height="22" backcolor="#F4F6F9" uuid="943e5bfc-b6dd-4b07-ba62-cac333a6561a"/><graphicElement><pen lineWidth="0.2" lineColor="#D8DEE8"/></graphicElement></rectangle>
+			<textField><reportElement x="12" y="130" width="260" height="14" forecolor="#111827" uuid="2327dcc6-eccf-4b70-a8fe-a10f81849123"/><textElement><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{tipo_infraccion}]]></textFieldExpression></textField>
+			<staticText><reportElement x="296" y="130" width="124" height="14" forecolor="#5E6B80" uuid="65d7fefc-13be-4ca5-a687-2a3528a2ad8a"/><textElement><font fontName="Arial" size="7" isBold="true"/></textElement><text><![CDATA[Clasificación / Tasa RUAT]]></text></staticText>
+			<textField><reportElement x="420" y="130" width="120" height="14" forecolor="#111827" uuid="e9cc2ab3-d30a-4304-87bb-208fd32dccb7"/><textElement textAlignment="Right"><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{codigo_clasificador} + " / " + $F{numero_tasa}]]></textFieldExpression></textField>
+			<rectangle><reportElement mode="Opaque" x="0" y="148" width="552" height="22" backcolor="#FFFFFF" uuid="7134b9e0-0fc2-4187-8fdd-e8ed2c6540ff"/><graphicElement><pen lineWidth="0.2" lineColor="#D8DEE8"/></graphicElement></rectangle>
+			<textField pattern="dd/MM/yyyy"><reportElement x="12" y="152" width="180" height="14" forecolor="#111827" uuid="ece086d6-6014-4ad6-a226-469562770c5d"/><textElement><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{fecha_infraccion}]]></textFieldExpression></textField>
+			<staticText><reportElement x="296" y="152" width="124" height="14" forecolor="#5E6B80" uuid="f85ce846-a377-4c1e-94f8-fd54aa11b2d1"/><textElement><font fontName="Arial" size="7" isBold="true"/></textElement><text><![CDATA[Lugar]]></text></staticText>
+			<textField isStretchWithOverflow="true"><reportElement x="420" y="152" width="120" height="14" forecolor="#111827" uuid="cd06a68e-e92b-4edf-a480-82f3bd72ff1a"/><textElement textAlignment="Right"><font fontName="Arial" size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{lugar_infraccion}]]></textFieldExpression></textField>
+			<rectangle><reportElement mode="Opaque" x="0" y="170" width="552" height="34" backcolor="#F4F6F9" uuid="b5a9b46b-37e2-44d8-a565-723f5685e1fb"/><graphicElement><pen lineWidth="0.2" lineColor="#D8DEE8"/></graphicElement></rectangle>
+			<staticText><reportElement x="12" y="176" width="84" height="12" forecolor="#5E6B80" uuid="db0b93df-3688-4bc7-bd3d-cb9295a9cbd4"/><textElement><font fontName="Arial" size="7" isBold="true"/></textElement><text><![CDATA[Descripción]]></text></staticText>
+			<textField isStretchWithOverflow="true"><reportElement x="104" y="174" width="436" height="24" forecolor="#111827" uuid="218646fe-744d-4ff8-8154-41ceee952bc5"/><textElement><font fontName="Arial" size="8"/></textElement><textFieldExpression><![CDATA[$F{descripcion_infraccion}]]></textFieldExpression></textField>
+
+			<rectangle><reportElement mode="Opaque" x="0" y="226" width="276" height="80" backcolor="#0B2A4A" uuid="dc3f1105-1194-4bbe-8f18-64a0ffef6355"/><graphicElement><pen lineWidth="0"/></graphicElement></rectangle>
+			<rectangle><reportElement mode="Opaque" x="276" y="226" width="276" height="80" backcolor="#0B2A4A" uuid="78ac279c-df4b-4c04-86a0-0499c31f5b18"/><graphicElement><pen lineWidth="0"/></graphicElement></rectangle>
+			<line><reportElement x="276" y="226" width="1" height="80" forecolor="#D4A918" uuid="e7b1eb4b-d994-436a-a6e7-28ee19da8d4f"/></line>
+			<staticText><reportElement x="16" y="238" width="120" height="12" forecolor="#9FB0C7" uuid="b7337844-6e2e-43d7-88e0-860c5c9dd356"/><textElement><font fontName="Arial" size="7" isBold="true"/></textElement><text><![CDATA[Fecha de Emisión]]></text></staticText>
+			<textField pattern="dd/MM/yyyy HH:mm"><reportElement x="16" y="251" width="170" height="14" forecolor="#FFFFFF" uuid="691f4fe5-54e7-4c48-8700-b09964f1d831"/><textElement><font fontName="Arial" size="8"/></textElement><textFieldExpression><![CDATA[$F{created_at}]]></textFieldExpression></textField>
+			<staticText><reportElement x="16" y="270" width="120" height="12" forecolor="#9FB0C7" uuid="872e5384-4a7f-459d-bc94-714516e9db4c"/><textElement><font fontName="Arial" size="7" isBold="true"/></textElement><text><![CDATA[Plazo para el Pago]]></text></staticText>
+			<staticText><reportElement x="16" y="283" width="190" height="14" forecolor="#FFFFFF" uuid="9f2f1f61-3a2c-44fe-97ea-32aa8fb66280"/><textElement><font fontName="Arial" size="8"/></textElement><text><![CDATA[30 días hábiles desde la emisión]]></text></staticText>
+			<staticText><reportElement x="326" y="238" width="196" height="14" forecolor="#D4A918" uuid="1ef992f3-6c1c-4530-a181-ad9b6ce94746"/><textElement textAlignment="Right"><font fontName="Arial" size="9" isBold="true"/></textElement><text><![CDATA[MONTO TOTAL A CANCELAR]]></text></staticText>
+			<textField pattern="#,##0.00"><reportElement x="318" y="254" width="204" height="30" forecolor="#FFFFFF" uuid="d4a4c7ad-ec8f-4ee3-89de-fe5419107d15"/><textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="Arial" size="24" isBold="true"/></textElement><textFieldExpression><![CDATA[$F{monto}]]></textFieldExpression></textField>
+			<staticText><reportElement x="286" y="260" width="36" height="20" forecolor="#FFFFFF" uuid="5c2b0d1c-2f0c-48e1-9ffe-bff314bc1c55"/><textElement textAlignment="Right"><font fontName="Arial" size="17" isBold="true"/></textElement><text><![CDATA[Bs.]]></text></staticText>
+			<textField isStretchWithOverflow="true"><reportElement x="326" y="286" width="196" height="12" forecolor="#FFFFFF" uuid="455880b2-0af3-435c-b133-35f83144e92d"/><textElement textAlignment="Right"><font fontName="Arial" size="7"/></textElement><textFieldExpression><![CDATA[$P{monto_literal}]]></textFieldExpression></textField>
+
+			<staticText><reportElement x="0" y="326" width="552" height="18" forecolor="#5E6B80" uuid="931c6dbe-4743-46b0-a6f7-d2f28fc0e0da"/><textElement textAlignment="Center"><font fontName="Arial" size="7"/></textElement><text><![CDATA[Documento digital generado por el sistema municipal. No requiere firmas manuscritas.]]></text></staticText>
+		</band>
+	</detail>
+</jasperReport>

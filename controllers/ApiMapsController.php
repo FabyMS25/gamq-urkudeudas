@@ -15,6 +15,7 @@ use app\models\Gestiones;
 use app\models\GraderiasSillas;
 use app\models\Pagos;
 use app\models\PagosEventuales;
+use app\models\PagosInfracciones;
 use app\models\Usuario;
 
 class ApiMapsController extends Controller
@@ -63,6 +64,8 @@ class ApiMapsController extends Controller
                     'comprobante-pago-pdf' => ['GET', 'OPTIONS'],
                     'comprobante-pago-eventual' => ['GET', 'OPTIONS'],
                     'comprobante-pago-eventual-pdf' => ['GET', 'OPTIONS'],
+                    'comprobante-pago-infraccion' => ['GET', 'OPTIONS'],
+                    'comprobante-pago-infraccion-pdf' => ['GET', 'OPTIONS'],
                 ],
             ],
         ];
@@ -487,6 +490,23 @@ public function actionPagosInfracciones()
         return $this->sendPdfFile($url, 'comprobante_pago_eventual_' . $eventualId . '.pdf');
     }
 
+    public function actionComprobantePagoInfraccion($id = null)
+    {
+        $infraccionId = $this->resolvePositiveInteger($id, 'id');
+
+        return [
+            'success' => true,
+            'url' => Url::to(['api-maps/comprobante-pago-infraccion-pdf', 'id' => $infraccionId], true),
+        ];
+    }
+
+    public function actionComprobantePagoInfraccionPdf($id = null)
+    {
+        $infraccionId = $this->resolvePositiveInteger($id, 'id');
+        $url = $this->generarComprobanteInfraccionPdf($infraccionId);
+
+        return $this->sendPdfFile($url, 'comprobante_pago_infraccion_' . $infraccionId . '.pdf');
+    }
 
 
     private function updateReservaGraderiaSilla($id, $reservado, $action)
@@ -623,6 +643,20 @@ public function actionPagosInfracciones()
         }
 
         return $this->generarReportePdf('reportes', 'comprobante_eventuales2', [
+            'id_pago' => $id,
+            'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
+        ]);
+    }
+
+    private function generarComprobanteInfraccionPdf($id)
+    {
+        $model = PagosInfracciones::findOne($id);
+
+        if ($model === null) {
+            throw new NotFoundHttpException('El pago de infraccion no existe.');
+        }
+
+        return $this->generarReportePdf('reportes', 'comprobante_infraccion', [
             'id_pago' => $id,
             'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
         ]);

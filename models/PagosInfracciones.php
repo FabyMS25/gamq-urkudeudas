@@ -127,4 +127,10 @@ class PagosInfracciones extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Usuario::className(), ['usua_id' => 'usua_id']);
     }
+
+    public function montoTotalLiteral()
+    {
+        $modelAux = new NumeroALetras();
+        return $modelAux->convertir($this->monto);
+    }
 }
