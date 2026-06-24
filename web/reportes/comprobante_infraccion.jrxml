@@ -78,7 +78,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Arial" size="17" isBold="true"/>
 				</textElement>
-				<text><![CDATA[CITACIÓN / BOLETA DE INFRACCIÓN]]></text>
+				<text><![CDATA[BOLETA DE INFRACCIÓN]]></text>
 			</staticText>
 			<rectangle>
 				<reportElement mode="Opaque" x="0" y="52" width="184" height="48" backcolor="#F4F6F9" uuid="22aac0c1-bd04-4021-94c6-11a8150604dc"/>
