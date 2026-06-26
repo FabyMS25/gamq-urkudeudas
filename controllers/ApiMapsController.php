@@ -627,6 +627,13 @@ public function actionPagosInfracciones()
             throw new NotFoundHttpException('El pago no existe o no esta activo.');
         }
 
+        if ((int)$model->pago_preliquidacion === 1 && (int)$model->pago_cobrado === 0) {
+            return $this->generarReportePdf('reportes', 'recibo_preliquidacion', [
+                'id_pago' => $id,
+                'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
+            ]);
+        }
+
         return $this->generarReportePdf('reportes', 'comprobante_graderia_silla', [
             'id_pago' => $id,
             'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
@@ -640,6 +647,13 @@ public function actionPagosInfracciones()
 
         if ($model === null || (int)$model->eventual_estado !== 1) {
             throw new NotFoundHttpException('El pago eventual no existe o no esta activo.');
+        }
+
+        if ((int)$model->eventual_preliquidacion === 1 && (int)$model->eventual_cobrado === 0) {
+            return $this->generarReportePdf('reportes', 'preliquidacion_actividades_economicas', [
+                'id_pago' => $id,
+                'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
+            ]);
         }
 
         return $this->generarReportePdf('reportes', 'comprobante_eventuales2', [
