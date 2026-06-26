@@ -53,6 +53,15 @@ class Pagos extends \yii\db\ActiveRecord
         return 'pagos';
     }
 
+    public function beforeValidate()
+    {
+        foreach ($this->decimalAttributes() as $attribute) {
+            $this->$attribute = $this->normalizeDecimalValue($this->$attribute);
+        }
+
+        return parent::beforeValidate();
+    }
+
     /**
      * @inheritdoc
      */
@@ -137,6 +146,46 @@ class Pagos extends \yii\db\ActiveRecord
             'ci' => 'Doc. identidad',
             'pago_tasa' => 'Tasa de ruat',
         ];
+    }
+
+    private function decimalAttributes()
+    {
+        return [
+            'pago_longitud_modificada',
+            'pago_descuento_porcentaje',
+            'pago_descuento_monto',
+            'pago_importe_patente',
+            'pago_aseo',
+            'pago_reposicion',
+            'pago_importe_total',
+        ];
+    }
+
+    private function normalizeDecimalValue($value)
+    {
+        $value = trim((string)$value);
+
+        if ($value === '') {
+            return $value;
+        }
+
+        $value = str_replace(' ', '', $value);
+        $hasComma = strpos($value, ',') !== false;
+        $hasDot = strpos($value, '.') !== false;
+
+        if ($hasComma && $hasDot) {
+            if (strrpos($value, ',') > strrpos($value, '.')) {
+                return str_replace(',', '.', str_replace('.', '', $value));
+            }
+
+            return str_replace(',', '', $value);
+        }
+
+        if ($hasComma) {
+            return str_replace(',', '.', $value);
+        }
+
+        return $value;
     }
 
     /**

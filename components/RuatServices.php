@@ -383,21 +383,37 @@ class RuatServices extends Component
         $value = trim((string)$monto);
 
         if ($value === '') {
-            return $value;
+            return null;
         }
 
-        $normalized = str_replace(',', '.', $value);
+        $normalized = $this->normalizeDecimalString($value);
 
         if (!is_numeric($normalized)) {
-            return $value;
+            return $monto;
         }
 
-        $number = (float)$normalized;
-        if (floor($number) == $number) {
-            return (string)(int)$number;
+        return round((float)$normalized, 2);
+    }
+
+    private function normalizeDecimalString($value)
+    {
+        $value = str_replace(' ', '', trim((string)$value));
+        $hasComma = strpos($value, ',') !== false;
+        $hasDot = strpos($value, '.') !== false;
+
+        if ($hasComma && $hasDot) {
+            if (strrpos($value, ',') > strrpos($value, '.')) {
+                return str_replace(',', '.', str_replace('.', '', $value));
+            }
+
+            return str_replace(',', '', $value);
         }
 
-        return number_format($number, 2, ',', '');
+        if ($hasComma) {
+            return str_replace(',', '.', $value);
+        }
+
+        return $value;
     }
 
     private function formatRuatDate($value): string
