@@ -247,7 +247,7 @@ class ApiRuatController extends Controller
 
         $response = Yii::$app->ruatServices->consultaPagoTasa($token, $numeroTasa, $codigoAlcaldia);
 
-        $localRegistros = $this->syncLocalPagosFromRuat($numeroTasa, $response);
+        $localRegistros = $this->syncLocalPagosFromRuat($numeroTasa, $response, $body);
 
         return $this->ruatApiResponse($response, [
             'pagado' => isset($response->continuarFlujo) ? (bool)$response->continuarFlujo : false,
@@ -550,10 +550,13 @@ class ApiRuatController extends Controller
         $numeroDocumentoLocal = $this->firstRequiredString($data, ['contri_ci']);
         $numeroDocumento = $numeroDocumentoRuat ?: $numeroDocumentoLocal;
 
-        $models = $this->findLocalContribuyentesByDocumentCandidates([
-            $numeroDocumentoRuat,
-            $numeroDocumentoLocal,
-        ]);
+        $models = $this->findLocalContribuyentesForRuatSync(
+            isset($ruatResponse->codigoContribuyente) ? $ruatResponse->codigoContribuyente : null,
+            [
+                $numeroDocumentoRuat,
+                $numeroDocumentoLocal,
+            ]
+        );
         $isNew = empty($models);
 
         if ($isNew && !$createIfMissing) {
@@ -606,6 +609,28 @@ class ApiRuatController extends Controller
         }
 
         return reset($models);
+    }
+
+    private function findLocalContribuyentesForRuatSync($codigoRuat, array $documentCandidates): array
+    {
+        if ($codigoRuat !== null && trim((string)$codigoRuat) !== '') {
+            $model = Contribuyentes::find()
+                ->where(['contri_codigo_ruat' => trim((string)$codigoRuat)])
+                ->orderBy(['contri_id' => SORT_ASC])
+                ->one();
+
+            if ($model !== null) {
+                return [$model];
+            }
+        }
+
+        $models = $this->findLocalContribuyentesByDocumentCandidates($documentCandidates);
+
+        if (count($models) > 1) {
+            return [reset($models)];
+        }
+
+        return $models;
     }
 
     private function findLocalContribuyentesByDocumentCandidates(array $candidates): array
@@ -747,7 +772,7 @@ class ApiRuatController extends Controller
         ];
     }
 
-    private function syncLocalPagosFromRuat(string $numeroTasa, $ruatResponse): array
+    private function syncLocalPagosFromRuat(string $numeroTasa, $ruatResponse, array $data = []): array
     {
         if (!$this->ruatContinuarFlujo($ruatResponse)) {
             return [];
@@ -758,10 +783,14 @@ class ApiRuatController extends Controller
             : date('Y-m-d H:i:s');
 
         $localRegistros = [];
+        $usuaId = $this->usuarioIdFromRequest($data);
 
         $pago = Pagos::findOne(['pago_tasa' => $numeroTasa]);
         if ($pago !== null) {
             $pago->pago_cobrado = 1;
+            if ($usuaId !== null) {
+                $pago->usua_id = $usuaId;
+            }
             $pago->pago_fecha_hora_cobro = $fechaPago;
             $pago->save(false);
             $localRegistros['pago'] = $pago->attributes;
@@ -770,6 +799,9 @@ class ApiRuatController extends Controller
         $pagoEventual = PagosEventuales::findOne(['eventual_tasa' => $numeroTasa]);
         if ($pagoEventual !== null) {
             $pagoEventual->eventual_cobrado = 1;
+            if ($usuaId !== null) {
+                $pagoEventual->usua_id = $usuaId;
+            }
             $pagoEventual->eventual_fecha_hora_pago = $fechaPago;
             $pagoEventual->save(false);
             $localRegistros['eventual'] = $pagoEventual->attributes;
@@ -778,6 +810,9 @@ class ApiRuatController extends Controller
         $pagoInfraccion = PagosInfracciones::findOne(['numero_tasa' => $numeroTasa]);
         if ($pagoInfraccion !== null) {
             $pagoInfraccion->infraccion_pagado = 1;
+            if ($usuaId !== null) {
+                $pagoInfraccion->usua_id = $usuaId;
+            }
             $pagoInfraccion->fecha_pago = $fechaPago;
             $pagoInfraccion->pago_ruat_payload = json_encode($ruatResponse);
             $pagoInfraccion->updated_at = date('Y-m-d H:i:s');
@@ -1201,9 +1236,34 @@ class ApiRuatController extends Controller
 
     private function usuarioIdFromRequest(array $data)
     {
-        $value = $this->stringValue($data, 'usua_id', null);
+        foreach (['usua_id', 'usuario_id', 'id_usuario', 'user_id'] as $key) {
+            $value = $this->stringValue($data, $key, null);
 
-        return $value !== null ? (int)$value : null;
+            if ($value !== null && is_numeric($value) && (int)$value > 0) {
+                return (int)$value;
+            }
+        }
+
+        foreach (['usuario', 'user'] as $key) {
+            if (isset($data[$key]) && is_array($data[$key])) {
+                $value = $this->usuarioIdFromRequest($data[$key]);
+
+                if ($value !== null) {
+                    return $value;
+                }
+            }
+        }
+
+        if (isset(Yii::$app->user)
+            && !Yii::$app->user->isGuest
+            && Yii::$app->user->id !== null
+            && is_numeric(Yii::$app->user->id)
+            && (int)Yii::$app->user->id > 0
+        ) {
+            return (int)Yii::$app->user->id;
+        }
+
+        return null;
     }
 
     private function normalizeRuatDateTime($value): string

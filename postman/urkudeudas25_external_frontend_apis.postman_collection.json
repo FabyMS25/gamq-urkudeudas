@@ -1,0 +1,234 @@
+{
+  "info": {
+    "name": "Urku Deudas 25 - External Frontend APIs",
+    "description": "Importable Postman collection for external frontend endpoints. RUAT requests were reviewed against ApiRuatController.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Api RUAT",
+      "item": [
+        {
+          "name": "Login RUAT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) pm.environment.set('ruatToken', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{ruatUsername}}\",\n  \"password\": \"{{ruatPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}?r=api-ruat/login",
+              "host": [ "{{baseUrl}}" ],
+              "query": [ { "key": "r", "value": "api-ruat/login" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar contribuyente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ruatToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoAlcaldia\": \"{{codigoAlcaldia}}\",\n  \"contribuyente\": {\n    \"contri_ci\": \"{{numeroDocumento}}\",\n    \"contri_tipo_documento_ruat\": \"CI\",\n    \"ext_id\": \"{{extId}}\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}?r=api-ruat/consultar-contribuyente",
+              "host": [ "{{baseUrl}}" ],
+              "query": [ { "key": "r", "value": "api-ruat/consultar-contribuyente" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consulta deudas contribuyente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ruatToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoAlcaldia\": \"{{codigoAlcaldia}}\",\n  \"contribuyente\": {\n    \"contri_ci\": \"{{numeroDocumento}}\",\n    \"contri_tipo_documento_ruat\": \"CI\",\n    \"ext_id\": \"{{extId}}\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}?r=api-ruat/consulta-deudas-contribuyente",
+              "host": [ "{{baseUrl}}" ],
+              "query": [ { "key": "r", "value": "api-ruat/consulta-deudas-contribuyente" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consulta pago tasa",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ruatToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoAlcaldia\": \"{{codigoAlcaldia}}\",\n  \"numeroTasa\": \"{{numeroTasa}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}?r=api-ruat/consulta-pago-tasa",
+              "host": [ "{{baseUrl}}" ],
+              "query": [ { "key": "r", "value": "api-ruat/consulta-pago-tasa" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar contribuyente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ruatToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoAlcaldia\": \"{{codigoAlcaldia}}\",\n  \"codigoUsuario\": \"{{codigoUsuarioRuat}}\",\n  \"motivo\": \"REGISTRO DE CONTRIBUYENTE\",\n  \"observacion\": \"Registro generado desde prueba Postman\",\n  \"contribuyente\": {\n    \"contri_ci\": \"{{numeroDocumento}}\",\n    \"contri_tipo_documento_ruat\": \"CI\",\n    \"ext_id\": \"{{extId}}\",\n    \"sindi_id\": \"{{sindiId}}\",\n    \"contri_nombres\": \"{{nombres}}\",\n    \"contri_paterno\": \"{{paterno}}\",\n    \"contri_materno\": \"{{materno}}\",\n    \"contri_direccion\": \"{{direccion}}\",\n    \"contri_fechanac\": \"{{fechaNacimiento}}\",\n    \"contri_sexo\": \"F\",\n    \"contri_estadocivil\": \"SO\",\n    \"contri_tipo_contribuyente_ruat\": \"NA\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}?r=api-ruat/registrar-contribuyente",
+              "host": [ "{{baseUrl}}" ],
+              "query": [ { "key": "r", "value": "api-ruat/registrar-contribuyente" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar pago infraccion",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ruatToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"infraccion\": {\n    \"codigoAlcaldia\": \"{{codigoAlcaldia}}\",\n    \"codigo_usuario\": \"{{codigoUsuarioRuat}}\",\n    \"codigo_contribuyente\": \"{{codigoContribuyente}}\",\n    \"codigo_clasificador\": \"{{codigoClasificador}}\",\n    \"monto\": 10,\n    \"observacion\": \"Registro de infraccion desde Postman\",\n    \"numero_documento\": \"{{numeroDocumento}}\",\n    \"tipo_documento\": \"CI\",\n    \"expedido\": \"{{expedido}}\",\n    \"tipo_infraccion\": \"INFRACCION\",\n    \"descripcion_infraccion\": \"Descripcion de prueba\",\n    \"lugar_infraccion\": \"Quillacollo\",\n    \"fecha_infraccion\": \"2026-07-01\",\n    \"gestion\": \"2026\",\n    \"usua_id\": \"{{usuarioId}}\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}?r=api-ruat/registrar-pago-infraccion",
+              "host": [ "{{baseUrl}}" ],
+              "query": [ { "key": "r", "value": "api-ruat/registrar-pago-infraccion" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anular tasa",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ruatToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoAlcaldia\": \"{{codigoAlcaldia}}\",\n  \"codigoUsuario\": \"{{codigoUsuarioRuat}}\",\n  \"numeroTasa\": \"{{numeroTasa}}\",\n  \"motivo\": \"REGISTRO DE DATOS INCONSISTENTES\",\n  \"observacion\": \"Anulacion generada desde prueba Postman\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}?r=api-ruat/anular-tasa",
+              "host": [ "{{baseUrl}}" ],
+              "query": [ { "key": "r", "value": "api-ruat/anular-tasa" } ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Api Maps quick checks",
+      "item": [
+        {
+          "name": "Contexto actual",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" } ],
+            "url": {
+              "raw": "{{baseUrl}}?r=api-maps/contexto-actual",
+              "host": [ "{{baseUrl}}" ],
+              "query": [ { "key": "r", "value": "api-maps/contexto-actual" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Zonas",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" } ],
+            "url": {
+              "raw": "{{baseUrl}}?r=api-maps/zonas",
+              "host": [ "{{baseUrl}}" ],
+              "query": [ { "key": "r", "value": "api-maps/zonas" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pagos",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" } ],
+            "url": {
+              "raw": "{{baseUrl}}?r=api-maps/pagos&paginate=1&page=1&per_page=50",
+              "host": [ "{{baseUrl}}" ],
+              "query": [
+                { "key": "r", "value": "api-maps/pagos" },
+                { "key": "paginate", "value": "1" },
+                { "key": "page", "value": "1" },
+                { "key": "per_page", "value": "50" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081/index.php" }
+  ]
+}
