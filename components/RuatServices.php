@@ -93,7 +93,7 @@ class RuatServices extends Component
         $contribuyente,
         $codigoAlcaldia = 'QUI',
         $motivo = 'REGISTRO TASAS Y OTROS INGRESOS',
-        $observacion = 'REGISTRO URKUPINA 2025',
+        $observacion = 'REGISTRO URKUPINA 2026',
         $expedido = null
     )
     {
@@ -118,7 +118,7 @@ class RuatServices extends Component
         $contribuyente,
         $codigoAlcaldia = 'QUI',
         $motivo = 'REGISTRO TASAS Y OTROS INGRESOS',
-        $observacion = 'REGISTRO URKUPINA 2025',
+        $observacion = 'REGISTRO URKUPINA 2026',
         $expedido = null
     )
     {

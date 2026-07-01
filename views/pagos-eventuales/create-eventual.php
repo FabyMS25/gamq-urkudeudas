@@ -142,7 +142,7 @@ $listaActividades = []; // ArrayHelper::map($modelActividadesEconomicas->listaAc
                 DateRangePicker::classname(),
                 [
                     'useWithAddon' => true,
-                    'value' => '2025-08-09 a 2025-08-11',
+                    'value' => '2026-08-10 a 2026-08-12',
                     'convertFormat' => true,
                     'readonly' => true,
                     //'disabled' => true, 
