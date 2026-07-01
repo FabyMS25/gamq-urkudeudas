@@ -12,7 +12,7 @@ use yii\helpers\Json;
 
 class Conectar extends Component
 {
-    private $apiUrl = 'https://consolidacionjboss.ruat.gob.bo/ServiciosRuatJEE-web/api/autentificacion';
+    private $apiUrl = 'https://aplicaciones.ruat.gob.bo/ServiciosRuatJEE-web/api/autentificacion';
 
     public function getToken() {
         $cabecera= ['Usuario: SWTASASQUILLACOLLO',

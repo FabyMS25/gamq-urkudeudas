@@ -148,7 +148,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_cobrado = 1;
                 $dir = $model->eventual_tasa;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Pass_123');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $nroTasa = $model->eventual_tasa;
                     $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
@@ -218,7 +218,7 @@ class PagosEventualesController extends Controller
             ->bindValue(':ev_estado', 1)
             ->queryAll();
 
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Pass_123');
+        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
         if ($token) {
             for ($i = 0; $i < count($listaPagosEventuales); $i++) {
                 $pago = $listaPagosEventuales[$i];
@@ -305,7 +305,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_limite = $porciones[1];
                 $montoTotal = $model->eventual_importe_total;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Pass_123');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -513,7 +513,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_inicio = $porciones[0]; //aqui partimos las fechas
                 $model->eventual_fecha_limite = $porciones[1];
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Pass_123');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -712,7 +712,7 @@ class PagosEventualesController extends Controller
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Pass_123');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -912,7 +912,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Pass_123');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -1103,7 +1103,7 @@ class PagosEventualesController extends Controller
                 $dir = $model->eventual_nro_comprobante;
                 $ci_usuarioAutenticado = $datos->usua_cuenta;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Pass_123');
+                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
                 if ($token) {
                     $nrotasa = $model->eventual_tasa;
                     $motivo = $model->eventual_anulado_detalle;
