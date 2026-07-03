@@ -46,7 +46,10 @@ class Pagos extends \yii\db\ActiveRecord
     public $ci;
     public $fecha_rango, $tipo;
     
-    const COMPROBANTE = 13;
+    public static function getComprobanteCosto()
+    {
+        return Yii::$app->params['costos']['comprobante'];
+    }
 
     public static function tableName()
     {

@@ -1,0 +1,10 @@
+{
+  "name": "urkudeudas25-realtime",
+  "private": true,
+  "scripts": {
+    "ws": "node websocket/server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

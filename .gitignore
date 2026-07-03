@@ -33,3 +33,6 @@ phpunit.phar
 
 # pdf files
 .pdf
+
+# node dependencies for websocket service
+node_modules/

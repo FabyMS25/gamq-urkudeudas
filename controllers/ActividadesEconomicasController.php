@@ -11,9 +11,6 @@ use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 
-/**
- * ActividadesEconomicasController implements the CRUD actions for ActividadesEconomicas model.
- */
 class ActividadesEconomicasController extends Controller
 {
     /**

@@ -16,6 +16,7 @@ use app\models\SearchPagos;
 use app\models\TipoArmados;
 use app\models\Contribuyentes;
 use app\models\GraderiasSillas;
+use app\components\MapWebSocketPublisher;
 
 use yii\helpers\Html;
 use yii\helpers\VarDumper;
@@ -42,8 +43,7 @@ class PagosController extends Controller
         $listaGraderia = (new Pagos())->listaIdGraderiasSillasPreliquidados();
         $searchModel = new \app\models\SearchGraderiasSillas();
         $dataProvider = $searchModel->searchPreliquidaciones(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['grad_estado' => 1]);
-        $dataProvider->query->andFilterWhere(['grad_vendido' => 0]);
+        $dataProvider->query->andWhere(['grad_estado' => 1, 'grad_vendido' => 0]);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -56,7 +56,7 @@ class PagosController extends Controller
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado' => 1]);
+        $dataProvider->query->andWhere(['pago_estado' => 1]);
         return $this->render('general', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -68,9 +68,10 @@ class PagosController extends Controller
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado' => 1, 'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
+        // Show active (not deleted) preliquidaciones that haven't been paid
+        $dataProvider->query->andWhere(['pago_estado' => 1, 'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
         if (Usuario::getRolPreli()) {
-            $dataProvider->query->andFilterWhere(['pago_id_user_preliquidacion' => \Yii::$app->user->id]);
+            $dataProvider->query->andWhere(['pago_id_user_preliquidacion' => \Yii::$app->user->id]);
         }
         return $this->render('preliquidaciones', [
             'searchModel' => $searchModel,
@@ -83,7 +84,7 @@ class PagosController extends Controller
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado' => 1, 'pago_cobrado' => 1, 'pago_anulado' => 0]);
+        $dataProvider->query->andWhere(['pago_estado' => 1, 'pago_cobrado' => 1, 'pago_anulado' => 0]);
         if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
@@ -98,7 +99,7 @@ class PagosController extends Controller
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andFilterWhere(['pago_estado' => 0, 'pago_preliquidacion' => 1, 'pago_anulado' => 0,]);
+        $dataProvider->query->andWhere(['pago_estado' => 0, 'pago_preliquidacion' => 1, 'pago_anulado' => 0]);
         if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
@@ -130,7 +131,7 @@ class PagosController extends Controller
                 $model->usua_id = Yii::$app->user->id;
                 $model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
                 $model->pago_cobrado = 1;
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 if ($token) {
                     $nroTasa = $model->pago_tasa;
                     $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
@@ -142,8 +143,10 @@ class PagosController extends Controller
                         $observacion = 'Folio: ' . $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
                         $model->pago_observaciones = $model->pago_observaciones . '->' . $observacion;
                         $model->pago_nro_comprobante = $nroTasa;
-                        if ($model->save())
+                        if ($model->save()) {
+                            MapWebSocketPublisher::publishGraderiaSilla('paid', $model->grad_id, $model->pago_id);
                             $resultado = true;
+                        }
                         else
                             $resultado = false;
                         //$resultado =$this->actualizarDatosCobro($model);
@@ -227,7 +230,7 @@ class PagosController extends Controller
         /**Pagos */
         $model = new Pagos();
         $model->grad_id = $id;
-        $model->pago_reposicion = $model::COMPROBANTE;
+        $model->pago_reposicion = Pagos::getComprobanteCosto();
         $model->pago_id_user_preliquidacion = Yii::$app->user->id; // id user sesion
         $model->pago_estado = 1;
         $model->pago_fecha_hora_preliquidacion = date('Y-m-d H:m:s');
@@ -254,7 +257,7 @@ class PagosController extends Controller
                 if ($resto == 0) {
                     $val = 1;
                 }
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -305,6 +308,11 @@ class PagosController extends Controller
                                         ->bindValue(':val', $val)
                                         ->bindValue(':rest', $resto)
                                         ->queryOne();
+                                    MapWebSocketPublisher::publishGraderiaSilla('preliquidated', $codigo, $model->pago_id, [
+                                        'sold_length' => $model->pago_longitud_modificada,
+                                        'available_length' => $resto,
+                                        'sold_out' => (int)$val === 1,
+                                    ]);
                                     $resultado = true;
                                     $mensaje = 'Se registro los datos de la preliquidación con exito';
                                 } else {
@@ -357,6 +365,11 @@ class PagosController extends Controller
                                         ->bindValue(':val', $val)
                                         ->bindValue(':rest', $resto)
                                         ->queryOne();
+                                    MapWebSocketPublisher::publishGraderiaSilla('preliquidated', $codigo, $model->pago_id, [
+                                        'sold_length' => $model->pago_longitud_modificada,
+                                        'available_length' => $resto,
+                                        'sold_out' => (int)$val === 1,
+                                    ]);
                                     $resultado = true;
                                     $mensaje = 'CONTRIBUYENTE: Se registro los datos de la preliquidación con exito';
                                 } else {
@@ -432,7 +445,7 @@ class PagosController extends Controller
             ->bindValue(':pago_estado', 1)
             ->queryAll();
 
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+        $token = Yii::$app->ruatServices->loginConfigured();
         if ($token) {
             for ($i = 0; $i < count($listaPagos); $i++) {
                 $pago = $listaPagos[$i];
@@ -467,6 +480,12 @@ class PagosController extends Controller
                             ->bindValue(':comprob', $nroTasa)
                             ->bindValue(':obs', $observacion)
                             ->queryOne();
+                        $pagoActualizado = Pagos::findOne($id);
+                        if ($pagoActualizado !== null) {
+                            MapWebSocketPublisher::publishGraderiaSilla('paid', $pagoActualizado->grad_id, $pagoActualizado->pago_id, [
+                                'checked_by' => 'actionUpdatePagados',
+                            ]);
+                        }
                     }
                 }
             }
@@ -615,7 +634,8 @@ class PagosController extends Controller
         $model = $this->findModel($id);
         $pago_longitud_modificada = $model->pago_longitud_modificada;
         $nro_preliquidacion = $model->pago_nro_liquidacion;
-        $model->pago_estado = 0;
+        $model->pago_estado = 0; // logical delete
+        $model->pago_anulado = 1; // mark as anulated
         // modelo graderias y sillas
         $modelGraderia = \app\models\GraderiasSillas::findOne($model->grad_id);
         $modelGraderia->grad_vendido = 0;
@@ -639,17 +659,22 @@ class PagosController extends Controller
                 $username = $datos->usua_cuenta;
                 //$model->pago_fecha_hora_cobro = date('Y-m-d H:m:s');
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 if ($token) {
                     $motivo = $model->pago_anulado_detalle;
                     $observacion = $model->pago_observaciones;
                     $nrotasa = $model->pago_tasa;
                     $response = Yii::$app->ruatServices->anularTasa($token, $username, $nrotasa, $motivo, $observacion);
                     if ($response->continuarFlujo) {
-                        $model->pago_estado = 0;
+                        $model->pago_estado = 0; // logical delete
+                        $model->pago_anulado = 1; // mark as anulated
                         $mensajeConfirmacion = $response->mensajeConfirmacion;
                         if ($model->save()) {
                             if ($modelGraderia->save()) {
+                                MapWebSocketPublisher::publishGraderiaSilla('preliquidation_cancelled', $model->grad_id, $model->pago_id, [
+                                    'cancelled_liquidation' => $nro_preliquidacion,
+                                    'restored_length' => $pago_longitud_modificada,
+                                ]);
                                 $mensaje = "Se elimino la preliquidacion y  \n " . $mensajeConfirmacion;
                                 $result = true;
                             } else {
@@ -766,6 +791,7 @@ class PagosController extends Controller
 
             if ($model->save(false)) {
                 $transaction->commit();
+                MapWebSocketPublisher::publishGraderiaSilla('paid', $model->grad_id, $model->pago_id);
                 $resultado = true;
             } else {
                 print_r($model->getAttributes());

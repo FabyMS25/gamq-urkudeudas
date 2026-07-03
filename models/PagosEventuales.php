@@ -46,7 +46,10 @@ class PagosEventuales extends \yii\db\ActiveRecord
     public $estado_cobro_dia;
     public $nombre, $codigo, $ci;
     public $patente, $sentaje, $aseo;
-    const COMPROBANTE = 13;
+    public static function getComprobanteCosto()
+    {
+        return Yii::$app->params['costos']['comprobante'];
+    }
 
     public static function tableName()
     {

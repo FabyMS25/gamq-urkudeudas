@@ -3,6 +3,7 @@
 namespace app\components;
 
 use DateTime;
+use Yii;
 use yii\base\Component;
 use yii\httpclient\Client;
 
@@ -12,12 +13,22 @@ class RuatServices extends Component
 
     public function init()
     {
-        /** Testing */
-        // $this->baseUrl = 'https://consolidacionjboss.ruat.gob.bo';
-        // $this->baseUrl = 'https://verificacionjboss.ruat.gob.bo';
+        parent::init();
 
-        /** Production */
-        $this->baseUrl = 'https://aplicaciones.ruat.gob.bo';
+        $ruatConfig = Yii::$app->params['ruat'];
+        $environment = $ruatConfig['environment'];
+        $baseUrls = $ruatConfig['baseUrls'];
+
+        $this->baseUrl = isset($baseUrls[$environment])
+            ? $baseUrls[$environment]
+            : $baseUrls['production'];
+    }
+
+    public function loginConfigured()
+    {
+        $ruatConfig = Yii::$app->params['ruat'];
+
+        return $this->login($ruatConfig['usuario'], $ruatConfig['clave']);
     }
 
     public function login($username, $password)

@@ -12,11 +12,28 @@ use yii\helpers\Json;
 
 class Conectar extends Component
 {
-    private $apiUrl = 'https://aplicaciones.ruat.gob.bo/ServiciosRuatJEE-web/api/autentificacion';
+    private $apiUrl;
+
+    public function init()
+    {
+        parent::init();
+
+        $ruatConfig = Yii::$app->params['ruat'];
+        $environment = $ruatConfig['environment'];
+        $baseUrls = $ruatConfig['baseUrls'];
+        $baseUrl = isset($baseUrls[$environment])
+            ? $baseUrls[$environment]
+            : $baseUrls['production'];
+
+        $this->apiUrl = $baseUrl . '/ServiciosRuatJEE-web/api/autentificacion';
+    }
 
     public function getToken() {
-        $cabecera= ['Usuario: SWTASASQUILLACOLLO',
-                    'Clave: S1234567'];
+        $ruatConfig = Yii::$app->params['ruat'];
+        $cabecera= [
+            'Usuario: ' . $ruatConfig['usuario'],
+            'Clave: ' . $ruatConfig['clave'],
+        ];
 
         //$data=array('usuario'=>'erodriguez', 'pasword'=>'12345678');
         $data=null;

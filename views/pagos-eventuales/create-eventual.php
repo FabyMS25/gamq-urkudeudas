@@ -29,6 +29,7 @@ $listaCategorias = ArrayHelper::map($modelCategoria->listaCategoriasModelCodigo(
 
 $modelActividadesEconomicas = new \app\models\ActividadesEconomicas();
 $listaActividades = []; // ArrayHelper::map($modelActividadesEconomicas->listaActividadesEconomicasModel(), 'activi_id', 'activi_descripcion');
+$comprobanteCosto = Yii::$app->params['costos']['comprobante'];
 
 //echo count($listaSitiosLibresModel);
 ?>
@@ -121,7 +122,7 @@ $listaActividades = []; // ArrayHelper::map($modelActividadesEconomicas->listaAc
                                     $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
                                     $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(sentaje);
                                     $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(aseo*b); 
-                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje)+parseFloat(aseo*b)+11;
+                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje)+parseFloat(aseo*b)+<?= json_encode($comprobanteCosto) ?>;
                                     $("#' . Html::getInputId($model, 'eventual_importe_total') . '").val(impTotal); 
                                 }
                             }
@@ -142,7 +143,7 @@ $listaActividades = []; // ArrayHelper::map($modelActividadesEconomicas->listaAc
                 DateRangePicker::classname(),
                 [
                     'useWithAddon' => true,
-                    'value' => '2026-08-10 a 2026-08-12',
+                    'value' => '2026-08-14 a 2026-08-16',
                     'convertFormat' => true,
                     'readonly' => true,
                     //'disabled' => true, 

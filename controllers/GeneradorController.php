@@ -76,7 +76,7 @@ class GeneradorController extends Controller
                     ->bindValue(':estado', 1)
                     ->queryOne();
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 //$token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
                 if ($token) {
                     $id = $model->desc_id;
@@ -165,7 +165,7 @@ class GeneradorController extends Controller
             ->bindValue(':estado', 1)
             ->queryAll();
         //VarDumper::dump($listaTasasNoPagadas);
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+        $token = Yii::$app->ruatServices->loginConfigured();
         //$token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
         if ($token) {
             for ($i = 0; $i < count($listaTasasNoPagadas); $i++) {

@@ -11,6 +11,8 @@ use app\assets\AppAsset;
 use app\models\Usuario;
 
 AppAsset::register($this);
+$websocketConfig = isset(Yii::$app->params['websocketNotifications']) ? Yii::$app->params['websocketNotifications'] : [];
+$this->registerJs('window.UrkuMapWebSocketUrl = ' . json_encode(isset($websocketConfig['clientUrl']) ? $websocketConfig['clientUrl'] : 'ws://localhost:8082/ws-notificaciones') . ';', \yii\web\View::POS_HEAD);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>

@@ -17,6 +17,7 @@ use app\models\Pagos;
 use app\models\PagosEventuales;
 use app\models\PagosInfracciones;
 use app\models\Usuario;
+use app\components\MapWebSocketPublisher;
 
 class ApiMapsController extends Controller
 {
@@ -530,6 +531,7 @@ public function actionPagosInfracciones()
             }
 
             $changed = true;
+            MapWebSocketPublisher::publishGraderiaSilla((int)$reservado === 1 ? 'reserved' : 'reservation_released', $model->grad_id);
         } else {
             $changed = false;
         }

@@ -40,7 +40,9 @@ class SearchPagos extends Pagos
      */
     public function search($params)
     {
-        $query = Pagos::find()->innerJoinWith(['contribuyente', 'graderiaSilla']);
+        $query = Pagos::find()
+            ->leftJoin('contribuyentes', 'pagos.contri_id = contribuyentes.contri_id')
+            ->leftJoin('graderias_sillas', 'pagos.grad_id = graderias_sillas.grad_id');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

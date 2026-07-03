@@ -16,6 +16,7 @@ use app\models\PagosEventuales;
 use app\models\SitiosEventuales;
 use app\models\SearchPagosEventuales;
 use app\models\ActividadesEconomicas;
+use app\components\MapWebSocketPublisher;
 
 use yii\helpers\Html;
 use yii\helpers\VarDumper;
@@ -148,7 +149,7 @@ class PagosEventualesController extends Controller
                 $model->eventual_cobrado = 1;
                 $dir = $model->eventual_tasa;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 if ($token) {
                     $nroTasa = $model->eventual_tasa;
                     $response = Yii::$app->ruatServices->buscarPagadoPorNroTasa($token, $nroTasa);
@@ -160,6 +161,7 @@ class PagosEventualesController extends Controller
                         if ($model->save()) {
                             $llamada = Yii::$app->generadorQR->TEXT($siteUrl);
                             $llamada = Yii::$app->generadorQR->QRCODE(400, $dir);
+                            MapWebSocketPublisher::publishSitioEventual('paid', $model->sitios_id, $model->eventual_id);
                             $resultado = true;
                             $mensaje = 'Se realizo el cobro correctamente';
                         } else {
@@ -218,7 +220,7 @@ class PagosEventualesController extends Controller
             ->bindValue(':ev_estado', 1)
             ->queryAll();
 
-        $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+        $token = Yii::$app->ruatServices->loginConfigured();
         if ($token) {
             for ($i = 0; $i < count($listaPagosEventuales); $i++) {
                 $pago = $listaPagosEventuales[$i];
@@ -251,6 +253,12 @@ class PagosEventualesController extends Controller
                             ->bindValue(':comprob', $nroTasa)
                             ->bindValue(':obs', $observacion)
                             ->queryOne();
+                        $pagoEventualActualizado = PagosEventuales::findOne($id);
+                        if ($pagoEventualActualizado !== null && $pagoEventualActualizado->sitios_id) {
+                            MapWebSocketPublisher::publishSitioEventual('paid', $pagoEventualActualizado->sitios_id, $pagoEventualActualizado->eventual_id, [
+                                'checked_by' => 'actionUpdatePagados',
+                            ]);
+                        }
                     }
                 }
             }
@@ -281,7 +289,8 @@ class PagosEventualesController extends Controller
         $model->sitios_id = $id;
         $model->eventual_preliquidacion = 1;
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
-        $model->eventual_costo_comprobante = $model::COMPROBANTE;
+        $model->eventual_costo_comprobante = PagosEventuales::getComprobanteCosto();
+        $model->usua_id = Yii::$app->user->id;
         $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
         $model->eventual_cobrado = 0;
         $titulo = "Preliquidacion de actividades economicas eventuales";
@@ -299,13 +308,15 @@ class PagosEventualesController extends Controller
 
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
+                $model->usua_id = Yii::$app->user->id;
+                $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
 
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
                 $montoTotal = $model->eventual_importe_total;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -353,6 +364,9 @@ class PagosEventualesController extends Controller
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
                                 if ($model->save()) {
+                                    MapWebSocketPublisher::publishSitioEventual('preliquidated', $model->sitios_id, $model->eventual_id, [
+                                        'flow' => 'eventual',
+                                    ]);
                                     $resultado = true;
                                     $mensaje = 'Se registro los datos de la preliquidación con exito';
                                 } else {
@@ -403,6 +417,9 @@ class PagosEventualesController extends Controller
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
                                 if ($model->save()) {
+                                    MapWebSocketPublisher::publishSitioEventual('preliquidated', $model->sitios_id, $model->eventual_id, [
+                                        'flow' => 'eventual',
+                                    ]);
                                     $resultado = true;
                                     $mensaje = 'CONTRIBUYENTE: Se registro los datos de la preliquidación con exito';
                                 } else {
@@ -458,13 +475,21 @@ class PagosEventualesController extends Controller
                 ];
             }
         } else {
-            if ($model->load($request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->eventual_id]);
-            } else {
-                return $this->render('create-eventual', [
-                    'model' => $model,
-                ]);
+            if ($model->load($request->post())) {
+                $model->usua_id = Yii::$app->user->id;
+                $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
+
+                if ($model->save()) {
+                    MapWebSocketPublisher::publishSitioEventual('preliquidated', $model->sitios_id, $model->eventual_id, [
+                        'flow' => 'eventual',
+                    ]);
+                    return $this->redirect(['view', 'id' => $model->eventual_id]);
+                }
             }
+
+            return $this->render('create-eventual', [
+                'model' => $model,
+            ]);
         }
     }
 
@@ -490,7 +515,8 @@ class PagosEventualesController extends Controller
         $model->eventual_cobrado = 0;
         $model->eventual_preliquidacion = 1;
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
-        $model->eventual_costo_comprobante = $model::COMPROBANTE;
+        $model->eventual_costo_comprobante = PagosEventuales::getComprobanteCosto();
+        $model->usua_id = Yii::$app->user->id;
         $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
         $model->eventual_cantidad_dia = 0;
         $model->eventual_costo_sentaje = 0;
@@ -509,11 +535,13 @@ class PagosEventualesController extends Controller
 
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
+                $model->usua_id = Yii::$app->user->id;
+                $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio = $porciones[0]; //aqui partimos las fechas
                 $model->eventual_fecha_limite = $porciones[1];
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -559,6 +587,9 @@ class PagosEventualesController extends Controller
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
                                 if ($model->save()) {
+                                    MapWebSocketPublisher::publishSitioEventual('preliquidated', $model->sitios_id, $model->eventual_id, [
+                                        'flow' => 'alasitas',
+                                    ]);
                                     $result = true;
                                     $mensaje = 'Se registro los datos de la preliquidación con exito';
                                 } else {
@@ -605,6 +636,9 @@ class PagosEventualesController extends Controller
                                 $nroTasa = $response->numeroTasa;
                                 $model->eventual_tasa = $nroTasa;
                                 if ($model->save()) {
+                                    MapWebSocketPublisher::publishSitioEventual('preliquidated', $model->sitios_id, $model->eventual_id, [
+                                        'flow' => 'alasitas',
+                                    ]);
                                     $result = true;
                                     $mensaje = 'CONTRIBUYENTE: Se registro los datos de la preliquidación con exito';
                                 } else {
@@ -660,13 +694,21 @@ class PagosEventualesController extends Controller
                 ];
             }
         } else {
-            if ($model->load($request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->eventual_id]);
-            } else {
-                return $this->render('create-alasitas', [
-                    'model' => $model,
-                ]);
+            if ($model->load($request->post())) {
+                $model->usua_id = Yii::$app->user->id;
+                $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
+
+                if ($model->save()) {
+                    MapWebSocketPublisher::publishSitioEventual('preliquidated', $model->sitios_id, $model->eventual_id, [
+                        'flow' => 'alasitas',
+                    ]);
+                    return $this->redirect(['view', 'id' => $model->eventual_id]);
+                }
             }
+
+            return $this->render('create-alasitas', [
+                'model' => $model,
+            ]);
         }
     }
 
@@ -689,8 +731,9 @@ class PagosEventualesController extends Controller
         $model->scenario = "crear_espectaculos_liquidacion";
         $model->eventual_preliquidacion = 1;
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
+        $model->usua_id = Yii::$app->user->id;
         $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
-        $model->eventual_costo_comprobante = $model::COMPROBANTE;
+        $model->eventual_costo_comprobante = PagosEventuales::getComprobanteCosto();
         $model->eventual_cantidad_sitio = 0;
         $model->eventual_costo_sentaje = 0;
         $model->eventual_cobrado = 0;
@@ -709,10 +752,12 @@ class PagosEventualesController extends Controller
                         Html::button('Guardar', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
+                $model->usua_id = Yii::$app->user->id;
+                $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -862,13 +907,18 @@ class PagosEventualesController extends Controller
             /*
             *   Process for non-ajax request
             */
-            if ($model->load($request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->eventual_id]);
-            } else {
-                return $this->render('create-espectaculo', [
-                    'model' => $model,
-                ]);
+            if ($model->load($request->post())) {
+                $model->usua_id = Yii::$app->user->id;
+                $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
+
+                if ($model->save()) {
+                    return $this->redirect(['view', 'id' => $model->eventual_id]);
+                }
             }
+
+            return $this->render('create-espectaculo', [
+                'model' => $model,
+            ]);
         }
     }
 
@@ -888,7 +938,8 @@ class PagosEventualesController extends Controller
         $model->scenario = "crear_publicidad_liquidacion";
         $model->eventual_preliquidacion = 1;
         $model->eventual_fecha_hora_liquidacion = date('Y-m-d H:m:s');
-        $model->eventual_costo_comprobante = $model::COMPROBANTE;
+        $model->eventual_costo_comprobante = PagosEventuales::getComprobanteCosto();
+        $model->usua_id = Yii::$app->user->id;
         $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
         $model->eventual_cantidad_dia = 1;
         $model->eventual_costo_sentaje = 0;
@@ -908,11 +959,13 @@ class PagosEventualesController extends Controller
 
                 ];
             } else if ($model->load($request->post()) && $model->validate()) {
+                $model->usua_id = Yii::$app->user->id;
+                $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
                 $porciones = explode(" a ", $model->rango_fechas);
                 $model->eventual_fecha_inicio = $porciones[0];
                 $model->eventual_fecha_limite = $porciones[1];
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 if ($token) {
                     $id = $model->contri_id;
                     $contri = Contribuyentes::findOne($id);
@@ -1066,13 +1119,18 @@ class PagosEventualesController extends Controller
             /*
             *   Process for non-ajax request
             */
-            if ($model->load($request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->eventual_id]);
-            } else {
-                return $this->render('create-publicidad', [
-                    'model' => $model,
-                ]);
+            if ($model->load($request->post())) {
+                $model->usua_id = Yii::$app->user->id;
+                $model->eventual_user_id_preliquidacion = Yii::$app->user->id;
+
+                if ($model->save()) {
+                    return $this->redirect(['view', 'id' => $model->eventual_id]);
+                }
             }
+
+            return $this->render('create-publicidad', [
+                'model' => $model,
+            ]);
         }
     }
 
@@ -1103,7 +1161,7 @@ class PagosEventualesController extends Controller
                 $dir = $model->eventual_nro_comprobante;
                 $ci_usuarioAutenticado = $datos->usua_cuenta;
 
-                $token = Yii::$app->ruatServices->login('SWTRAMITESURKUPINIAQUI', 'Gam#1209');
+                $token = Yii::$app->ruatServices->loginConfigured();
                 if ($token) {
                     $nrotasa = $model->eventual_tasa;
                     $motivo = $model->eventual_anulado_detalle;
@@ -1113,6 +1171,11 @@ class PagosEventualesController extends Controller
                         $model->eventual_estado = 0;
                         $mensajeConfirmacion = $response->mensajeConfirmacion;
                         if ($model->save()) {
+                            if ($model->sitios_id) {
+                                MapWebSocketPublisher::publishSitioEventual('preliquidation_cancelled', $model->sitios_id, $model->eventual_id, [
+                                    'cancelled_liquidation' => $model->eventual_nro_liquidacion,
+                                ]);
+                            }
                             $mensaje = "Se elimino la preliquidacion y  \n " . $mensajeConfirmacion;
                             $result = true;
                         } else {
