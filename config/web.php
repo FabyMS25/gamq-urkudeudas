@@ -34,12 +34,12 @@ $config = [
             'resource_directory' => false, //optional
             'locale' => 'es_ES', //optional
             'db' => [
-                'dsn' => 'pgsql:host=localhost;port=5433;dbname=db_urku2026?sslmode=disable',
-//                 'dsn' => 'pgsql:host=localhost;port=5434;dbname=db_urku2026?sslmode=disable',
+//                 'dsn' => 'pgsql:host=localhost;port=5433;dbname=db_urku2026?sslmode=disable',
+                'dsn' => 'pgsql:host=localhost;port=5434;dbname=db_urku2026?sslmode=disable',
                 'username' => 'postgres',
-                'password' => 'ADMIN',
-//                 'password' => 'Admin*PG18',
-                //'port'     => '5432'
+//                 'password' => 'ADMIN',
+                'password' => 'Admin*PG18',
+//                 'port'     => '5432'
                 //'jdbcDir'  => 'D:\laragon\www\sistemaurkupina\vendor\chrmorandi\yii2-jasper\src\JasperStarter\jdbc\', 
                 //'jdbcUrl'  => 'jdbc:postgresql:/181.177.143.185:5432/urkupinia'
             ]
