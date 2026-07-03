@@ -11,12 +11,13 @@ use app\models\Pagos;
  */
 class SearchPagos extends Pagos
 {
+    public $pago_estado_filter; // for estado filtering
     
     public function rules()
     {
         return [
             [['pago_id', 'grad_id', 'usua_id', 'contri_id', 'pago_nro_comprobante', 'pago_anulado', 'pago_preliquidacion', 'pago_id_user_preliquidacion', 'pago_estado'], 'integer'],
-            [['pago_nro_liquidacion', 'pago_fecha_hora_cobro', 'pago_anulado_detalle', 'pago_anulado_fecha_hora'], 'safe'],
+            [['pago_nro_liquidacion', 'pago_fecha_hora_cobro', 'pago_anulado_detalle', 'pago_anulado_fecha_hora', 'pago_estado_filter'], 'safe'],
             [['pago_longitud_modificada', 'pago_descuento_porcentaje', 'pago_descuento_monto', 'pago_importe_patente', 'pago_aseo', 'pago_reposicion', 'pago_importe_total'], 'number'],
             [['codigo','nombre',  'ci', 'pago_cobrado', 'pago_con_exencion'], 'safe']            
         ];

@@ -34,7 +34,7 @@ $config = [
             'resource_directory' => false, //optional
             'locale' => 'es_ES', //optional
             'db' => [
-                'dsn' => 'pgsql:host=localhost;port=5433;dbname=db_urku?sslmode=disable',
+                'dsn' => 'pgsql:host=localhost;port=5433;dbname=db_urku2026?sslmode=disable',
 //                 'dsn' => 'pgsql:host=localhost;port=5434;dbname=db_urku2026?sslmode=disable',
                 'username' => 'postgres',
                 'password' => 'ADMIN',

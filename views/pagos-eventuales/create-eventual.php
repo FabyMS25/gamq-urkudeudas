@@ -1,6 +1,8 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Json;
+use yii\helpers\Url;
 //use yii\widgets\ActiveForm;
 use app\models\SitiosEventuales;
 use yii\helpers\ArrayHelper;
@@ -30,6 +32,26 @@ $listaCategorias = ArrayHelper::map($modelCategoria->listaCategoriasModelCodigo(
 $modelActividadesEconomicas = new \app\models\ActividadesEconomicas();
 $listaActividades = []; // ArrayHelper::map($modelActividadesEconomicas->listaActividadesEconomicasModel(), 'activi_id', 'activi_descripcion');
 $comprobanteCosto = Yii::$app->params['costos']['comprobante'];
+$fieldIds = [
+    'activiId' => Html::getInputId($model, 'activi_id'),
+    'aseo' => Html::getInputId($model, 'aseo'),
+    'categoria' => Html::getInputId($model, 'categoria'),
+    'costoAseo' => Html::getInputId($model, 'eventual_costo_aseo'),
+    'costoComprobante' => Html::getInputId($model, 'eventual_costo_comprobante'),
+    'costoSentaje' => Html::getInputId($model, 'eventual_costo_sentaje'),
+    'cantidadDia' => Html::getInputId($model, 'eventual_cantidad_dia'),
+    'cantidadSitio' => Html::getInputId($model, 'eventual_cantidad_sitio'),
+    'importePatente' => Html::getInputId($model, 'eventual_importe_patente'),
+    'importeTotal' => Html::getInputId($model, 'eventual_importe_total'),
+    'patente' => Html::getInputId($model, 'patente'),
+    'rangoFechas' => Html::getInputId($model, 'rango_fechas'),
+    'sentaje' => Html::getInputId($model, 'sentaje'),
+];
+$ajaxUrls = [
+    'actividadPrecios' => Url::to(['actividades-economicas/ajax-actividad-precios']),
+    'actividadTipos' => Url::to(['actividades-economicas/ajax-tipos']),
+    'sindicato' => Url::to(['sindicatos/ajax-sindicato']),
+];
 
 //echo count($listaSitiosLibresModel);
 ?>
@@ -90,77 +112,41 @@ $comprobanteCosto = Yii::$app->params['costos']['comprobante'];
     <?=
     $form->field($model, 'categoria')->dropDownList($listaCategorias, [
         'prompt' => "*** Seleccione la categoria ***",
-        'onchange' => 'habilitarInhabilitarActividadEconomica(this.value)'
     ])
     ?>
 
     <?=
     $form->field($model, 'activi_id')->dropDownList($listaActividades, [
         'prompt' => '* Seleccione una opcion *',
-        //AjaxActividadPrecios
-        'onchange' => '
-            var id = $(this).val();            
-            var a=1;
-            var b=3;
-            $("#' . Html::getInputId($model, 'eventual_cantidad_sitio') . '").val(a);
-            $("#' . Html::getInputId($model, 'eventual_cantidad_dia') . '").val(b);                 
-            if( id > 0){            
-                var cantidadSitio = $("#' . Html::getInputId($model, 'eventual_cantidad_sitio') . '").val(); 
-                $.post("index.php?r=actividades-economicas/ajax-actividad-precios&id="+id,
-                            function(data){ 
-                                lista = data.split(" - ");
-                                patente = lista[0];
-                                sentaje = lista[1];
-                                aseo = lista[2];                               
-                               
-                               $("#' . Html::getInputId($model, 'patente') . '").val(patente);
-                               $("#' . Html::getInputId($model, 'sentaje') . '").val(sentaje);
-                               $("#' . Html::getInputId($model, 'aseo') . '").val(aseo); 
-                               var impTotal=0     
-                                if(cantidadSitio > 0){
-                                    importeTotalPatente = cantidadSitio * patente;
-                                    $("#' . Html::getInputId($model, 'eventual_importe_patente') . '").val(importeTotalPatente);  
-                                    $("#' . Html::getInputId($model, 'eventual_costo_sentaje') . '").val(sentaje);
-                                    $("#' . Html::getInputId($model, 'eventual_costo_aseo') . '").val(aseo*b); 
-                                    impTotal= parseFloat(importeTotalPatente)+parseFloat(sentaje)+parseFloat(aseo*b)+<?= json_encode($comprobanteCosto) ?>;
-                                    $("#' . Html::getInputId($model, 'eventual_importe_total') . '").val(impTotal); 
-                                }
-                            }
-                        );
-                    }'
     ])
     ?>
 
 
     <div class="row">
         <div class="col-md-6 col-sm-6">
-            <?php
-            echo $form->field($model, 'rango_fechas', [
-                'addon' => ['prepend' => ['content' => '<i class="glyphicon glyphicon-calendar"></i>']],
-                'options' => ['class' => 'drp-container mb-2'],
-
-            ])->widget(
-                DateRangePicker::classname(),
-                [
-                    'useWithAddon' => true,
-                    'value' => '2026-08-14 a 2026-08-16',
-                    'convertFormat' => true,
-                    'readonly' => true,
-                    //'disabled' => true, 
-                    'pluginOptions' => [
-                        'locale' => [
-                            'format' => 'Y-m-d',
-                            'separator' => ' a ',
-                        ]
+            <?= $form->field($model, 'rango_fechas', [
+                'addon' => [
+                    'prepend' => [
+                        'content' => '<i class="glyphicon glyphicon-calendar"></i>',
                     ],
-                    'options' => [
-                        'class' => 'form-control',
-                        'onchange' => 'calcDia();'
-                    ]
-
-                ]
-            );
-            ?>
+                ],
+                'options' => ['class' => 'drp-container mb-2'],
+            ])->widget(DateRangePicker::class, [
+                'useWithAddon' => true,
+                'convertFormat' => true,
+                'readonly' => true,
+                'pluginOptions' => [
+                    'locale' => [
+                        'format' => 'Y-m-d',
+                        'separator' => ' a ',
+                    ],
+                ],
+                'options' => [
+                    'class' => 'form-control',
+                    'readonly' => true,
+                    'onchange' => 'calcDia();',
+                ],
+            ]) ?>
         </div>
 
         <div class="col-md-3 col-sm-3">
@@ -217,19 +203,92 @@ $comprobanteCosto = Yii::$app->params['costos']['comprobante'];
 </div>
 
 <script type="text/javascript">
+    var eventualFieldIds = <?= Json::htmlEncode($fieldIds) ?>;
+    var eventualAjaxUrls = <?= Json::htmlEncode($ajaxUrls) ?>;
+    var comprobanteCosto = <?= Json::htmlEncode((float)$comprobanteCosto) ?>;
     var key = 0;
 
+    function eventualField(name) {
+        return $("#" + eventualFieldIds[name]);
+    }
+
+    function eventualNumber(name) {
+        var value = parseFloat(eventualField(name).val());
+        return isNaN(value) ? 0 : value;
+    }
+
+    function setEventualField(name, value) {
+        eventualField(name).val(value);
+    }
+
+    function eventualUrlWithId(url, id) {
+        var separator = url.indexOf('?') === -1 ? '?' : '&';
+        return url + separator + 'id=' + encodeURIComponent(id);
+    }
+
     function habilitarInhabilitarActividadEconomica(id) {
-        console.log(id);
         if (id > 0) {
-            $.post("index.php?r=actividades-economicas/ajax-tipos&id=" + id,
+            $.post(eventualUrlWithId(eventualAjaxUrls.actividadTipos, id),
                 function(data) {
-                    $("select#<?= Html::getInputId($model, 'activi_id') ?>").html(data);
+                    eventualField('activiId').html(data);
+                    limpiarCalculosEventuales();
                 }
             );
         } else {
-            $listaActividades = [];
+            eventualField('activiId').html("<option value=''>* Seleccione una opcion *</option>");
+            limpiarCalculosEventuales();
         };
+    }
+
+    function limpiarCalculosEventuales() {
+        setEventualField('patente', 0);
+        setEventualField('sentaje', 0);
+        setEventualField('aseo', 0);
+        setEventualField('cantidadDia', '');
+        setEventualField('cantidadSitio', '');
+        setEventualField('importePatente', '');
+        setEventualField('costoSentaje', '');
+        setEventualField('costoAseo', '');
+        setEventualField('importeTotal', '');
+    }
+
+    function cargarPreciosActividad(id) {
+        setEventualField('cantidadSitio', 1);
+        setEventualField('cantidadDia', 3);
+
+        if (!(id > 0)) {
+            limpiarCalculosEventuales();
+            return;
+        }
+
+        $.post(eventualUrlWithId(eventualAjaxUrls.actividadPrecios, id), function(data) {
+            var lista = String(data).split(" - ");
+            var patente = parseFloat(lista[0]) || 0;
+            var sentaje = parseFloat(lista[1]) || 0;
+            var aseo = parseFloat(lista[2]) || 0;
+
+            setEventualField('patente', patente);
+            setEventualField('sentaje', sentaje);
+            setEventualField('aseo', aseo);
+            recalcularEventual();
+        });
+    }
+
+    function recalcularEventual() {
+        var cantidadSitio = eventualNumber('cantidadSitio') || 1;
+        var cantidadDias = eventualNumber('cantidadDia') || 3;
+        var patente = eventualNumber('patente');
+        var sentaje = eventualNumber('sentaje');
+        var aseo = eventualNumber('aseo');
+        var importePatente = cantidadSitio * patente;
+        var totalSentaje = sentaje;
+        var totalAseo = aseo * cantidadDias;
+        var totalImporte = importePatente + totalSentaje + totalAseo + comprobanteCosto;
+
+        setEventualField('importePatente', importePatente.toFixed(2));
+        setEventualField('costoSentaje', totalSentaje.toFixed(2));
+        setEventualField('costoAseo', totalAseo.toFixed(2));
+        setEventualField('importeTotal', totalImporte.toFixed(2));
     }
 
     function anular(e) {
@@ -265,77 +324,33 @@ $comprobanteCosto = Yii::$app->params['costos']['comprobante'];
     }
 
     function calcPuestos() {
-        var cantidad = $("#<?= Html::getInputId($model, 'eventual_cantidad_sitio') ?>").val();
-        var patente = $("#<?= Html::getInputId($model, 'patente') ?>").val();
-        console.log('Cantidad: ', cantidad, 'Patente', patente);
-        var totalImporte = 0;
-        if (cantidad > 0 && patente >= 0) {
-            importeTotalPatente = cantidad * patente;
-            $("#<?= Html::getInputId($model, 'eventual_importe_patente') ?> ").val(importeTotalPatente);
-            sentajeTotal = $("#<?= Html::getInputId($model, 'eventual_costo_sentaje') ?>").val();
-            aseoTotal = $("#<?= Html::getInputId($model, 'eventual_costo_aseo') ?>").val();
-            comprobante = $("#<?= Html::getInputId($model, 'eventual_costo_comprobante') ?>").val();
-
-            totalImporte = parseFloat(importeTotalPatente) + parseFloat(sentajeTotal) + parseFloat(aseoTotal) + parseFloat(comprobante);
-            console.log(totalImporte);
-            console.log(comprobante);
-            totalImporte = totalImporte.toFixed(2);
-
-            $("#<?= Html::getInputId($model, 'eventual_importe_total') ?> ").val(totalImporte);
-        } else {
-            totalImporte = totalImporte.toFixed(2);
-        }
+        recalcularEventual();
     }
 
 
     function calcDia() {
-        var cad = $("#<?= Html::getInputId($model, 'rango_fechas') ?>").val();
-        console.log('cad=> ', cad);
-        let arre = cad.split(' a ');
-        f1 = new Date(arre[0].trim());
-        f2 = new Date(arre[1].trim());
-        dif = f2 - f1;
-        var dias = (dif / 86400).toFixed() / 1000;
-        dias++;
-        // dias=3;
-        console.log('dias es : ', dias);
-        var importeTotalPatente = $("#<?= Html::getInputId($model, 'eventual_importe_patente') ?>").val();
-        var totalAseo = 0;
-        var totalSentaje = 0;
+        var cad = eventualField('rangoFechas').val();
+        var arre = cad.split(' a ');
 
-        var cantidadDias = dias;
-        var sentaje = $("#<?= Html::getInputId($model, 'sentaje') ?>").val();
-        var aseo = $("#<?= Html::getInputId($model, 'aseo') ?>").val();
-
-        if (cantidadDias > 0 && sentaje >= 0 && aseo >= 0) {
-            totalSentaje = parseFloat(sentaje);
-            //totalSentaje = totalSentaje.toFixed(0);
-            totalAseo = parseFloat(aseo * dias);
-            //totalAseo = totalAseo.toFixed(0);
-            $("#<?= Html::getInputId($model, 'eventual_costo_sentaje') ?>").val(totalSentaje);
-            $("#<?= Html::getInputId($model, 'eventual_costo_aseo') ?> ").val(totalAseo);
-
-            patenteTotal = $("#<?= Html::getInputId($model, 'eventual_importe_patente') ?> ").val();
-            comprobante = $("#<?= Html::getInputId($model, 'eventual_costo_comprobante') ?> ").val();
-
-            totalImporte = parseFloat(importeTotalPatente) + parseFloat(totalSentaje) + parseFloat(totalAseo) + parseFloat(comprobante);
-            totalImporte = totalImporte.toFixed(2);
-            $("#<?= Html::getInputId($model, 'eventual_importe_total') ?> ").val(totalImporte);
-            $("#<?= Html::getInputId($model, 'eventual_cantidad_dia') ?> ").val(dias);
-
-        } else {
-            $("#<?= Html::getInputId($model, 'eventual_costo_sentaje') ?>").val();
-            $("#<?= Html::getInputId($model, 'eventual_costo_aseo') ?>").val();
-            $("#<?= Html::getInputId($model, 'eventual_importe_patente') ?> ").val();
-            $("#<?= Html::getInputId($model, 'eventual_importe_total') ?> ").val();
-            $("#<?= Html::getInputId($model, 'rango_fechas') ?>").val("");
+        if (arre.length !== 2) {
             alert('debe Elegir la actividad Economica y  ')
+            return;
+        }
+
+        var f1 = new Date(arre[0].trim());
+        var f2 = new Date(arre[1].trim());
+        var dif = f2 - f1;
+        var dias = Math.floor(dif / 86400000) + 1;
+
+        if (dias > 0) {
+            setEventualField('cantidadDia', dias);
+            recalcularEventual();
         }
     }
 
     function sindicatoComprador(idContribuyente) {
         if (idContribuyente > 0) {
-            $.post("index.php?r=sindicatos/ajax-sindicato&id=" + idContribuyente,
+            $.post(eventualUrlWithId(eventualAjaxUrls.sindicato, idContribuyente),
                 function(data) {
                     $("#txt_sindicato").text(data);
                 }
@@ -345,6 +360,18 @@ $comprobanteCosto = Yii::$app->params['costos']['comprobante'];
     }
 
     $(document).ready(function() {
+        eventualField('categoria')
+            .off('change.eventual')
+            .on('change.eventual', function() {
+                habilitarInhabilitarActividadEconomica($(this).val());
+            });
+
+        eventualField('activiId')
+            .off('change.eventual')
+            .on('change.eventual', function() {
+                cargarPreciosActividad($(this).val());
+            });
+
         $("form").keypress(function(e) {
             var codigoTecla = parseInt(e.keyCode);
             if (codigoTecla === 13) {

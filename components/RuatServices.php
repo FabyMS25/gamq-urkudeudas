@@ -18,7 +18,6 @@ class RuatServices extends Component
         $ruatConfig = Yii::$app->params['ruat'];
         $environment = $ruatConfig['environment'];
         $baseUrls = $ruatConfig['baseUrls'];
-
         $this->baseUrl = isset($baseUrls[$environment])
             ? $baseUrls[$environment]
             : $baseUrls['production'];
@@ -27,7 +26,6 @@ class RuatServices extends Component
     public function loginConfigured()
     {
         $ruatConfig = Yii::$app->params['ruat'];
-
         return $this->login($ruatConfig['usuario'], $ruatConfig['clave']);
     }
 
@@ -45,9 +43,7 @@ class RuatServices extends Component
             ])
             ->addHeaders(['usuario' => $username])
             ->addHeaders(['clave' => $password]);
-
         $response = $request->send();
-
         if (!$response->isOk) {
             return null;
         }
@@ -230,10 +226,15 @@ class RuatServices extends Component
         $monto,
         $observaciones,
         $codigoAlcaldia = 'QUI',
-        $servicioMunicipal = '2174',
+        $servicioMunicipal = null,
         $tipoArancel = 'DI',
         $incluirNumeroConcepto = false
     ) {
+        if ($servicioMunicipal === null) {
+            $ruatConfig = Yii::$app->params['ruat'];
+            $servicioMunicipal = isset($ruatConfig['servicioMunicipal']) ? $ruatConfig['servicioMunicipal'] : '2174';
+        }
+
         $client = new Client();
         $concepto = [
             'codigoClasificador' => $codigoClasificador,

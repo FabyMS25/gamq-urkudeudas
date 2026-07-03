@@ -3,6 +3,7 @@
 /* @var $content string */
 
 use yii\helpers\Html;
+use yii\helpers\Json;
 use yii\helpers\Url;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
@@ -12,7 +13,9 @@ use app\models\Usuario;
 
 AppAsset::register($this);
 $websocketConfig = isset(Yii::$app->params['websocketNotifications']) ? Yii::$app->params['websocketNotifications'] : [];
-$this->registerJs('window.UrkuMapWebSocketUrl = ' . json_encode(isset($websocketConfig['clientUrl']) ? $websocketConfig['clientUrl'] : 'ws://localhost:8082/ws-notificaciones') . ';', \yii\web\View::POS_HEAD);
+$websocketClientUrl = isset($websocketConfig['clientUrl']) && is_string($websocketConfig['clientUrl']) && $websocketConfig['clientUrl'] !== ''
+    ? $websocketConfig['clientUrl']
+    : 'ws://localhost:8082/ws-notificaciones';
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -22,6 +25,9 @@ $this->registerJs('window.UrkuMapWebSocketUrl = ' . json_encode(isset($websocket
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <?= Html::csrfMetaTags() ?>
         <title><?= Html::encode($this->title) ?></title>
+        <script type="text/javascript">
+            window.UrkuMapWebSocketUrl = <?= Json::htmlEncode($websocketClientUrl) ?>;
+        </script>
         <?php $this->head() ?>
     </head>
     <body>

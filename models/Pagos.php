@@ -192,6 +192,48 @@ class Pagos extends \yii\db\ActiveRecord
     }
 
     /**
+     * Get the human-readable estado (status) of a pago
+     * Combines pago_cobrado and pago_anulado to determine status
+     */
+    public function getEstadoText()
+    {
+        if ($this->pago_anulado == 1) {
+            return 'Anulada';
+        } elseif ($this->pago_cobrado == 1) {
+            return 'Pagada';
+        } else {
+            return 'Pendiente';
+        }
+    }
+
+    /**
+     * Get the CSS badge class for the estado
+     */
+    public function getEstadoBadgeClass()
+    {
+        if ($this->pago_anulado == 1) {
+            return 'badge-danger';
+        } elseif ($this->pago_cobrado == 1) {
+            return 'badge-success';
+        } else {
+            return 'badge-warning';
+        }
+    }
+
+    /**
+     * Get array of all available estados for filtering
+     */
+    public static function getEstadoOptions()
+    {
+        return [
+            '' => '-- Todas --',
+            'pendiente' => 'Pendiente',
+            'pagada' => 'Pagada',
+            'anulada' => 'Anulada',
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getContribuyente()

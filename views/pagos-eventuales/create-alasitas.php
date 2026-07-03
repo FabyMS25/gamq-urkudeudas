@@ -82,9 +82,16 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 
 
 <!-- <div class="row" id="mensajeContainer"></div> -->
-    
-    
 
+    <?php
+        $periodoAlasitas = Yii::$app->params['eventPeriods']['alasitas'];
+        $rangoAlasitas = $periodoAlasitas['start']
+            . ' a '
+            . $periodoAlasitas['end'];
+        if ($model->isNewRecord && empty($model->rango_fechas)) {
+            $model->rango_fechas = $rangoAlasitas;
+        }
+    ?>
     <?= $form->field($model, 'activi_id')->dropDownList($listaActividades, ['prompt' => '* Seleccione una opcion *',
         //AjaxActividadPrecios
         'onchange' => '
@@ -123,8 +130,8 @@ $listaActividades = ArrayHelper::map($modelActividadesEconomicas->listaActividad
 
     <div class="row">    
                   
-    <div  class="col-md-6 col-sm-6">            
-            <?php  echo $form->field($model, 'rango_fechas')->textInput(['value'=>'2026-08-17 a 2026-08-31','readonly' => true])?>
+    <div  class="col-md-6 col-sm-6">
+        <?= $form->field($model, 'rango_fechas')->textInput(['readonly' => true,]) ?>
         </div> 
         <div class="col-md-3 col-sm-3">
             <?=
