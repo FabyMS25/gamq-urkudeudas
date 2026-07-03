@@ -99,7 +99,7 @@ class PagosController extends Controller
         $this->verificarSesion();
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andWhere(['pago_estado' => 0, 'pago_preliquidacion' => 1, 'pago_anulado' => 0]);
+        $dataProvider->query->andWhere(['pago_estado' => 1, 'pago_preliquidacion' => 1, 'pago_anulado' => 1]);
         if (Usuario::getRolCajero()) {
             $dataProvider->query->andFilterWhere(['usua_id' => \Yii::$app->user->id]);
         }
@@ -634,8 +634,7 @@ class PagosController extends Controller
         $model = $this->findModel($id);
         $pago_longitud_modificada = $model->pago_longitud_modificada;
         $nro_preliquidacion = $model->pago_nro_liquidacion;
-        $model->pago_estado = 0; // logical delete
-        $model->pago_anulado = 1; // mark as anulated
+        $model->pago_anulado = 1; // mark as anulated (do NOT change pago_estado)
         // modelo graderias y sillas
         $modelGraderia = \app\models\GraderiasSillas::findOne($model->grad_id);
         $modelGraderia->grad_vendido = 0;
@@ -666,9 +665,8 @@ class PagosController extends Controller
                     $nrotasa = $model->pago_tasa;
                     $response = Yii::$app->ruatServices->anularTasa($token, $username, $nrotasa, $motivo, $observacion);
                     if ($response->continuarFlujo) {
-                        $model->pago_estado = 0; // logical delete
-                        $model->pago_anulado = 1; // mark as anulated
-                        $mensajeConfirmacion = $response->mensajeConfirmacion;
+                            $model->pago_anulado = 1; // mark as anulated (do NOT change pago_estado)
+                            $mensajeConfirmacion = $response->mensajeConfirmacion;
                         if ($model->save()) {
                             if ($modelGraderia->save()) {
                                 MapWebSocketPublisher::publishGraderiaSilla('preliquidation_cancelled', $model->grad_id, $model->pago_id, [
