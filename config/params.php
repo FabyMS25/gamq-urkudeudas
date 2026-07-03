@@ -26,17 +26,18 @@ return [
         'servicioMunicipal' => '2174',
     ],
     'clasificadores' => [
-        'graderias_sillas' => '31516',
-        'actividades_economicas_eventuales' => '31517',
-        'espectaculos_publicos' => '31518',
-        'publicidad_propaganda' => '31519',
-        'sentajes_urkupina' => '31520',
-        'mingitorios' => '31521',
-        'tasa_aseo' => '31522',
-        'alasitas' => '31523',
-        'sentajes_alasitas' => '31524',
-        'multas_infracciones' => '31525',
-        'otros' => '31526',
+        'graderias_sillas' => '31450',
+        'actividades_economicas_eventuales' => '31451',
+        'espectaculos_publicos' => '31452',
+        'publicidad_propaganda' => '31453',
+        'sentajes_urkupina' => '31454', 
+        'mingitorios' => '31455',
+        'tasa_aseo' => '31456',
+        'alasitas' => '31457', 
+        'sentajes_alasitas' => '31458',
+
+        'multas_infracciones' => '31459',
+        'otros' => '31460',
     ],
     'websocketNotifications' => [
         'enabled' => getenv('WS_EVENTS_ENABLED') === false ? true : getenv('WS_EVENTS_ENABLED'),
@@ -44,7 +45,6 @@ return [
         'clientUrl' => getenv('WS_CLIENT_URL') ?: 'ws://localhost:8082/ws-notificaciones',
 //         WS_CLIENT_URL=wss://urkupina.quillacollo.gob.bo/ws-notificaciones
         'secret' => getenv('WS_PUBLISH_SECRET') ?: '',
-
         'timeout' => getenv('WS_PUBLISH_TIMEOUT') ?: 0.25,
     ],
 ];

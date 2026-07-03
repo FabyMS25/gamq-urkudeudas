@@ -270,7 +270,7 @@ class PagosEventualesController extends Controller
     /*Liquidacion de act. economicas EVENTUALES*/
     public function actionCreateEventual($id)
     {
-        $codigoClasificador = '30437';
+        $codigoClasificador = Yii::$app->params['clasificadores']['actividades_economicas_eventuales'];
         $mensaje = '';
         $resultado = false;
 
@@ -496,7 +496,7 @@ class PagosEventualesController extends Controller
     /*Liquidacion de act. economicas eventuales ALASITAS*/
     public function actionCreateAlasitas($id)
     {
-        $codigoClasificador = '30443';
+        $codigoClasificador = Yii::$app->params['clasificadores']['alasitas'];
         $mensaje = '';
         $result = false;
 
@@ -716,7 +716,7 @@ class PagosEventualesController extends Controller
     public function actionCreateEspectaculo()
     {
         $this->verificarSesion();
-        $codigoClasificador = '30438';
+        $codigoClasificador = Yii::$app->params['clasificadores']['espectaculos_publicos'];
         $mensaje = '';
         $resultado = false;
 
@@ -926,7 +926,7 @@ class PagosEventualesController extends Controller
     public function actionCreatePublicidad()
     {
         $this->verificarSesion();
-        $codigoClasificador = '30439';
+        $codigoClasificador = Yii::$app->params['clasificadores']['publicidad_propaganda'];
         $mensaje = '';
         $resultado = false;
         $request = Yii::$app->request;

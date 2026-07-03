@@ -53,7 +53,7 @@ class GeneradorController extends Controller
         $titulo = "Generar Tasa";
         $resultado = false;
         $mensaje = '';
-        $codigoClasificador = '30440';
+        $codigoClasificador = Yii::$app->params['clasificadores']['sentajes_urkupina'];
 
         $idUsuarioAutenticado = Yii::$app->user->id;
         $datos = Usuario::findOne($idUsuarioAutenticado);
@@ -77,7 +77,6 @@ class GeneradorController extends Controller
                     ->queryOne();
 
                 $token = Yii::$app->ruatServices->loginConfigured();
-                //$token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
                 if ($token) {
                     $id = $model->desc_id;
                     $sentajero = Descargos::findOne($id);
@@ -166,7 +165,6 @@ class GeneradorController extends Controller
             ->queryAll();
         //VarDumper::dump($listaTasasNoPagadas);
         $token = Yii::$app->ruatServices->loginConfigured();
-        //$token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
         if ($token) {
             for ($i = 0; $i < count($listaTasasNoPagadas); $i++) {
                 $tasa = $listaTasasNoPagadas[$i];

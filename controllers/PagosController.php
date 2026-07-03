@@ -219,7 +219,7 @@ class PagosController extends Controller
     public function actionPreliquidar($id)
     {
         $mensaje = '';
-        $codigoClasificador = '30436';
+        $codigoClasificador = Yii::$app->params['clasificadores']['graderias_sillas'];
         $resultado = false;
         $this->verificarSesion();
         $request = Yii::$app->request;
