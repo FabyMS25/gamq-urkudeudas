@@ -42,8 +42,8 @@ return [
     'websocketNotifications' => [
         'enabled' => getenv('WS_EVENTS_ENABLED') === false ? true : getenv('WS_EVENTS_ENABLED'),
         'publishUrl' => getenv('WS_PUBLISH_URL') ?: 'http://127.0.0.1:8082/publish',
-        'clientUrl' => getenv('WS_CLIENT_URL') ?: 'ws://localhost:8082/ws-notificaciones',
-//         WS_CLIENT_URL=wss://urkupina.quillacollo.gob.bo/ws-notificaciones
+//         'clientUrl' => getenv('WS_CLIENT_URL') ?: 'ws://localhost:8082/ws-notificaciones',
+        'clientUrl' => getenv('WS_CLIENT_URL') ?: 'wss://urkupina.quillacollo.gob.bo/ws-notificaciones',
         'secret' => getenv('WS_PUBLISH_SECRET') ?: '',
         'timeout' => getenv('WS_PUBLISH_TIMEOUT') ?: 0.25,
     ],
