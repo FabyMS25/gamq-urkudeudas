@@ -322,7 +322,6 @@ class RuatServices extends Component
             'raw' => $response->content,
         ];
     }
-
     public function consultaPagoTasa($token, $nroTasa, $codigoAlcaldia = 'QUI', $tipoTasa = 'TO')
     {
         $client = new Client();
@@ -341,19 +340,31 @@ class RuatServices extends Component
                 'tipoTasa' => $tipoTasa,
             ]);
 
-        $response = $request->send();
-        $data = json_decode($response->content);
+        try {
+            $response = $request->send();
+            $data = json_decode($response->content);
 
-        if ($data !== null) {
-            return $data;
+            if ($data !== null) {
+                $data->__ruatHttpOk = $response->isOk;
+                $data->__ruatHttpStatus = $response->statusCode;
+                return $data;
+            }
+            return (object)[
+                'continuarFlujo' => false,
+                'mensaje' => 'RUAT no devolvió una respuesta JSON válida.',
+                '__ruatHttpOk' => false,
+                '__ruatHttpStatus' => $response->statusCode,
+                '__ruatTechnicalError' => true,
+            ];
+        } catch (\Throwable $e) {
+            return (object)[
+                'continuarFlujo' => false,
+                'mensaje' => 'No se pudo conectar con RUAT.',
+                '__ruatHttpOk' => false,
+                '__ruatHttpStatus' => 0,
+                '__ruatTechnicalError' => true,
+            ];
         }
-
-        return (object)[
-            'continuarFlujo' => false,
-            'mensaje' => 'RUAT no devolvió una respuesta JSON válida.',
-            'httpStatus' => $response->statusCode,
-            'raw' => $response->content,
-        ];
     }
 
     public function buscarPagadoPorNroTasa($token, $nroTasa, $codigoAlcaldia = 'QUI', $tipoTasa = 'TO')

@@ -36,6 +36,7 @@ class ApiRuatController extends Controller
                     'consultar-contribuyente'       => ['POST', 'OPTIONS'],
                     'consulta-deudas-contribuyente' => ['POST', 'OPTIONS'],
                     'consulta-pago-tasa'            => ['POST', 'OPTIONS'],
+                    'consulta-pago-tasas'           => ['POST', 'OPTIONS'],
                     'registrar-contribuyente'       => ['POST', 'OPTIONS'],
                     'registrar-pago-infraccion'     => ['POST', 'OPTIONS'],
                     'anular-tasa'                   => ['POST', 'OPTIONS'],
@@ -245,16 +246,57 @@ class ApiRuatController extends Controller
         $codigoAlcaldia = $this->requiredString($body, 'codigoAlcaldia');
         $numeroTasa = $this->firstRequiredString($body, ['numeroTasa', 'numero_tasa', 'pago_tasa', 'eventual_tasa']);
 
-        $response = Yii::$app->ruatServices->consultaPagoTasa($token, $numeroTasa, $codigoAlcaldia);
+        return $this->consultaPagoTasaResponse($token, $codigoAlcaldia, $numeroTasa, $body);
+    }
 
-        $localRegistros = $this->syncLocalPagosFromRuat($numeroTasa, $response, $body);
+    public function actionConsultaPagoTasas()
+    {
+        $body = $this->requestBodyParams();
 
-        return $this->ruatApiResponse($response, [
-            'pagado' => isset($response->continuarFlujo) ? (bool)$response->continuarFlujo : false,
-            'registroLocalTipos' => array_keys($localRegistros),
-            'registrosLocales' => $localRegistros,
-            'pagoInfraccion' => isset($localRegistros['infraccion']) ? $localRegistros['infraccion'] : null,
-        ]);
+        $token = $this->tokenFromRequest($body);
+        $codigoAlcaldia = $this->requiredString($body, 'codigoAlcaldia');
+        $numerosTasa = $this->numeroTasasFromRequest($body);
+
+        $resultados = [];
+
+        foreach ($numerosTasa as $numeroTasa) {
+            try {
+                $resultados[] = $this->consultaPagoTasaResponse($token, $codigoAlcaldia, $numeroTasa, $body);
+            } catch (\Throwable $e) {
+                $resultados[] = [
+                    'success' => false,
+                    'consultaExitosa' => false,
+                    'continuarFlujo' => false,
+                    'numeroTasa' => $numeroTasa,
+                    'pagado' => false,
+                    'mensaje' => $e->getMessage(),
+                ];
+            }
+        }
+        $consultadas = count($resultados);
+        $pagadas = 0;
+        $sinPago = 0;
+        $fallidas = 0;
+
+        foreach ($resultados as $resultado) {
+            if (!empty($resultado['pagado'])) {
+                $pagadas++;
+            }
+
+            if (empty($resultado['success'])) {
+                $fallidas++;
+            } elseif (empty($resultado['pagado'])) {
+                $sinPago++;
+            }
+        }
+        return [
+            'success' => $fallidas === 0,
+            'consultadas' => $consultadas,
+            'pagadas' => $pagadas,
+            'sinPago' => $sinPago,
+            'fallidas' => $fallidas,
+            'resultados' => $resultados,
+        ];
     }
 
     public function actionRegistrarContribuyente()
@@ -1052,6 +1094,85 @@ class ApiRuatController extends Controller
     // -------------------------------------------------------------------------
     // Request/response utilities
     // -------------------------------------------------------------------------
+    private function consultaPagoRuatExitosa($response): bool
+    {
+        if ($response === null) {
+            return false;
+        }
+
+        if (!empty($response->__ruatTechnicalError)) {
+            return false;
+        }
+
+        $httpStatus = isset($response->__ruatHttpStatus)
+            ? (int)$response->__ruatHttpStatus
+            : null;
+
+        if (in_array($httpStatus, [401, 403], true)) {
+            return false;
+        }
+
+        if ($this->esResultadoConsultaSinPagoRuat($response)) {
+            return true;
+        }
+
+        if (isset($response->__ruatHttpOk) && !$response->__ruatHttpOk) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function esResultadoConsultaSinPagoRuat($response): bool
+    {
+        $mensaje = isset($response->mensaje)
+            ? strtolower(trim((string)$response->mensaje))
+            : '';
+
+        if ($mensaje === '') {
+            return false;
+        }
+
+        return strpos($mensaje, 'no tiene pagos realizados') !== false
+            || strpos($mensaje, 'no tiene pago realizado') !== false
+            || strpos($mensaje, 'se encuentra anulada') !== false
+            || strpos($mensaje, 'se encuentra anulado') !== false
+            || strpos($mensaje, 'tasa anulada') !== false;
+    }
+
+    private function consultaPagoTasaResponse(
+        string $token,
+        string $codigoAlcaldia,
+        string $numeroTasa,
+        array $body
+    ): array {
+        $response = Yii::$app->ruatServices->consultaPagoTasa(
+            $token,
+            $numeroTasa,
+            $codigoAlcaldia
+        );
+
+        $consultaExitosa = $this->consultaPagoRuatExitosa($response);
+
+        $pagado = $consultaExitosa
+            && $this->ruatContinuarFlujo($response)
+            && isset($response->pagoTasa);
+
+        $localRegistros = $pagado
+            ? $this->syncLocalPagosFromRuat($numeroTasa, $response, $body)
+            : [];
+
+        return $this->ruatApiResponse($response, [
+            // Overrides ruatApiResponse's generic success mapping for this endpoint.
+            'success' => $consultaExitosa,
+            'consultaExitosa' => $consultaExitosa,
+            'numeroTasa' => $numeroTasa,
+            'pagado' => $pagado,
+            'registroLocalTipos' => array_keys($localRegistros),
+            'registrosLocales' => $localRegistros,
+            'pagoInfraccion' => $localRegistros['infraccion'] ?? null,
+        ]);
+    }
 
     private function requestBodyParams()
     {
@@ -1073,6 +1194,51 @@ class ApiRuatController extends Controller
         return $params;
     }
 
+    private function numeroTasasFromRequest(array $params): array
+    {
+        $source = null;
+
+        foreach (['numerosTasa', 'numeroTasas', 'numeros_tasa', 'tasas'] as $key) {
+            if (isset($params[$key])) {
+                $source = $params[$key];
+                break;
+            }
+        }
+
+        if (!is_array($source)) {
+            throw new BadRequestHttpException(
+                'El campo numerosTasa, numeroTasas, numeros_tasa o tasas debe ser una lista.'
+            );
+        }
+
+        $numerosTasa = [];
+
+        foreach ($source as $index => $item) {
+            if (is_array($item)) {
+                $numeroTasa = $this->firstRequiredString($item, [
+                    'numeroTasa',
+                    'numero_tasa',
+                    'pago_tasa',
+                    'eventual_tasa',
+                ]);
+            } else {
+                $numeroTasa = trim((string)$item);
+
+                if ($numeroTasa === '') {
+                    throw new BadRequestHttpException("La tasa en la posicion $index es requerida.");
+                }
+            }
+
+            $numerosTasa[] = $numeroTasa;
+        }
+
+        if (empty($numerosTasa)) {
+            throw new BadRequestHttpException('Debe enviar al menos una tasa para consultar.');
+        }
+
+        return $numerosTasa;
+    }
+
     private function ruatApiResponse($response, array $extra = [])
     {
         if ($response === null) {
@@ -1084,6 +1250,13 @@ class ApiRuatController extends Controller
         }
 
         $data = (array)$response;
+
+        unset(
+            $data['__ruatHttpOk'],
+            $data['__ruatHttpStatus'],
+            $data['__ruatTechnicalError']
+        );
+
         $success = $this->ruatContinuarFlujo($response);
 
         return array_merge(['success' => $success], $data, $extra);
