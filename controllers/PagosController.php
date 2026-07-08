@@ -588,7 +588,7 @@ class PagosController extends Controller
     protected function habilitarDatosPreliquidacion($model)
     {
         $model->pago_anulado = 1;
-        $model->pago_anulado_fecha_hora = date('Y-m-d H:m:s');
+        $model->pago_anulado_fecha_hora = date('Y-m-d H:i:s');
 
         $modelAux = new Pagos();
         $modelAux->grad_id = $model->grad_id;
@@ -665,8 +665,9 @@ class PagosController extends Controller
                     $nrotasa = $model->pago_tasa;
                     $response = Yii::$app->ruatServices->anularTasa($token, $username, $nrotasa, $motivo, $observacion);
                     if ($response->continuarFlujo) {
-                            $model->pago_anulado = 1; // mark as anulated (do NOT change pago_estado)
-                            $mensajeConfirmacion = $response->mensajeConfirmacion;
+                        $model->pago_anulado = 1; // mark as anulated (do NOT change pago_estado)
+                        $model->pago_anulado_fecha_hora = date('Y-m-d H:i:s');
+                        $mensajeConfirmacion = $response->mensajeConfirmacion;
                         if ($model->save()) {
                             if ($modelGraderia->save()) {
                                 MapWebSocketPublisher::publishGraderiaSilla('preliquidation_cancelled', $model->grad_id, $model->pago_id, [
