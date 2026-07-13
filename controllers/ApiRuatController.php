@@ -12,6 +12,7 @@ use app\models\Contribuyentes;
 use app\models\Pagos;
 use app\models\PagosEventuales;
 use app\models\PagosInfracciones;
+use app\models\Usuario;
 
 class ApiRuatController extends Controller
 {
@@ -37,6 +38,8 @@ class ApiRuatController extends Controller
                     'consulta-deudas-contribuyente' => ['POST', 'OPTIONS'],
                     'consulta-pago-tasa'            => ['POST', 'OPTIONS'],
                     'consulta-pago-tasas'           => ['POST', 'OPTIONS'],
+                    'consultar-usuario'             => ['POST', 'OPTIONS'],
+                    'registrar-tasa'                => ['POST', 'OPTIONS'],
                     'registrar-contribuyente'       => ['POST', 'OPTIONS'],
                     'registrar-pago-infraccion'     => ['POST', 'OPTIONS'],
                     'anular-tasa'                   => ['POST', 'OPTIONS'],
@@ -299,6 +302,90 @@ class ApiRuatController extends Controller
         ];
     }
 
+    public function actionConsultarUsuario()
+    {
+        $body = $this->requestBodyParams();
+        $codigoUsuario = $this->firstRequiredString($body, [
+            'usuario',
+            'usua_cuenta',
+            'codigoUsuario',
+            'codigo_usuario',
+            'usuarioCuenta',
+            'cuentaUsuario',
+        ]);
+
+        $usuario = Usuario::findOne(['usua_cuenta' => $codigoUsuario, 'usua_estado' => 1]);
+
+        if ($usuario === null) {
+            return [
+                'success' => false,
+                'exitosa' => false,
+                'consultaExitosa' => true,
+                'existe' => false,
+                'codigoUsuario' => $codigoUsuario,
+                'usuario' => null,
+                'mensaje' => 'La cuenta de usuario no existe o no esta activa en el sistema local.',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'exitosa' => true,
+            'consultaExitosa' => true,
+            'existe' => true,
+            'codigoUsuario' => $usuario->usua_cuenta,
+            'usuario' => [
+                'usua_id' => (int)$usuario->usua_id,
+                'usua_nombres' => $usuario->usua_nombres,
+                'usua_apellidos' => $usuario->usua_apellidos,
+                'usua_ci' => $usuario->usua_ci,
+                'usua_cuenta' => $usuario->usua_cuenta,
+                'usua_rol' => $usuario->usua_rol,
+                'usua_estado' => $usuario->usua_estado !== null ? (int)$usuario->usua_estado : null,
+            ],
+            'mensaje' => 'Cuenta de usuario encontrada.',
+        ];
+    }
+
+    public function actionRegistrarTasa()
+    {
+        $body = $this->requestBodyParams();
+        $data = isset($body['tasa']) && is_array($body['tasa'])
+            ? array_merge($body, $body['tasa'])
+            : $body;
+
+        $token = $this->tokenFromRequest($data);
+        $codigoAlcaldia = $this->requiredString($data, 'codigoAlcaldia');
+        $codigoUsuario = $this->firstRequiredString($data, [
+            'codigo_usuario',
+            'codigoUsuario',
+            'usuario',
+            'usua_cuenta',
+            'usuarioCuenta',
+            'cuentaUsuario',
+        ]);
+        $clasificadorKey = $this->clasificadorKeyFromRequest($data);
+        $codigoClasificador = $this->codigoClasificadorFromKey($clasificadorKey);
+
+        $response = $this->createRuatTasa(
+            $token,
+            $codigoAlcaldia,
+            $codigoUsuario,
+            $this->firstRequiredString($data, ['codigo_contribuyente', 'codigoContribuyente']),
+            $codigoClasificador,
+            $this->requiredMontoString($data, 'monto'),
+            $this->requiredString($data, 'observacion')
+        );
+
+        return [
+            'success' => $this->ruatContinuarFlujo($response) && isset($response->numeroTasa),
+            'mensaje' => $this->ruatMensaje($response, 'RUAT no registró la tasa.'),
+            'numeroTasa' => isset($response->numeroTasa) ? $response->numeroTasa : null,
+            'clasificadorKey' => $clasificadorKey,
+            'ruat' => $response,
+        ];
+    }
+
     public function actionRegistrarContribuyente()
     {
         $body = $this->requestBodyParams();
@@ -440,14 +527,23 @@ class ApiRuatController extends Controller
 
         $token = $this->tokenFromRequest($body);
         $codigoAlcaldia = $this->requiredString($data, 'codigoAlcaldia');
-        $codigoUsuario = $this->firstRequiredString($data, ['codigo_usuario', 'codigoUsuario']);
+        $codigoUsuario = $this->firstRequiredString($data, [
+            'codigo_usuario',
+            'codigoUsuario',
+            'usuario',
+            'usua_cuenta',
+            'usuarioCuenta',
+            'cuentaUsuario',
+        ]);
+        $codigoClasificador = $this->codigoClasificadorFromRequest($data);
+        $usuarioLocal = $this->usuarioLocalFromCuenta($data);
 
         $response = $this->createRuatTasa(
             $token,
             $codigoAlcaldia,
             $codigoUsuario,
             $this->firstRequiredString($data, ['codigo_contribuyente', 'codigoContribuyente']),
-            $this->firstRequiredString($data, ['codigo_clasificador', 'codigoClasificador']),
+            $codigoClasificador,
             $this->requiredMontoString($data, 'monto'),
             $this->requiredString($data, 'observacion')
         );
@@ -462,7 +558,7 @@ class ApiRuatController extends Controller
             ];
         }
 
-        $localResult = $this->savePagoInfraccion($data, $codigoUsuario, $response);
+        $localResult = $this->savePagoInfraccion($data, $codigoUsuario, $codigoClasificador, $usuarioLocal, $response);
         $model = $localResult['model'];
         $errors = $localResult['errors'];
 
@@ -775,21 +871,116 @@ class ApiRuatController extends Controller
             : $body;
     }
 
-    private function savePagoInfraccion(array $data, string $codigoUsuario, $ruatResponse): array
+    private function codigoClasificadorFromRequest(array $data): string
+    {
+        return $this->codigoClasificadorFromKey($this->clasificadorKeyFromRequest($data));
+    }
+
+    private function clasificadorKeyFromRequest(array $data): string
+    {
+        $key = $this->firstRequiredString($data, [
+            'clasificador_key',
+            'clasificadorKey',
+            'codigo_clasificador_key',
+            'codigoClasificadorKey',
+            'clasificador',
+            'clasificadorNombre',
+            'tipo_clasificador',
+            'tipoClasificador',
+        ]);
+
+        $key = strtolower(trim($key));
+        $aliases = [
+            'infraccion' => 'multas_infracciones',
+            'infracciones' => 'multas_infracciones',
+            'multa' => 'multas_infracciones',
+            'multas' => 'multas_infracciones',
+        ];
+        $key = $aliases[$key] ?? $key;
+
+        return $key;
+    }
+
+    private function codigoClasificadorFromKey(string $key): string
+    {
+        $clasificadores = Yii::$app->params['clasificadores'] ?? [];
+
+        if (!isset($clasificadores[$key]) || trim((string)$clasificadores[$key]) === '') {
+            throw new BadRequestHttpException(
+                'El clasificador enviado no es valido. Use uno de: ' . implode(', ', array_keys($clasificadores)) . '.'
+            );
+        }
+
+        return (string)$clasificadores[$key];
+    }
+
+    private function usuarioLocalFromCuenta(array $data): Usuario
+    {
+        $cuenta = null;
+
+        foreach ([
+            'usua_cuenta',
+            'usuarioCuenta',
+            'cuentaUsuario',
+            'username',
+            'usuario',
+            'user',
+        ] as $key) {
+            if (!isset($data[$key])) {
+                continue;
+            }
+
+            if (is_array($data[$key])) {
+                $nestedCuenta = $this->stringValue($data[$key], 'usua_cuenta',
+                    $this->stringValue($data[$key], 'usuarioCuenta',
+                        $this->stringValue($data[$key], 'cuentaUsuario', null)));
+
+                if ($nestedCuenta !== null) {
+                    $cuenta = $nestedCuenta;
+                    break;
+                }
+
+                continue;
+            }
+
+            if (trim((string)$data[$key]) !== '') {
+                $cuenta = trim((string)$data[$key]);
+                break;
+            }
+        }
+
+        if ($cuenta === null) {
+            throw new BadRequestHttpException(
+                'Debe enviar usua_cuenta, usuarioCuenta o cuentaUsuario para registrar infracciones.'
+            );
+        }
+
+        $usuario = Usuario::findOne(['usua_cuenta' => $cuenta, 'usua_estado' => 1]);
+
+        if ($usuario === null) {
+            throw new BadRequestHttpException(
+                'El usuario no existe o no esta activo en este sistema. No puede registrar infracciones.'
+            );
+        }
+
+        return $usuario;
+    }
+
+    private function savePagoInfraccion(array $data, string $codigoUsuario, string $codigoClasificador, Usuario $usuarioLocal, $ruatResponse): array
     {
         $numeroDocumento = $this->firstRequiredString($data, ['numero_documento', 'numeroDocumento', 'ci']);
         $contribuyente = Contribuyentes::findOne(['contri_ci' => $numeroDocumento]);
         $now = date('Y-m-d H:i:s');
 
         $model = new PagosInfracciones();
-        $model->usua_id = $this->usuarioIdFromRequest($data);
+        $model->usua_id = (int)$usuarioLocal->usua_id;
         $model->contri_id = $contribuyente ? $contribuyente->contri_id : $this->optionalInteger($data, ['contri_id'], 'contri_id');
         $model->codigo_usuario = $codigoUsuario;
         $model->codigo_contribuyente = $this->firstRequiredString($data, ['codigo_contribuyente', 'codigoContribuyente']);
         $model->numero_documento = $numeroDocumento;
         $model->tipo_documento = $this->tipoDocumento($this->firstRequiredString($data, ['tipo_documento', 'tipoDocumento']));
         $model->expedido = $this->stringValue($data, 'expedido', null);
-        $model->tipo_infraccion = $this->validFirstValue($data, ['tipo_infraccion', 'tipoInfraccion'], ['INFRACCION']);
+        $model->tipo_infraccion = $this->validFirstValue($data, ['tipo_infraccion', 'tipoInfraccion', 'tipoRegistro'], ['INFRACCION', 'OTROS']);
         $model->descripcion_infraccion = $this->stringValue($data, 'descripcion_infraccion',
             $this->stringValue($data, 'descripcionInfraccion', null));
         $model->lugar_infraccion = $this->stringValue($data, 'lugar_infraccion',
@@ -797,7 +988,7 @@ class ApiRuatController extends Controller
         $model->fecha_infraccion = $this->stringValue($data, 'fecha_infraccion',
             $this->stringValue($data, 'fechaInfraccion', date('Y-m-d')));
         $model->gestion = (string)$this->stringValue($data, 'gestion', date('Y'));
-        $model->codigo_clasificador = $this->firstRequiredString($data, ['codigo_clasificador', 'codigoClasificador']);
+        $model->codigo_clasificador = $codigoClasificador;
         $model->monto = $this->requiredNumber($data, 'monto');
         $model->observacion = $this->requiredString($data, 'observacion');
         $model->numero_tasa = $ruatResponse->numeroTasa;
