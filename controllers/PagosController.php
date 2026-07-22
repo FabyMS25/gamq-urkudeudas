@@ -270,15 +270,26 @@ class PagosController extends Controller
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente != null) {
                         $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
+
+                        $deudasBloqueantes = [];
+                        $respuestaDeudasValida = true;
+
                         if ($response->continuarFlujo) {
-                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
-                            if (is_array($response->deudas)) {
-                                $deudas = $response->deudas;
-                                foreach ($deudas as $deuda) {
+                            if (isset($response->deudas) && is_array($response->deudas)) {
+                                $deudasBloqueantes = $this->obtenerDeudasBloqueantes($response->deudas);
+                            } else {
+                                $respuestaDeudasValida = false;
+                            }
+                        }
+
+                        if ($response->continuarFlujo && (!$respuestaDeudasValida || !empty($deudasBloqueantes))) {
+                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes de años anteriores, no podemos generar la tasa <br>';
+                            if ($respuestaDeudasValida) {
+                                foreach ($deudasBloqueantes as $deuda) {
                                     $mensaje = $mensaje . "Tipo deuda: $deuda->tipoDeuda, Numero de tasa: $deuda->numeroTasa, Fecha: $deuda->fechaRegistro <br>";
                                 }
                             } else {
-                                $mensaje = $mensaje . $response->mensaje;
+                                $mensaje = $mensaje . (isset($response->mensaje) ? $response->mensaje : 'No se pudo validar el detalle de las deudas.');
                             }
                         } else {
                             $montoTotal = $model->pago_importe_total;
@@ -1172,6 +1183,27 @@ class PagosController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    protected function obtenerDeudasBloqueantes(array $deudas)
+    {
+        $anioActual = (int)date('Y');
+        $deudasBloqueantes = [];
+
+        foreach ($deudas as $deuda) {
+            $fechaRegistro = isset($deuda->fechaRegistro) ? trim($deuda->fechaRegistro) : '';
+            $fecha = \DateTime::createFromFormat('!d/m/Y', $fechaRegistro);
+            $erroresFecha = \DateTime::getLastErrors();
+            $fechaValida = $fecha !== false
+                && ($erroresFecha === false
+                    || ($erroresFecha['warning_count'] === 0 && $erroresFecha['error_count'] === 0));
+
+            if (!$fechaValida || (int)$fecha->format('Y') < $anioActual) {
+                $deudasBloqueantes[] = $deuda;
+            }
+        }
+
+        return $deudasBloqueantes;
     }
 
     /**vericar sesion activa */

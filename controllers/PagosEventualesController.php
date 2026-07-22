@@ -329,17 +329,9 @@ class PagosEventualesController extends Controller
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
                         $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
-                       /* if ($response->continuarFlujo) {
-                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
-                            if (is_array($response->deudas)) {
-                                $deudas = $response->deudas;
-                                foreach ($deudas as $deuda) {
-                                    $mensaje = $mensaje . "Tipo deuda: $deuda->tipoDeuda, Numero de tasa: $deuda->numeroTasa, Fecha: $deuda->fechaRegistro <br>";
-                                }
-                            } else {
-                                $mensaje = $mensaje . $response->mensaje;
-                            }
-                        }  else {*/
+                        if ($this->tieneDeudasBloqueantes($response, $mensaje)) {
+                            // Las deudas de años anteriores impiden generar la tasa.
+                        } else {
                             $idactividad = $model->activi_id;
                             $acti = ActividadesEconomicas::findOne($idactividad);
                             $idsitio = $model->sitios_id;
@@ -388,7 +380,7 @@ class PagosEventualesController extends Controller
                                     $mensaje = $mensaje . $response->mensaje;
                                 }
                             }
-                        //}
+                        }
                     } else {
                         $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
                         if ($codigoContrib != null) {
@@ -554,17 +546,9 @@ class PagosEventualesController extends Controller
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
                         $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
-                        /*if ($response->continuarFlujo) {
-                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
-                            if (is_array($response->deudas)) {
-                                $deudas = $response->deudas;
-                                foreach ($deudas as $deuda) {
-                                    $mensaje = $mensaje . "Tipo deuda: $deuda->tipoDeuda, Numero de tasa: $deuda->numeroTasa, Fecha: $deuda->fechaRegistro <br>";
-                                }
-                            } else {
-                                $mensaje = $mensaje . $response->mensaje;
-                            }
-                        } else {*/
+                        if ($this->tieneDeudasBloqueantes($response, $mensaje)) {
+                            // Las deudas de años anteriores impiden generar la tasa.
+                        } else {
                             $actividad = ActividadesEconomicas::findOne($model->activi_id);
                             $sitio = SitiosEventuales::findOne($model->sitios_id);
                             $montoTotal = $model->eventual_importe_total;
@@ -611,7 +595,7 @@ class PagosEventualesController extends Controller
                                     $mensaje = $mensaje . $response->mensaje;
                                 }
                             }
-                       // }
+                        }
                     } else {
                         $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
                         if ($codigoContrib != null) {
@@ -770,17 +754,9 @@ class PagosEventualesController extends Controller
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente) {
                         $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
-                        /*if ($response->continuarFlujo) {
-                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
-                            if (is_array($response->deudas)) {
-                                $deudas = $response->deudas;
-                                foreach ($deudas as $deuda) {
-                                    $mensaje = $mensaje . "Tipo deuda: $deuda->tipoDeuda, Numero de tasa: $deuda->numeroTasa, Fecha: $deuda->fechaRegistro <br>";
-                                }
-                            } else {
-                                $mensaje = $mensaje . $response->mensaje;
-                            }
-                        } else {*/
+                        if ($this->tieneDeudasBloqueantes($response, $mensaje)) {
+                            // Las deudas de años anteriores impiden generar la tasa.
+                        } else {
                             $actividadEconomica = ActividadesEconomicas::findOne($model->activi_id);
                             $tipoActividad = $actividadEconomica->activi_descripcion;
                             $cantDias = $model->eventual_cantidad_dia;
@@ -823,7 +799,7 @@ class PagosEventualesController extends Controller
                                     $mensaje = $mensaje . $response->mensaje;
                                 }
                             }
-                        //}
+                        }
                     } else {
                         $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
                         if ($codigoContrib != null) {
@@ -978,17 +954,9 @@ class PagosEventualesController extends Controller
                     $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi($token, $ci_contribuyente, $tipo_doc);
                     if ($codigoContribuyente != null) {
                         $response = Yii::$app->ruatServices->getTieneDeudaContribuyentePorNroDocumento($token, $contri);
-                        /*if ($response->continuarFlujo) {
-                            $mensaje = 'El contribuyente seleccionado tiene deudas pendientes, no podemos generar la tasa <br>';
-                            if (is_array($response->deudas)) {
-                                $deudas = $response->deudas;
-                                foreach ($deudas as $deuda) {
-                                    $mensaje = $mensaje . "Tipo deuda: $deuda->tipoDeuda, Numero de tasa: $deuda->numeroTasa, Fecha: $deuda->fechaRegistro <br>";
-                                }
-                            } else {
-                                $mensaje = $mensaje . $response->mensaje;
-                            }
-                        } else {*/
+                        if ($this->tieneDeudasBloqueantes($response, $mensaje)) {
+                            // Las deudas de años anteriores impiden generar la tasa.
+                        } else {
                             $actividadEconomica = ActividadesEconomicas::findOne($model->activi_id);
                             $tipoActividad = $actividadEconomica->activi_descripcion;
                             $cantDias = $model->eventual_cantidad_dia;
@@ -1033,7 +1001,7 @@ class PagosEventualesController extends Controller
                                     $mensaje = $mensaje . $response->mensaje;
                                 }
                             }
-                        //}
+                        }
                     } else {
                         $codigoContrib = Yii::$app->ruatServices->registerContribuyente($token, $codigoUsuario, $contri);
                         if ($codigoContrib != null) {
@@ -1348,6 +1316,59 @@ class PagosEventualesController extends Controller
                 'url' => $url,
             ]);
         }
+    }
+
+    /**
+     * Indica si la respuesta de RUAT contiene deudas que deben bloquear el flujo.
+     * Las tasas del año actual no bloquean; las de años anteriores sí.
+     */
+    protected function tieneDeudasBloqueantes($response, &$mensaje)
+    {
+        if (!is_object($response) || !isset($response->continuarFlujo)) {
+            $mensaje = 'No se pudo validar la deuda del contribuyente.';
+            return true;
+        }
+
+        if (!$response->continuarFlujo) {
+            return false;
+        }
+
+        if (!isset($response->deudas) || !is_array($response->deudas)) {
+            $mensaje = 'No se pudo validar el detalle de las deudas del contribuyente. <br>';
+            $mensaje .= isset($response->mensaje) ? $response->mensaje : '';
+            return true;
+        }
+
+        $anioActual = (int)date('Y');
+        $deudasBloqueantes = [];
+
+        foreach ($response->deudas as $deuda) {
+            $fechaRegistro = isset($deuda->fechaRegistro) ? trim($deuda->fechaRegistro) : '';
+            $fecha = \DateTime::createFromFormat('!d/m/Y', $fechaRegistro);
+            $erroresFecha = \DateTime::getLastErrors();
+            $fechaValida = $fecha !== false
+                && ($erroresFecha === false
+                    || ($erroresFecha['warning_count'] === 0 && $erroresFecha['error_count'] === 0));
+
+            // Una fecha ausente o inválida bloquea por seguridad.
+            if (!$fechaValida || (int)$fecha->format('Y') < $anioActual) {
+                $deudasBloqueantes[] = $deuda;
+            }
+        }
+
+        if (empty($deudasBloqueantes)) {
+            return false;
+        }
+
+        $mensaje = 'El contribuyente seleccionado tiene deudas pendientes de años anteriores, no podemos generar la tasa <br>';
+        foreach ($deudasBloqueantes as $deuda) {
+            $tipoDeuda = isset($deuda->tipoDeuda) ? $deuda->tipoDeuda : 'Sin dato';
+            $numeroTasa = isset($deuda->numeroTasa) ? $deuda->numeroTasa : 'Sin dato';
+            $fechaRegistro = isset($deuda->fechaRegistro) ? $deuda->fechaRegistro : 'Sin dato';
+            $mensaje .= "Tipo deuda: $tipoDeuda, Numero de tasa: $numeroTasa, Fecha: $fechaRegistro <br>";
+        }
+
+        return true;
     }
 
     protected function findModel($id)
