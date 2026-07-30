@@ -77,23 +77,29 @@ class GeneradorController extends Controller
         $titulo = 'Generar Tasa';
         $resultado = false;
         $mensaje = '';
+        $numeroTasaCreada = null;
 
         /*
-         * SISURKU conserva su clasificador original de Sentajes Urkupiña.
-         * Este mismo código se guardará en codigo_clasificador.
+         * SISURKU always uses the Sentajes Urkupiña classifier.
          */
         $codigoClasificador = isset(
             Yii::$app->params['clasificadores']['sentajes_urkupina']
         )
-            ? (string)Yii::$app->params['clasificadores']['sentajes_urkupina']
-            : null;
+            ? trim(
+                (string)Yii::$app
+                    ->params['clasificadores']['sentajes_urkupina']
+            )
+            : '';
 
-        if ($codigoClasificador === null || $codigoClasificador === '') {
+        if ($codigoClasificador === '') {
             throw new \RuntimeException(
                 'No está configurado el clasificador sentajes_urkupina.'
             );
         }
 
+        /*
+         * Obtain the RUAT username of the authenticated SISURKU user.
+         */
         $idUsuarioAutenticado = Yii::$app->user->id;
         $datosUsuario = Usuario::findOne($idUsuarioAutenticado);
 
@@ -111,12 +117,17 @@ class GeneradorController extends Controller
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
 
+            /*
+             * Open the tasa generation modal.
+             */
             if ($request->isGet) {
                 return [
                     'title' => $titulo,
                     'content' => $this->renderAjax(
                         'cobrar',
-                        ['model' => $model]
+                        [
+                            'model' => $model,
+                        ]
                     ),
                     'footer' =>
                         Html::button(
@@ -136,9 +147,13 @@ class GeneradorController extends Controller
                 ];
             }
 
+            /*
+             * Process modal submission.
+             */
             if ($model->load($request->post())) {
                 /*
-                 * Se suman todos los detalles pendientes del mismo sentajero.
+                 * Calculate the total of every active, unpaid and untaxed
+                 * detail belonging to the same sentajero/descargo.
                  */
                 $sqlMonto = '
                     SELECT SUM(detalle_importe_bs) AS monto_total
@@ -149,15 +164,15 @@ class GeneradorController extends Controller
                       AND detalle_tasa IS NULL
                 ';
 
-                $montoTotal = Yii::$app->db
+                $resultadoMonto = Yii::$app->db
                     ->createCommand($sqlMonto)
                     ->bindValue(':desc_id', $model->desc_id)
                     ->bindValue(':pagado', 0)
                     ->bindValue(':estado', 1)
                     ->queryOne();
 
-                $monto = isset($montoTotal['monto_total'])
-                    ? (float)$montoTotal['monto_total']
+                $monto = isset($resultadoMonto['monto_total'])
+                    ? (float)$resultadoMonto['monto_total']
                     : 0;
 
                 if ($monto <= 0) {
@@ -179,26 +194,38 @@ class GeneradorController extends Controller
                     ];
                 }
 
+                /*
+                 * Authenticate in RUAT.
+                 */
                 $token = Yii::$app->ruatServices->loginConfigured();
 
                 if (!$token) {
                     $mensaje = 'No se pudo iniciar sesión en RUAT.';
                 } else {
+                    /*
+                     * Obtain the sentajero attached to the selected detail.
+                     */
                     $sentajero = Descargos::findOne($model->desc_id);
 
                     if ($sentajero === null) {
                         $mensaje =
-                            'No se encontró el descargo del sentajero.';
+                            'No se encontró el descargo correspondiente al sentajero.';
                     } else {
                         $ciContribuyente = trim(
                             (string)$sentajero->desc_ci
                         );
 
+                        /*
+                         * SISURKU uses ext_id 12 to identify CE.
+                         */
                         $tipoDocumento =
                             (int)$sentajero->desc_ext === 12
                                 ? 'CE'
                                 : 'CI';
 
+                        /*
+                         * Find the contributor in RUAT.
+                         */
                         $codigoContribuyente = Yii::$app
                             ->ruatServices
                             ->getContribuyentePorCi(
@@ -209,32 +236,35 @@ class GeneradorController extends Controller
 
                         if (!$codigoContribuyente) {
                             $mensaje =
-                                'El contribuyente seleccionado no se ' .
-                                'encuentra registrado en RUAT.<br>' .
+                                'El contribuyente seleccionado no se encuentra ' .
+                                'registrado en RUAT.<br>' .
                                 'Debe registrar al contribuyente primero.';
                         } else {
                             /*
-                             * Se conserva la verificación original.
-                             * Actualmente no se consulta deuda porque
-                             * $tieneDeudas permanece en false.
+                             * Keep the original SISURKU flow.
                              */
                             $tieneDeudas = false;
 
                             if ($tieneDeudas) {
                                 $mensaje =
-                                    'El contribuyente seleccionado tiene ' .
-                                    'deudas pendientes. No se puede registrar ' .
-                                    'la preliquidación.';
+                                    'El contribuyente seleccionado tiene deudas ' .
+                                    'pendientes. No se puede registrar la ' .
+                                    'preliquidación.';
                             } else {
+                                /*
+                                 * Obtain the sentaje activity.
+                                 */
                                 $actividad = RazonSociales::findOne(
                                     $sentajero->razon_id
                                 );
 
                                 if ($actividad === null) {
                                     $mensaje =
-                                        'No se encontró la actividad o razón ' .
-                                        'social del sentajero.';
+                                        'No se encontró la actividad del sentajero.';
                                 } else {
+                                    /*
+                                     * Build the observation sent to RUAT.
+                                     */
                                     $observacion =
                                         'DATOS DE ACTIVIDAD: SENTAJES, ' .
                                         'Tipo de sentaje: ' .
@@ -263,91 +293,275 @@ class GeneradorController extends Controller
                                         $textoLimpio
                                     );
 
-                                    $response = Yii::$app
-                                        ->ruatServices
-                                        ->createTasa(
-                                            $token,
-                                            $username,
-                                            $codigoContribuyente,
-                                            $codigoClasificador,
-                                            $monto,
-                                            $observacion
+                                    /*
+                                     * Register the grouped tasa in RUAT.
+                                     */
+                                    try {
+                                        $response = Yii::$app
+                                            ->ruatServices
+                                            ->createTasa(
+                                                $token,
+                                                $username,
+                                                $codigoContribuyente,
+                                                $codigoClasificador,
+                                                $monto,
+                                                $observacion
+                                            );
+                                    } catch (\Throwable $exception) {
+                                        Yii::error(
+                                            [
+                                                'mensaje' =>
+                                                    'Excepción al registrar la tasa en RUAT.',
+                                                'desc_id' => $model->desc_id,
+                                                'codigoClasificador' =>
+                                                    $codigoClasificador,
+                                                'monto' => $monto,
+                                                'error' =>
+                                                    $exception->getMessage(),
+                                            ],
+                                            __METHOD__
                                         );
 
-                                    if (
-                                        $this->ruatContinuarFlujo($response)
-                                        && isset($response->numeroTasa)
-                                        && trim(
-                                            (string)$response->numeroTasa
-                                        ) !== ''
-                                    ) {
-                                        $nroTasa = trim(
-                                            (string)$response->numeroTasa
-                                        );
+                                        $response = null;
+                                        $mensaje =
+                                            'Ocurrió un error al comunicarse con RUAT.';
+                                    }
+
+                                    if ($response !== null) {
+                                        /*
+                                         * RUAT responses may be returned as an object
+                                         * or as an associative array.
+                                         */
+                                        $continuarFlujo =
+                                            $this->getRuatResponseValue(
+                                                $response,
+                                                'continuarFlujo'
+                                            );
+
+                                        $numeroTasa =
+                                            $this->getRuatResponseValue(
+                                                $response,
+                                                'numeroTasa'
+                                            );
 
                                         /*
-                                         * Se asigna la misma tasa y el mismo
-                                         * clasificador a todos los detalles
-                                         * incluidos en el monto agrupado.
+                                         * Try the possible RUAT message fields.
                                          */
-                                        $sqlActualizar = '
-                                            UPDATE detalle_descargos
-                                            SET detalle_tasa = :tasa,
-                                                codigo_clasificador =
-                                                    :codigo_clasificador
-                                            WHERE desc_id = :desc_id
-                                              AND detalle_estado_pago =
-                                                    :pagado
-                                              AND detalle_estado = :estado
-                                              AND detalle_tasa IS NULL
-                                        ';
+                                        $mensajeRuat =
+                                            $this->getRuatResponseValue(
+                                                $response,
+                                                'mensaje'
+                                            );
 
-                                        $filasActualizadas = Yii::$app->db
-                                            ->createCommand($sqlActualizar)
-                                            ->bindValue(
-                                                ':tasa',
-                                                $nroTasa
-                                            )
-                                            ->bindValue(
-                                                ':codigo_clasificador',
-                                                $codigoClasificador
-                                            )
-                                            ->bindValue(
-                                                ':desc_id',
-                                                $model->desc_id
-                                            )
-                                            ->bindValue(':pagado', 0)
-                                            ->bindValue(':estado', 1)
-                                            ->execute();
+                                        if (
+                                            $mensajeRuat === null
+                                            || trim(
+                                                (string)$mensajeRuat
+                                            ) === ''
+                                        ) {
+                                            $mensajeRuat =
+                                                $this->getRuatResponseValue(
+                                                    $response,
+                                                    'mensajeRespuesta'
+                                                );
+                                        }
 
-                                        if ($filasActualizadas > 0) {
-                                            $resultado = true;
-                                            $mensaje =
-                                                'Se creó la tasa con éxito.';
+                                        if (
+                                            $mensajeRuat === null
+                                            || trim(
+                                                (string)$mensajeRuat
+                                            ) === ''
+                                        ) {
+                                            $mensajeRuat =
+                                                $this->getRuatResponseValue(
+                                                    $response,
+                                                    'descripcion'
+                                                );
+                                        }
+
+                                        if (
+                                            $mensajeRuat === null
+                                            || trim(
+                                                (string)$mensajeRuat
+                                            ) === ''
+                                        ) {
+                                            $mensajeRuat =
+                                                $this->getRuatResponseValue(
+                                                    $response,
+                                                    'message'
+                                                );
+                                        }
+
+                                        /*
+                                         * RUAT authorized the operation and returned
+                                         * a tasa number.
+                                         */
+                                        if (
+                                            $this->ruatContinuarFlujo(
+                                                $continuarFlujo
+                                            )
+                                            && $numeroTasa !== null
+                                            && trim(
+                                                (string)$numeroTasa
+                                            ) !== ''
+                                        ) {
+                                            $numeroTasaCreada = trim(
+                                                (string)$numeroTasa
+                                            );
+
+                                            /*
+                                             * Save the tasa and classifier on every
+                                             * detail included in the grouped amount.
+                                             */
+                                            $sqlActualizar = '
+                                                UPDATE detalle_descargos
+                                                SET detalle_tasa = :tasa,
+                                                    codigo_clasificador =
+                                                        :codigo_clasificador
+                                                WHERE desc_id = :desc_id
+                                                  AND detalle_estado_pago =
+                                                        :pagado
+                                                  AND detalle_estado = :estado
+                                                  AND detalle_tasa IS NULL
+                                            ';
+
+                                            try {
+                                                $filasActualizadas =
+                                                    Yii::$app->db
+                                                        ->createCommand(
+                                                            $sqlActualizar
+                                                        )
+                                                        ->bindValue(
+                                                            ':tasa',
+                                                            $numeroTasaCreada
+                                                        )
+                                                        ->bindValue(
+                                                            ':codigo_clasificador',
+                                                            $codigoClasificador
+                                                        )
+                                                        ->bindValue(
+                                                            ':desc_id',
+                                                            $model->desc_id
+                                                        )
+                                                        ->bindValue(
+                                                            ':pagado',
+                                                            0
+                                                        )
+                                                        ->bindValue(
+                                                            ':estado',
+                                                            1
+                                                        )
+                                                        ->execute();
+
+                                                if ($filasActualizadas > 0) {
+                                                    $resultado = true;
+                                                    $mensaje =
+                                                        'Se creó la tasa con éxito.';
+                                                } else {
+                                                    Yii::error(
+                                                        [
+                                                            'mensaje' =>
+                                                                'RUAT creó la tasa, pero no se actualizaron los detalles locales.',
+                                                            'numeroTasa' =>
+                                                                $numeroTasaCreada,
+                                                            'desc_id' =>
+                                                                $model->desc_id,
+                                                            'codigoClasificador' =>
+                                                                $codigoClasificador,
+                                                        ],
+                                                        __METHOD__
+                                                    );
+
+                                                    $mensaje =
+                                                        'RUAT creó la tasa ' .
+                                                        Html::encode(
+                                                            $numeroTasaCreada
+                                                        ) .
+                                                        ', pero no se pudieron ' .
+                                                        'actualizar los detalles locales.';
+                                                }
+                                            } catch (\Throwable $exception) {
+                                                Yii::error(
+                                                    [
+                                                        'mensaje' =>
+                                                            'RUAT creó la tasa, pero ocurrió un error al guardar localmente.',
+                                                        'numeroTasa' =>
+                                                            $numeroTasaCreada,
+                                                        'desc_id' =>
+                                                            $model->desc_id,
+                                                        'codigoClasificador' =>
+                                                            $codigoClasificador,
+                                                        'error' =>
+                                                            $exception->getMessage(),
+                                                    ],
+                                                    __METHOD__
+                                                );
+
+                                                $mensaje =
+                                                    'RUAT creó la tasa ' .
+                                                    Html::encode(
+                                                        $numeroTasaCreada
+                                                    ) .
+                                                    ', pero ocurrió un error al ' .
+                                                    'guardar los datos locales.';
+                                            }
                                         } else {
                                             /*
-                                             * RUAT ya pudo haber creado la tasa.
-                                             * Se registra un error para revisar
-                                             * la sincronización local.
+                                             * Log the complete RUAT response so the
+                                             * real rejection can be reviewed.
                                              */
                                             Yii::error(
-                                                'RUAT creó la tasa ' .
-                                                $nroTasa .
-                                                ', pero no se actualizaron ' .
-                                                'detalles locales para desc_id ' .
-                                                $model->desc_id . '.',
+                                                [
+                                                    'mensaje' =>
+                                                        'RUAT rechazó la creación de la tasa.',
+                                                    'desc_id' =>
+                                                        $model->desc_id,
+                                                    'codigoClasificador' =>
+                                                        $codigoClasificador,
+                                                    'monto' => $monto,
+                                                    'codigoContribuyente' =>
+                                                        $codigoContribuyente,
+                                                    'continuarFlujo' =>
+                                                        $continuarFlujo,
+                                                    'numeroTasa' =>
+                                                        $numeroTasa,
+                                                    'mensajeRuat' =>
+                                                        $mensajeRuat,
+                                                    'respuestaRuat' =>
+                                                        $response,
+                                                ],
                                                 __METHOD__
                                             );
 
                                             $mensaje =
-                                                'RUAT creó la tasa, pero no ' .
-                                                'se pudieron actualizar los ' .
-                                                'detalles locales.';
+                                                'No se pudo registrar la tasa en RUAT.';
+
+                                            if (
+                                                $mensajeRuat !== null
+                                                && trim(
+                                                    (string)$mensajeRuat
+                                                ) !== ''
+                                            ) {
+                                                $mensaje .=
+                                                    '<br>Detalle RUAT: ' .
+                                                    Html::encode(
+                                                        (string)$mensajeRuat
+                                                    );
+                                            } elseif (
+                                                $continuarFlujo !== null
+                                            ) {
+                                                $mensaje .=
+                                                    '<br>RUAT no autorizó la ' .
+                                                    'continuación del flujo.';
+                                            } else {
+                                                $mensaje .=
+                                                    '<br>RUAT devolvió una respuesta ' .
+                                                    'sin el campo continuarFlujo.';
+                                            }
                                         }
-                                    } else {
+                                    } elseif ($mensaje === '') {
                                         $mensaje =
-                                            'No se pudo registrar la tasa ' .
-                                            'en RUAT.';
+                                            'RUAT no devolvió una respuesta válida.';
                                     }
                                 }
                             }
@@ -355,15 +569,18 @@ class GeneradorController extends Controller
                     }
                 }
 
+                /*
+                 * Return success response.
+                 */
                 if ($resultado) {
                     return [
                         'forceReload' => '#crud-datatable-pjax',
                         'title' => $titulo,
                         'content' =>
                             '<span class="text-success text-bold">' .
-                            $mensaje .
-                            '<br>Nro. preliquidación: ' .
-                            Html::encode($model->detalle_id) .
+                            Html::encode($mensaje) .
+                            '<br>Nro. tasa: ' .
+                            Html::encode($numeroTasaCreada) .
                             '<br>Importe total Bs.: ' .
                             number_format($monto, 2, '.', ',') .
                             '<br>Código clasificador: ' .
@@ -379,6 +596,13 @@ class GeneradorController extends Controller
                     ];
                 }
 
+                /*
+                 * Return error response.
+                 *
+                 * $mensaje may contain a controlled <br> separator, therefore
+                 * it is not encoded as a complete string here. Dynamic values
+                 * included in it were encoded previously.
+                 */
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => $titulo,
@@ -396,11 +620,16 @@ class GeneradorController extends Controller
                 ];
             }
 
+            /*
+             * The model could not load the submitted modal data.
+             */
             return [
                 'title' => $titulo,
                 'content' => $this->renderAjax(
                     'cobrar',
-                    ['model' => $model]
+                    [
+                        'model' => $model,
+                    ]
                 ),
                 'footer' =>
                     Html::button(
@@ -420,7 +649,13 @@ class GeneradorController extends Controller
             ];
         }
 
-        if ($model->load($request->post()) && $model->save()) {
+        /*
+         * Non-AJAX fallback.
+         */
+        if (
+            $model->load($request->post())
+            && $model->save()
+        ) {
             return $this->redirect([
                 'view',
                 'id' => $model->detalle_id,
@@ -1097,42 +1332,76 @@ class GeneradorController extends Controller
         );
     }
 
-    /**
-     * Interpreta continuarFlujo enviado por RUAT.
-     *
-     * @param object|null $response
-     * @return boolean
-     */
-    private function ruatContinuarFlujo($response)
+/**
+ * Obtains one field from a RUAT response.
+ *
+ * RUAT services may return a stdClass object or an associative array,
+ * depending on how the response was decoded.
+ *
+ * @param mixed $response
+ * @param string $field
+ * @return mixed|null
+ */
+    private function getRuatResponseValue($response, $field)
     {
         if (
-            $response === null
-            || !isset($response->continuarFlujo)
+            is_object($response)
+            && property_exists($response, $field)
         ) {
-            return false;
+            return $response->$field;
         }
 
-        $valor = $response->continuarFlujo;
-
-        if (is_bool($valor)) {
-            return $valor;
+        if (
+            is_array($response)
+            && array_key_exists($field, $response)
+        ) {
+            return $response[$field];
         }
 
-        if (is_numeric($valor)) {
-            return (int)$valor === 1;
-        }
-
-        if (is_string($valor)) {
-            return in_array(
-                strtoupper(trim($valor)),
-                ['TRUE', '1', 'SI', 'SÍ'],
-                true
-            );
-        }
-
-        return false;
+        return null;
+    }
+/**
+ * Interprets the continuarFlujo value returned by RUAT.
+ *
+ * Possible accepted values:
+ *
+ * true
+ * 1
+ * "1"
+ * "true"
+ * "si"
+ * "sí"
+ * "ok"
+ *
+ * @param mixed $value
+ * @return boolean
+ */
+private function ruatContinuarFlujo($value)
+{
+    if (is_bool($value)) {
+        return $value;
     }
 
+    if (is_int($value) || is_float($value)) {
+        return (int)$value === 1;
+    }
+
+    if (is_string($value)) {
+        return in_array(
+            strtoupper(trim($value)),
+            [
+                'TRUE',
+                '1',
+                'SI',
+                'SÍ',
+                'OK',
+            ],
+            true
+        );
+    }
+
+    return false;
+}
     /**
      * Verifica la existencia de una sesión activa.
      *
