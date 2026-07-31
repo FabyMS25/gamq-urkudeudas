@@ -229,17 +229,39 @@ class ApiMapsController extends Controller
             ->orderBy(['sindi_nombre' => SORT_ASC])
             ->all();
     }
-
     public function actionClasificadoresTasa()
     {
-        $grupo = Yii::$app->request->get('grupo');
-        $keys = array_keys(Yii::$app->params['clasificadores'] ?? []);
+        $grupo = trim((string)Yii::$app->request->get('grupo', ''));
+        $catalogo = $this->clasificadoresCatalogo();
+        $defaultKey = $this->clasificadorSentajePorDefectoKey();
 
-        if ($grupo === 'sentajes') {
-            $keys = array_values(array_intersect($keys, $this->sentajeClasificadorKeys()));
+        $resultado = [];
+
+        foreach ($catalogo as $key => $config) {
+            if (!is_array($config)) {
+                continue;
+            }
+
+            $configGrupo = isset($config['grupo'])
+                ? trim((string)$config['grupo'])
+                : '';
+
+            if ($grupo !== '' && $configGrupo !== $grupo) {
+                continue;
+            }
+
+            $payload = $this->clasificadorPayload($key);
+            if ($payload === null) {
+                continue;
+            }
+
+            $payload['is_default'] =
+                $defaultKey !== null && $key === $defaultKey;
+
+            $resultado[] = $payload;
         }
 
-        return array_map([$this, 'clasificadorPayload'], $keys);
+        return $resultado;
     }
 
     public function actionRazonesSociales()
@@ -609,17 +631,25 @@ public function actionPagosInfracciones()
 
         return $this->paginatedList($query, [$this, 'descargoSentajeroPayload']);
     }
-
     public function actionSentajes()
     {
-        $schema = Yii::$app->db->schema->getTableSchema('razon_sociales');
+        $razonSchema = Yii::$app->db->schema->getTableSchema('razon_sociales');
         $detalleSchema = Yii::$app->db->schema->getTableSchema('detalle_descargos');
-        $hasClasificador = $schema !== null && isset($schema->columns['razon_clasificador']);
-        $hasDetalleTasa = $detalleSchema !== null && isset($detalleSchema->columns['detalle_tasa']);
-        $hasNroComprobante = $detalleSchema !== null && isset($detalleSchema->columns['nro_comprobante']);
-        $hasDetalleObservacion = $detalleSchema !== null && isset($detalleSchema->columns['detalle_observacion']);
-        $hasDetalleFeria = $detalleSchema !== null && isset($detalleSchema->columns['detalle_feria']);
-        $hasDetalleEstadoAnulado = $detalleSchema !== null && isset($detalleSchema->columns['detalle_estado_anulado']);
+
+        $hasRazonClasificador = $razonSchema !== null
+            && isset($razonSchema->columns['razon_clasificador']);
+        $hasDetalleTasa = $detalleSchema !== null
+            && isset($detalleSchema->columns['detalle_tasa']);
+        $hasNroComprobante = $detalleSchema !== null
+            && isset($detalleSchema->columns['nro_comprobante']);
+        $hasDetalleObservacion = $detalleSchema !== null
+            && isset($detalleSchema->columns['detalle_observacion']);
+        $hasDetalleFeria = $detalleSchema !== null
+            && isset($detalleSchema->columns['detalle_feria']);
+        $hasDetalleEstadoAnulado = $detalleSchema !== null
+            && isset($detalleSchema->columns['detalle_estado_anulado']);
+        $hasCodigoClasificador = $detalleSchema !== null
+            && isset($detalleSchema->columns['codigo_clasificador']);
 
         $query = (new \yii\db\Query())
             ->select([
@@ -649,6 +679,9 @@ public function actionPagosInfracciones()
                 $hasDetalleFeria
                     ? 'dd.detalle_feria'
                     : new \yii\db\Expression('NULL AS detalle_feria'),
+                $hasCodigoClasificador
+                    ? 'dd.codigo_clasificador'
+                    : new \yii\db\Expression('NULL AS codigo_clasificador'),
                 'd.usua_id',
                 'd.razon_id',
                 'd.desc_nro_comprobante',
@@ -663,7 +696,7 @@ public function actionPagosInfracciones()
                 'd.desc_ext',
                 'rs.razon_nombre',
                 'rs.razon_estado',
-                $hasClasificador
+                $hasRazonClasificador
                     ? 'rs.razon_clasificador'
                     : new \yii\db\Expression('NULL AS razon_clasificador'),
                 'u.usua_nombres',
@@ -677,7 +710,10 @@ public function actionPagosInfracciones()
             ->innerJoin(['d' => 'descargos'], 'd.desc_id = dd.desc_id')
             ->innerJoin(['rs' => 'razon_sociales'], 'rs.razon_id = d.razon_id')
             ->leftJoin(['u' => 'usuario'], 'u.usua_id = d.usua_id')
-            ->where(['d.desc_estado' => 1, 'dd.detalle_estado' => 1])
+            ->where([
+                'd.desc_estado' => 1,
+                'dd.detalle_estado' => 1,
+            ])
             ->orderBy([
                 'dd.detalle_fecha_entrega' => SORT_DESC,
                 'dd.detalle_id' => SORT_DESC,
@@ -687,10 +723,10 @@ public function actionPagosInfracciones()
 
         return $this->paginatedList($query, [$this, 'sentajePayload']);
     }
-
     public function actionPreliquidacionSentaje()
     {
         $this->ensureWriteMethod(['POST']);
+
         $body = $this->requestBodyParams();
         $data = isset($body['preliquidacion']) && is_array($body['preliquidacion'])
             ? array_merge($body, $body['preliquidacion'])
@@ -698,39 +734,77 @@ public function actionPagosInfracciones()
 
         $descId = $this->requiredPositiveIntegerFrom($data, ['desc_id'], 'desc_id');
         $descargo = Descargos::findOne($descId);
+
         if ($descargo === null || (int)$descargo->desc_estado !== 1) {
-            throw new NotFoundHttpException('El descargo seleccionado no existe o no esta activo.');
-        }
-        if ((int)$descargo->desc_anulado === 1) {
-            throw new BadRequestHttpException('No se puede preliquidar un descargo anulado.');
+            throw new NotFoundHttpException(
+                'El descargo seleccionado no existe o no esta activo.'
+            );
         }
 
-        $usuarioOperador = $this->usuarioLocalFromCuenta($data, 'la preliquidacion del descargo');
+        if ((int)$descargo->desc_anulado === 1) {
+            throw new BadRequestHttpException(
+                'No se puede preliquidar un descargo anulado.'
+            );
+        }
+
+        $usuarioOperador = $this->usuarioLocalFromCuenta(
+            $data,
+            'la preliquidacion del descargo'
+        );
+
         $razon = RazonSociales::find()
             ->where(['razon_id' => $descargo->razon_id])
             ->andWhere(['razon_estado' => 1])
             ->one();
 
         if ($razon === null) {
-            throw new BadRequestHttpException('La razon social del descargo no existe o no esta activa.');
+            throw new BadRequestHttpException(
+                'La razon social del descargo no existe o no esta activa.'
+            );
         }
 
-        $precio = $this->requiredNumberFrom($data, ['detalle_precio', 'precio'], 'precio');
-        $nroInicio = $this->requiredPositiveIntegerFrom($data, ['detalle_nro_inicio', 'nro_inicio'], 'nro_inicio');
-        $nroLimite = $this->requiredPositiveIntegerFrom($data, ['detalle_nro_limite', 'nro_limite'], 'nro_limite');
-        $cantidadAnulado = $this->optionalNonNegativeInteger($data, ['detalle_cantidad_anulado', 'cantidad_anulado'], 0);
+        $precio = $this->requiredNumberFrom(
+            $data,
+            ['detalle_precio', 'precio'],
+            'precio'
+        );
+        $nroInicio = $this->requiredPositiveIntegerFrom(
+            $data,
+            ['detalle_nro_inicio', 'nro_inicio'],
+            'nro_inicio'
+        );
+        $nroLimite = $this->requiredPositiveIntegerFrom(
+            $data,
+            ['detalle_nro_limite', 'nro_limite'],
+            'nro_limite'
+        );
+        $cantidadAnulado = $this->optionalNonNegativeInteger(
+            $data,
+            ['detalle_cantidad_anulado', 'cantidad_anulado'],
+            0
+        );
 
         if ($nroLimite < $nroInicio) {
-            throw new BadRequestHttpException('El nro limite no puede ser menor al nro inicio.');
+            throw new BadRequestHttpException(
+                'El nro limite no puede ser menor al nro inicio.'
+            );
         }
 
         $cantidad = ($nroLimite - $nroInicio) + 1;
         if ($cantidadAnulado > $cantidad) {
-            throw new BadRequestHttpException('La cantidad de anulados no puede ser mayor a la cantidad.');
+            throw new BadRequestHttpException(
+                'La cantidad de anulados no puede ser mayor a la cantidad.'
+            );
         }
 
         $cantidadFinal = $cantidad - $cantidadAnulado;
-        $importe = $precio * $cantidadFinal;
+        $importe = round($precio * $cantidadFinal, 2);
+
+        if ($importe <= 0) {
+            throw new BadRequestHttpException(
+                'El importe de la preliquidacion debe ser mayor a cero.'
+            );
+        }
 
         $documento = [
             'numero' => trim((string)$descargo->desc_ci),
@@ -740,17 +814,30 @@ public function actionPagosInfracciones()
         ];
 
         if ($documento['numero'] === '') {
-            throw new BadRequestHttpException('El descargo no tiene documento del sentajero.');
+            throw new BadRequestHttpException(
+                'El descargo no tiene documento del sentajero.'
+            );
         }
 
         $clasificadorKey = $this->clasificadorSentajeFromRazon($razon, $data);
         $codigoClasificador = $this->codigoClasificadorFromKey($clasificadorKey);
-        $observacion = $this->sentajeObservacion($razon);
-        $detalleFeria = $this->optionalStringFrom($data, ['detalle_feria', 'feria'], $razon->razon_nombre);
+
+        $detalleFeria = $this->optionalStringFrom(
+            $data,
+            ['detalle_feria', 'feria', 'actividad'],
+            $razon->razon_nombre
+        );
+
+        $observacion = $this->sentajeObservacion(
+            $clasificadorKey,
+            $detalleFeria
+        );
 
         $token = Yii::$app->ruatServices->loginConfigured();
         if (!$token) {
-            throw new BadRequestHttpException('No se pudo iniciar sesion en RUAT.');
+            throw new BadRequestHttpException(
+                'No se pudo iniciar sesion en RUAT.'
+            );
         }
 
         $codigoContribuyente = Yii::$app->ruatServices->getContribuyentePorCi(
@@ -762,26 +849,53 @@ public function actionPagosInfracciones()
         );
 
         if (!$codigoContribuyente) {
-            throw new BadRequestHttpException('El sentajero seleccionado no se encuentra registrado en RUAT. Debe registrar contribuyente primero.');
+            throw new BadRequestHttpException(
+                'El sentajero seleccionado no se encuentra registrado en RUAT. ' .
+                'Debe registrar contribuyente primero.'
+            );
         }
 
         $codigoUsuario = trim((string)$usuarioOperador->usua_cuenta);
-        $response = Yii::$app->ruatServices->createTasa(
-            $token,
-            $codigoUsuario,
-            $codigoContribuyente,
-            $codigoClasificador,
-            round($importe, 2),
-            $observacion
-        );
 
-        $numeroTasa = $response && isset($response->numeroTasa) ? $response->numeroTasa : null;
-        if (!$response || !isset($response->continuarFlujo) || !$response->continuarFlujo || trim((string)$numeroTasa) === '') {
+        try {
+            $response = Yii::$app->ruatServices->createTasa(
+                $token,
+                $codigoUsuario,
+                $codigoContribuyente,
+                $codigoClasificador,
+                $importe,
+                $observacion
+            );
+        } catch (\Throwable $exception) {
+            Yii::error([
+                'mensaje' => 'Error tecnico al registrar la tasa de sentaje en RUAT.',
+                'desc_id' => $descId,
+                'clasificador_key' => $clasificadorKey,
+                'codigo_clasificador' => $codigoClasificador,
+                'importe' => $importe,
+                'error' => $exception->getMessage(),
+            ], __METHOD__);
+
+            throw new BadRequestHttpException(
+                'No se pudo completar la comunicacion con RUAT.'
+            );
+        }
+
+        $numeroTasa = $response && isset($response->numeroTasa)
+            ? trim((string)$response->numeroTasa)
+            : '';
+
+        if (!$this->ruatContinuarFlujo($response) || $numeroTasa === '') {
             return [
                 'success' => false,
-                'mensaje' => $this->ruatMensaje($response, 'RUAT no registro la tasa de sentaje.') . ' Codigo usuario RUAT: ' . $codigoUsuario,
+                'mensaje' => $this->ruatMensaje(
+                    $response,
+                    'RUAT no registro la tasa de sentaje.'
+                ),
                 'codigoUsuario' => $codigoUsuario,
                 'codigoContribuyente' => $codigoContribuyente,
+                'clasificadorKey' => $clasificadorKey,
+                'codigoClasificador' => $codigoClasificador,
                 'ruat' => $response,
                 'descargo' => $descargo->attributes,
                 'detalle' => null,
@@ -799,31 +913,47 @@ public function actionPagosInfracciones()
         $detalle->detalle_importe_bs = $importe;
         $detalle->detalle_estado = 1;
         $detalle->detalle_estado_pago = 0;
+
         if ($detalle->hasAttribute('detalle_estado_anulado')) {
             $detalle->setAttribute('detalle_estado_anulado', 0);
         }
-
         if ($detalle->hasAttribute('usua_id')) {
             $detalle->setAttribute('usua_id', (int)$usuarioOperador->usua_id);
         }
-
         if ($detalle->hasAttribute('detalle_tasa')) {
             $detalle->setAttribute('detalle_tasa', $numeroTasa);
         }
-
         if ($detalle->hasAttribute('nro_comprobante')) {
-            $detalle->setAttribute('nro_comprobante', $numeroTasa);
+            $detalle->setAttribute('nro_comprobante', null);
         }
-
         if ($detalle->hasAttribute('detalle_observacion')) {
             $detalle->setAttribute('detalle_observacion', $observacion);
         }
         if ($detalle->hasAttribute('detalle_feria')) {
             $detalle->setAttribute('detalle_feria', $detalleFeria);
         }
+        if ($detalle->hasAttribute('codigo_clasificador')) {
+            $detalle->setAttribute(
+                'codigo_clasificador',
+                $codigoClasificador
+            );
+        }
 
         if (!$detalle->save()) {
-            throw new BadRequestHttpException('No se pudo guardar la preliquidacion del descargo: ' . json_encode($detalle->getErrors()));
+            Yii::error([
+                'mensaje' => 'RUAT creo la tasa, pero no se pudo guardar localmente.',
+                'numero_tasa' => $numeroTasa,
+                'desc_id' => $descId,
+                'clasificador_key' => $clasificadorKey,
+                'codigo_clasificador' => $codigoClasificador,
+                'errores' => $detalle->getErrors(),
+            ], __METHOD__);
+
+            throw new BadRequestHttpException(
+                'RUAT creo la tasa ' . $numeroTasa .
+                ', pero no se pudo guardar la preliquidacion local: ' .
+                json_encode($detalle->getErrors())
+            );
         }
 
         return [
@@ -837,7 +967,10 @@ public function actionPagosInfracciones()
             'descargo' => $descargo->attributes,
             'detalle' => $detalle->attributes,
             'usuario' => $this->usuarioModelPayload($usuarioOperador),
-            'reciboUrl' => Url::to(['api-maps/recibo-sentaje-pdf', 'id_detalle' => $detalle->detalle_id], true),
+            'reciboUrl' => Url::to([
+                'api-maps/recibo-sentaje-pdf',
+                'id_detalle' => $detalle->detalle_id,
+            ], true),
             'ruat' => $response,
         ];
     }
@@ -1484,14 +1617,17 @@ public function actionPagosInfracciones()
 
         return $usuario;
     }
-
     private function razonSocialPayload(array $row)
     {
         $clasificadorKey = $this->value($row, 'razon_clasificador');
-        $clasificadorConfigurado = $clasificadorKey !== null && trim((string)$clasificadorKey) !== '';
+        $clasificadorConfigurado =
+            $clasificadorKey !== null
+            && trim((string)$clasificadorKey) !== '';
 
-        if (!$clasificadorConfigurado) {
-            $clasificadorKey = 'sentajes_urkupina';
+        if ($clasificadorConfigurado) {
+            $clasificadorKey = $this->normalizeClasificadorKey($clasificadorKey);
+        } else {
+            $clasificadorKey = null;
         }
 
         return [
@@ -1500,46 +1636,58 @@ public function actionPagosInfracciones()
             'razon_estado' => $this->nullableInt($row, 'razon_estado'),
             'clasificador_key' => $clasificadorKey,
             'clasificador_configurado' => $clasificadorConfigurado,
-            'clasificador' => $this->clasificadorPayload($clasificadorKey),
+            'clasificador' => $clasificadorKey !== null
+                ? $this->clasificadorPayload($clasificadorKey)
+                : null,
         ];
     }
-
     private function clasificadorPayload($key)
     {
+        $key = $this->normalizeClasificadorKey($key);
+        $catalogo = $this->clasificadoresCatalogo();
+
+        if (!isset($catalogo[$key]) || !is_array($catalogo[$key])) {
+            return null;
+        }
+
+        $config = $catalogo[$key];
+
         return [
             'key' => $key,
-            'label' => $this->clasificadorLabel($key),
-            'grupo' => in_array($key, $this->sentajeClasificadorKeys(), true) ? 'sentajes' : 'general',
+            'codigo' => isset($config['codigo'])
+                ? (string)$config['codigo']
+                : null,
+            'label' => isset($config['label'])
+                ? (string)$config['label']
+                : $key,
+            'observacion' => isset($config['observacion'])
+                ? (string)$config['observacion']
+                : null,
+            'grupo' => isset($config['grupo'])
+                ? (string)$config['grupo']
+                : null,
         ];
     }
-
     private function clasificadorLabel($key)
     {
-        $labels = [
-            'graderias_sillas' => 'Graderias y sillas',
-            'actividades_economicas_eventuales' => 'Actividades economicas eventuales',
-            'espectaculos_publicos' => 'Espectaculos publicos',
-            'publicidad_propaganda' => 'Publicidad y propaganda',
-            'sentajes_urkupina' => 'Sentajes Urkupina',
-            'mingitorios' => 'Mingitorios',
-            'tasa_aseo' => 'Tasa de aseo',
-            'alasitas' => 'Alasitas',
-            'sentajes_alasitas' => 'Sentajes Alasitas',
-            'multas_infracciones' => 'Multas e infracciones',
-            'otros' => 'Otros',
-        ];
-
-        return $labels[$key] ?? ucwords(str_replace('_', ' ', $key));
+        $payload = $this->clasificadorPayload($key);
+        return $payload !== null ? $payload['label'] : (string)$key;
     }
-
     private function sentajeClasificadorKeys()
     {
-        return [
-            'sentajes_urkupina',
-            'mingitorios',
-            'sentajes_alasitas',
-            'otros',
-        ];
+        $keys = [];
+
+        foreach ($this->clasificadoresCatalogo() as $key => $config) {
+            if (
+                is_array($config)
+                && isset($config['grupo'])
+                && trim((string)$config['grupo']) === 'sentajes'
+            ) {
+                $keys[] = $this->normalizeClasificadorKey($key);
+            }
+        }
+
+        return array_values(array_unique($keys));
     }
 
     private function graderiaSillaRowPayload(array $row)
@@ -1676,27 +1824,22 @@ public function actionPagosInfracciones()
 
         return $row;
     }
-
     private function descargoSentajeroPayload(array $row)
     {
-        $clasificadorKey = $this->value($row, 'razon_clasificador');
-        $clasificadorConfigurado = $clasificadorKey !== null && trim((string)$clasificadorKey) !== '';
-        if (!$clasificadorConfigurado) {
-            $clasificadorKey = 'sentajes_urkupina';
+        $razonClasificadorKey = $this->value($row, 'razon_clasificador');
+        $clasificadorConfigurado =
+            $razonClasificadorKey !== null
+            && trim((string)$razonClasificadorKey) !== '';
+
+        if ($clasificadorConfigurado) {
+            $razonClasificadorKey = $this->normalizeClasificadorKey(
+                $razonClasificadorKey
+            );
+        } else {
+            $razonClasificadorKey = null;
         }
 
-        $razonSocial = [
-            'razon_id' => $this->nullableInt($row, 'razon_id'),
-            'razon_nombre' => $this->value($row, 'razon_nombre'),
-            'razon_estado' => $this->nullableInt($row, 'razon_estado'),
-            'clasificador_key' => $clasificadorKey,
-            'clasificador_configurado' => $clasificadorConfigurado,
-            'clasificador' => $this->clasificadorPayload($clasificadorKey),
-        ];
-
-        $sentajero = $this->value($row, 'desc_responsable') ?: '-';
-        $documento = $this->value($row, 'desc_ci') ?: '-';
-        $clasificador = $this->clasificadorPayload($clasificadorKey);
+        $defaultKey = $this->clasificadorSentajePorDefectoKey();
 
         return [
             'desc_id' => $this->nullableInt($row, 'desc_id'),
@@ -1713,21 +1856,46 @@ public function actionPagosInfracciones()
                 'desc_ci' => $this->value($row, 'desc_ci'),
                 'desc_ext' => $this->nullableInt($row, 'desc_ext'),
             ],
-            'razon_social' => $razonSocial,
+            'razon_social' => [
+                'razon_id' => $this->nullableInt($row, 'razon_id'),
+                'razon_nombre' => $this->value($row, 'razon_nombre'),
+                'razon_estado' => $this->nullableInt($row, 'razon_estado'),
+                'clasificador_key' => $razonClasificadorKey,
+                'clasificador_configurado' => $clasificadorConfigurado,
+                'clasificador' => $razonClasificadorKey !== null
+                    ? $this->clasificadorPayload($razonClasificadorKey)
+                    : null,
+            ],
             'usuario' => $this->usuarioPayload($row, 'usua_id'),
-            'sentajero' => $sentajero,
-            'documento' => $documento,
+            'sentajero' => $this->value($row, 'desc_responsable') ?: '-',
+            'documento' => $this->value($row, 'desc_ci') ?: '-',
             'razon_social_nombre' => $this->value($row, 'razon_nombre') ?: '-',
-            'clasificador_label' => $clasificador['label'] ?: $clasificadorKey,
+            'clasificador_default_key' => $defaultKey,
+            'clasificador_default' => $defaultKey !== null
+                ? $this->clasificadorPayload($defaultKey)
+                : null,
         ];
     }
-
     private function sentajePayload(array $row)
     {
-        $clasificadorKey = $this->value($row, 'razon_clasificador');
-        $clasificadorConfigurado = $clasificadorKey !== null && trim((string)$clasificadorKey) !== '';
-        if (!$clasificadorConfigurado) {
-            $clasificadorKey = 'sentajes_urkupina';
+        $codigoClasificador = $this->value($row, 'codigo_clasificador');
+        $clasificadorKey = $this->clasificadorKeyFromCodigo($codigoClasificador);
+
+        $razonClasificadorKey = $this->value($row, 'razon_clasificador');
+        $razonClasificadorConfigurado =
+            $razonClasificadorKey !== null
+            && trim((string)$razonClasificadorKey) !== '';
+
+        if ($razonClasificadorConfigurado) {
+            $razonClasificadorKey = $this->normalizeClasificadorKey(
+                $razonClasificadorKey
+            );
+        } else {
+            $razonClasificadorKey = null;
+        }
+
+        if ($clasificadorKey === null && $razonClasificadorKey !== null) {
+            $clasificadorKey = $razonClasificadorKey;
         }
 
         return [
@@ -1764,17 +1932,27 @@ public function actionPagosInfracciones()
                 'nro_comprobante' => $this->value($row, 'nro_comprobante'),
                 'detalle_observacion' => $this->value($row, 'detalle_observacion'),
                 'detalle_feria' => $this->value($row, 'detalle_feria'),
+                'codigo_clasificador' => $codigoClasificador,
+                'clasificador_key' => $clasificadorKey,
+                'clasificador' => $clasificadorKey !== null
+                    ? $this->clasificadorPayload($clasificadorKey)
+                    : null,
             ],
             'razon_social' => [
                 'razon_id' => $this->nullableInt($row, 'razon_id'),
                 'razon_nombre' => $this->value($row, 'razon_nombre'),
                 'razon_estado' => $this->nullableInt($row, 'razon_estado'),
-                'clasificador_key' => $clasificadorKey,
-                'clasificador_configurado' => $clasificadorConfigurado,
-                'clasificador' => $this->clasificadorPayload($clasificadorKey),
+                'clasificador_key' => $razonClasificadorKey,
+                'clasificador_configurado' => $razonClasificadorConfigurado,
+                'clasificador' => $razonClasificadorKey !== null
+                    ? $this->clasificadorPayload($razonClasificadorKey)
+                    : null,
             ],
             'usuario' => $this->usuarioPayload($row, 'usua_id'),
-            'recibo_url' => Url::to(['api-maps/recibo-sentaje-pdf', 'id_detalle' => $row['detalle_id']], true),
+            'recibo_url' => Url::to([
+                'api-maps/recibo-sentaje-pdf',
+                'id_detalle' => $row['detalle_id'],
+            ], true),
         ];
     }
 
@@ -1840,70 +2018,47 @@ public function actionPagosInfracciones()
         $this->filterDateRange($query, $alias . '.contri_fechanac', 'contri_fechanac_desde', 'contri_fechanac_hasta');
         $this->filterDateRange($query, $alias . '.contri_ruat_sync_at', 'contri_ruat_sync_at_desde', 'contri_ruat_sync_at_hasta');
     }
+    private function applyPagoInfraccionFilters(&$query, $alias)
+    {
+        $this->filterPositiveInteger($query, $alias . '.infraccion_id', 'infraccion_id');
+        $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
+        $this->filterPositiveInteger($query, $alias . '.usua_id', 'usua_id');
+        $this->filterExact($query, $alias . '.numero_tasa', 'numero_tasa');
+        $this->filterLike($query, $alias . '.numero_documento', 'numero_documento');
+        $this->filterLike($query, $alias . '.tipo_infraccion', 'tipo_infraccion');
+        $this->filterLike($query, $alias . '.descripcion_infraccion', 'descripcion_infraccion');
+        $this->filterLike($query, $alias . '.lugar_infraccion', 'lugar_infraccion');
+        $this->filterExact($query, $alias . '.gestion', 'gestion');
+        $this->filterBinary($query, $alias . '.infraccion_estado', 'infraccion_estado');
+        $this->filterBinary($query, $alias . '.infraccion_pagado', 'infraccion_pagado');
+        $this->filterBinary($query, $alias . '.infraccion_anulado', 'infraccion_anulado');
+        $this->filterDateRange($query, $alias . '.fecha_infraccion', 'fecha_infraccion_desde', 'fecha_infraccion_hasta');
+        $this->filterDateRange($query, $alias . '.fecha_pago', 'fecha_pago_desde', 'fecha_pago_hasta');
+        $this->filterDateRange($query, $alias . '.anulado_fecha_hora', 'anulado_fecha_hora_desde', 'anulado_fecha_hora_hasta');
 
-private function applyPagoInfraccionFilters(&$query, $alias)
-{
-    $this->filterPositiveInteger($query, $alias . '.infraccion_id', 'infraccion_id');
-    $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
-    $this->filterPositiveInteger($query, $alias . '.usua_id', 'usua_id');
-    $this->filterExact($query, $alias . '.numero_tasa', 'numero_tasa');
-    $this->filterLike($query, $alias . '.numero_documento', 'numero_documento');
-    $this->filterLike($query, $alias . '.tipo_infraccion', 'tipo_infraccion');
-    $this->filterLike($query, $alias . '.descripcion_infraccion', 'descripcion_infraccion');
-    $this->filterLike($query, $alias . '.lugar_infraccion', 'lugar_infraccion');
-    $this->filterExact($query, $alias . '.gestion', 'gestion');
-    $this->filterBinary($query, $alias . '.infraccion_estado', 'infraccion_estado');
-    $this->filterBinary($query, $alias . '.infraccion_pagado', 'infraccion_pagado');
-    $this->filterBinary($query, $alias . '.infraccion_anulado', 'infraccion_anulado');
-    $this->filterDateRange($query, $alias . '.fecha_infraccion', 'fecha_infraccion_desde', 'fecha_infraccion_hasta');
-    $this->filterDateRange($query, $alias . '.fecha_pago', 'fecha_pago_desde', 'fecha_pago_hasta');
-    $this->filterDateRange($query, $alias . '.anulado_fecha_hora', 'anulado_fecha_hora_desde', 'anulado_fecha_hora_hasta');
-    $search = $this->filterValue('search');
-
-    if ($search !== null) {
-        $query->andWhere([
-            'or',
-            ['ilike', $alias . '.numero_tasa', $search],
-            ['ilike', $alias . '.numero_documento', $search],
-            ['ilike', $alias . '.codigo_contribuyente', $search],
-            ['ilike', $alias . '.tipo_documento', $search],
-            ['ilike', $alias . '.tipo_infraccion', $search],
-            ['ilike', $alias . '.descripcion_infraccion', $search],
-            ['ilike', $alias . '.lugar_infraccion', $search],
-            ['ilike', $alias . '.gestion', $search],
-            ['ilike', $alias . '.codigo_clasificador', $search],
-            ['ilike', $alias . '.observacion', $search],
-            ['ilike', 'c.contri_nombres', $search],
-            ['ilike', 'c.contri_paterno', $search],
-            ['ilike', 'c.contri_materno', $search],
-            ['ilike', 'u.usua_nombres', $search],
-            ['ilike', 'u.usua_apellidos', $search],
-            ['ilike', 'u.usua_cuenta', $search],
-        ]);
-    }$search = $this->filterValue('search');
-
-     if ($search !== null) {
-         $query->andWhere([
-             'or',
-             ['ilike', $alias . '.numero_tasa', $search],
-             ['ilike', $alias . '.numero_documento', $search],
-             ['ilike', $alias . '.codigo_contribuyente', $search],
-             ['ilike', $alias . '.tipo_documento', $search],
-             ['ilike', $alias . '.tipo_infraccion', $search],
-             ['ilike', $alias . '.descripcion_infraccion', $search],
-             ['ilike', $alias . '.lugar_infraccion', $search],
-             ['ilike', $alias . '.gestion', $search],
-             ['ilike', $alias . '.codigo_clasificador', $search],
-             ['ilike', $alias . '.observacion', $search],
-             ['ilike', 'c.contri_nombres', $search],
-             ['ilike', 'c.contri_paterno', $search],
-             ['ilike', 'c.contri_materno', $search],
-             ['ilike', 'u.usua_nombres', $search],
-             ['ilike', 'u.usua_apellidos', $search],
-             ['ilike', 'u.usua_cuenta', $search],
-         ]);
-     }
-}
+        $search = $this->filterValue('search');
+        if ($search !== null) {
+            $query->andWhere([
+                'or',
+                ['ilike', $alias . '.numero_tasa', $search],
+                ['ilike', $alias . '.numero_documento', $search],
+                ['ilike', $alias . '.codigo_contribuyente', $search],
+                ['ilike', $alias . '.tipo_documento', $search],
+                ['ilike', $alias . '.tipo_infraccion', $search],
+                ['ilike', $alias . '.descripcion_infraccion', $search],
+                ['ilike', $alias . '.lugar_infraccion', $search],
+                ['ilike', $alias . '.gestion', $search],
+                ['ilike', $alias . '.codigo_clasificador', $search],
+                ['ilike', $alias . '.observacion', $search],
+                ['ilike', 'c.contri_nombres', $search],
+                ['ilike', 'c.contri_paterno', $search],
+                ['ilike', 'c.contri_materno', $search],
+                ['ilike', 'u.usua_nombres', $search],
+                ['ilike', 'u.usua_apellidos', $search],
+                ['ilike', 'u.usua_cuenta', $search],
+            ]);
+        }
+    }
 private function applyPagoFilters(&$query, $alias)
  {
      $this->filterPositiveInteger($query, $alias . '.pago_id', 'pago_id');
@@ -2075,64 +2230,242 @@ private function unsetRelatedKeys(array &$row)
         'categ_estado',
     ]);
 }
+    private function clasificadoresCatalogo()
+    {
+        $catalogo = Yii::$app->params['clasificadoresCatalogo'] ?? [];
+        return is_array($catalogo) ? $catalogo : [];
+    }
+
+    private function assertClasificadorSentaje($key)
+    {
+        $key = $this->normalizeClasificadorKey($key);
+        $catalogo = $this->clasificadoresCatalogo();
+
+        if (!isset($catalogo[$key]) || !is_array($catalogo[$key])) {
+            throw new BadRequestHttpException(
+                'El clasificador "' . $key . '" no existe en la configuracion.'
+            );
+        }
+
+        $grupo = isset($catalogo[$key]['grupo'])
+            ? trim((string)$catalogo[$key]['grupo'])
+            : '';
+
+        if ($grupo !== 'sentajes') {
+            throw new BadRequestHttpException(
+                'El clasificador "' . $key . '" no esta permitido para sentajes.'
+            );
+        }
+    }
+
+    private function clasificadorSentajePorDefectoKey()
+    {
+        $periodos = Yii::$app->params['eventPeriods'] ?? [];
+        $catalogo = $this->clasificadoresCatalogo();
+
+        if (!is_array($periodos) || empty($periodos) || empty($catalogo)) {
+            return null;
+        }
+
+        try {
+            $timezone = new \DateTimeZone(
+                Yii::$app->timeZone ?: 'America/La_Paz'
+            );
+        } catch (\Throwable $exception) {
+            $timezone = new \DateTimeZone('America/La_Paz');
+        }
+
+        $hoy = new \DateTimeImmutable('today', $timezone);
+        $clasificadorMasProximo = null;
+        $menorDistancia = null;
+
+        foreach ($periodos as $eventoKey => $periodo) {
+            if (!is_array($periodo)) {
+                continue;
+            }
+
+            $fechaInicio = isset($periodo['start'])
+                ? trim((string)$periodo['start'])
+                : '';
+            $fechaFin = isset($periodo['end'])
+                ? trim((string)$periodo['end'])
+                : '';
+
+            if ($fechaInicio === '' || $fechaFin === '') {
+                continue;
+            }
+
+            $inicio = \DateTimeImmutable::createFromFormat(
+                '!Y-m-d',
+                $fechaInicio,
+                $timezone
+            );
+            $fin = \DateTimeImmutable::createFromFormat(
+                '!Y-m-d',
+                $fechaFin,
+                $timezone
+            );
+
+            if ($inicio === false || $fin === false || $fin < $inicio) {
+                Yii::warning(
+                    'Periodo invalido configurado para el evento "' .
+                    $eventoKey . '".',
+                    __METHOD__
+                );
+                continue;
+            }
+
+            $eventoNormalizado = $this->normalizeClasificadorKey($eventoKey);
+            $clasificadorKey = $this->normalizeClasificadorKey(
+                'sentajes_' . $eventoNormalizado
+            );
+
+            if (!isset($catalogo[$clasificadorKey])) {
+                Yii::warning(
+                    'No existe el clasificador "' . $clasificadorKey .
+                    '" para el evento "' . $eventoKey . '".',
+                    __METHOD__
+                );
+                continue;
+            }
+
+            $grupo = isset($catalogo[$clasificadorKey]['grupo'])
+                ? trim((string)$catalogo[$clasificadorKey]['grupo'])
+                : '';
+
+            if ($grupo !== 'sentajes') {
+                continue;
+            }
+
+            if ($hoy >= $inicio && $hoy <= $fin) {
+                return $clasificadorKey;
+            }
+
+            $distancia = $hoy < $inicio
+                ? $inicio->getTimestamp() - $hoy->getTimestamp()
+                : $hoy->getTimestamp() - $fin->getTimestamp();
+
+            if ($menorDistancia === null || $distancia < $menorDistancia) {
+                $menorDistancia = $distancia;
+                $clasificadorMasProximo = $clasificadorKey;
+            }
+        }
+
+        return $clasificadorMasProximo;
+    }
+
+    private function clasificadorKeyFromCodigo($codigo)
+    {
+        if ($codigo === null || trim((string)$codigo) === '') {
+            return null;
+        }
+
+        $codigo = trim((string)$codigo);
+
+        foreach ($this->clasificadoresCatalogo() as $key => $config) {
+            if (
+                is_array($config)
+                && isset($config['codigo'])
+                && trim((string)$config['codigo']) === $codigo
+            ) {
+                return $this->normalizeClasificadorKey($key);
+            }
+        }
+
+        return null;
+    }
 
     private function clasificadorSentajeFromRazon(RazonSociales $razon, array $data)
     {
-        $key = null;
+        $keySeleccionada = $this->optionalStringFrom(
+            $data,
+            [
+                'clasificador',
+                'clasificador_key',
+                'clasificadorKey',
+                'codigo_clasificador_key',
+                'codigoClasificadorKey',
+            ],
+            null
+        );
+
+        if ($keySeleccionada !== null) {
+            $keySeleccionada = $this->normalizeClasificadorKey($keySeleccionada);
+            $this->assertClasificadorSentaje($keySeleccionada);
+            return $keySeleccionada;
+        }
 
         if ($razon->hasAttribute('razon_clasificador')) {
             $value = $razon->getAttribute('razon_clasificador');
             if ($value !== null && trim((string)$value) !== '') {
-                $key = trim((string)$value);
+                $keyRazon = $this->normalizeClasificadorKey($value);
+                $this->assertClasificadorSentaje($keyRazon);
+                return $keyRazon;
             }
         }
 
-        if ($key === null) {
+        $defaultKey = $this->clasificadorSentajePorDefectoKey();
+        if ($defaultKey === null) {
             throw new BadRequestHttpException(
-                'La razon social no esta asociada a un clasificador RUAT. Por favor consulte con el administrador.'
+                'No se pudo determinar un clasificador inicial de sentaje desde la configuracion.'
             );
         }
 
-        $key = $this->normalizeClasificadorKey($key);
-        if (!in_array($key, $this->sentajeClasificadorKeys(), true)) {
-            throw new BadRequestHttpException('El clasificador "' . $key . '" no esta permitido para sentajes.');
-        }
-
-        return $key;
+        $this->assertClasificadorSentaje($defaultKey);
+        return $defaultKey;
     }
-
     private function normalizeClasificadorKey($key)
     {
-        $key = strtolower(trim((string)$key));
-        $aliases = [
-            'sentaje_urkupina' => 'sentajes_urkupina',
-            'sentaje_alasitas' => 'sentajes_alasitas',
-            'mingitorio' => 'mingitorios',
-        ];
-
-        return $aliases[$key] ?? $key;
+        return strtolower(trim((string)$key));
     }
-
     private function codigoClasificadorFromKey($key)
     {
-        $params = Yii::$app->params['clasificadores'] ?? [];
-        if (!array_key_exists($key, $params)) {
-            throw new BadRequestHttpException('No existe codigo clasificador configurado para "' . $key . '".');
+        $key = $this->normalizeClasificadorKey($key);
+        $catalogo = $this->clasificadoresCatalogo();
+
+        if (
+            !isset($catalogo[$key])
+            || !is_array($catalogo[$key])
+            || !isset($catalogo[$key]['codigo'])
+            || trim((string)$catalogo[$key]['codigo']) === ''
+        ) {
+            throw new BadRequestHttpException(
+                'No existe codigo clasificador configurado para "' . $key . '".'
+            );
         }
 
-        return $params[$key];
+        return trim((string)$catalogo[$key]['codigo']);
     }
-
-    private function sentajeObservacion(RazonSociales $razon)
+    private function sentajeObservacion($clasificadorKey, $actividad)
     {
-        $obs = 'DATOS DE ACTIVIDAD: SENTAJES, Tipo de sentaje: ' . $razon->razon_nombre;
-        $obs = mb_substr($obs, 0, 250, 'UTF-8');
-        $cleanedString = iconv('UTF-8', 'ASCII//TRANSLIT', $obs);
-        if ($cleanedString === false) {
-            $cleanedString = $obs;
+        $payload = $this->clasificadorPayload($clasificadorKey);
+
+        if ($payload === null) {
+            throw new BadRequestHttpException(
+                'No existe configuracion para el clasificador seleccionado.'
+            );
         }
 
-        return preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $cleanedString);
+        $base = isset($payload['observacion'])
+            ? trim((string)$payload['observacion'])
+            : '';
+        $actividad = trim((string)$actividad);
+
+        $observacion = $base;
+        if ($actividad !== '') {
+            $observacion = $observacion === ''
+                ? $actividad
+                : $observacion . ' - ' . $actividad;
+        }
+
+        $observacion = mb_substr($observacion, 0, 250, 'UTF-8');
+        $textoLimpio = iconv('UTF-8', 'ASCII//TRANSLIT', $observacion);
+
+        if ($textoLimpio === false) {
+            $textoLimpio = $observacion;
+        }
+
+        return preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $textoLimpio);
     }
 
     private function ruatMensaje($response, $default)
