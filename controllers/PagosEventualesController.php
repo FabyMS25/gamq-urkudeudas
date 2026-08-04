@@ -214,6 +214,8 @@ class PagosEventualesController extends Controller
 
     public function actionUpdatePagados()
     {
+        Yii::$app->db->createCommand("UPDATE pagos_eventuales SET eventual_nro_comprobante = eventual_tasa::integer WHERE eventual_cobrado = 1 AND eventual_estado = 1 AND eventual_nro_comprobante IS NULL AND eventual_tasa ~ '^\d+$'")->execute();
+
         $sql = 'SELECT * FROM pagos_eventuales WHERE eventual_cobrado=:ev_cobrado AND eventual_estado=:ev_estado';
         $listaPagosEventuales = Yii::$app->db->createCommand($sql)
             ->bindValue(':ev_cobrado', 0)
@@ -241,7 +243,7 @@ class PagosEventualesController extends Controller
                         ->bindValue(':pago_fecha', $eventual_fecha_hora_pago)
                         ->bindValue(':comprob', $nroTasa)
                         ->bindValue(':obs', $observacion)
-                        ->queryOne();*/
+                        ->execute();*/
                     if ($pagoTasa) {
                         $observacion = 'Folio: ' . $pagoTasa->folio . ', Fecha Pago: ' . $pagoTasa->fechaPago . ', Entidad Financiera: ' . $pagoTasa->entidadFinanciera . ', Monto Pagado: ' . $pagoTasa->montoPago;
                         $sql = 'UPDATE pagos_eventuales SET eventual_cobrado=:cobr, usua_id=:user_id, eventual_fecha_hora_pago=:pago_fecha, eventual_nro_comprobante=:comprob, eventual_descripcion=:obs WHERE eventual_id=:id';
@@ -252,7 +254,7 @@ class PagosEventualesController extends Controller
                             ->bindValue(':pago_fecha', $eventual_fecha_hora_pago)
                             ->bindValue(':comprob', $nroTasa)
                             ->bindValue(':obs', $observacion)
-                            ->queryOne();
+                            ->execute();
                         $pagoEventualActualizado = PagosEventuales::findOne($id);
                         if ($pagoEventualActualizado !== null && $pagoEventualActualizado->sitios_id) {
                             MapWebSocketPublisher::publishSitioEventual('paid', $pagoEventualActualizado->sitios_id, $pagoEventualActualizado->eventual_id, [
@@ -262,9 +264,11 @@ class PagosEventualesController extends Controller
                     }
                 }
             }
-            $this->actionIndex();
-        } else {
+            return $this->redirect(['index']);
         }
+
+        Yii::$app->session->setFlash('error', 'No se pudo iniciar sesion en RUAT.');
+        return $this->redirect(['index']);
     }
 
     /*Liquidacion de act. economicas EVENTUALES*/

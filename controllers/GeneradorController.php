@@ -56,14 +56,6 @@ class GeneradorController extends Controller
      * Genera una sola tasa RUAT para todos los detalles pendientes
      * pertenecientes al mismo descargo/sentajero.
      *
-     * El flujo original de SISURKU se conserva:
-     *
-     * - Se obtiene el desc_id desde el detalle seleccionado.
-     * - Se suman todos los detalles activos, no pagados y sin tasa.
-     * - Se registra una sola tasa agrupada en RUAT.
-     * - El número de tasa se asigna a todos los detalles incluidos.
-     * - También se guarda el código clasificador usado en RUAT.
-     *
      * @param integer $id detalle_id
      * @return array|string|\yii\web\Response
      */
@@ -97,9 +89,6 @@ class GeneradorController extends Controller
             );
         }
 
-        /*
-         * Obtain the RUAT username of the authenticated SISURKU user.
-         */
         $idUsuarioAutenticado = Yii::$app->user->id;
         $datosUsuario = Usuario::findOne($idUsuarioAutenticado);
 
@@ -151,10 +140,6 @@ class GeneradorController extends Controller
              * Process modal submission.
              */
             if ($model->load($request->post())) {
-                /*
-                 * Calculate the total of every active, unpaid and untaxed
-                 * detail belonging to the same sentajero/descargo.
-                 */
                 $sqlMonto = '
                     SELECT SUM(detalle_importe_bs) AS monto_total
                     FROM detalle_descargos

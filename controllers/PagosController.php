@@ -318,7 +318,7 @@ class PagosController extends Controller
                                         ->bindValue(':id', $codigo)
                                         ->bindValue(':val', $val)
                                         ->bindValue(':rest', $resto)
-                                        ->queryOne();
+                                        ->execute();
                                     MapWebSocketPublisher::publishGraderiaSilla('preliquidated', $codigo, $model->pago_id, [
                                         'sold_length' => $model->pago_longitud_modificada,
                                         'available_length' => $resto,
@@ -375,7 +375,7 @@ class PagosController extends Controller
                                         ->bindValue(':id', $codigo)
                                         ->bindValue(':val', $val)
                                         ->bindValue(':rest', $resto)
-                                        ->queryOne();
+                                        ->execute();
                                     MapWebSocketPublisher::publishGraderiaSilla('preliquidated', $codigo, $model->pago_id, [
                                         'sold_length' => $model->pago_longitud_modificada,
                                         'available_length' => $resto,
@@ -450,6 +450,8 @@ class PagosController extends Controller
 
     public function actionUpdatePagados()
     {
+        Yii::$app->db->createCommand("UPDATE pagos SET pago_nro_comprobante = pago_tasa::integer WHERE pago_cobrado = 1 AND pago_estado = 1 AND pago_nro_comprobante IS NULL AND pago_tasa ~ '^\d+$'")->execute();
+
         $sql = 'SELECT * FROM pagos WHERE pago_cobrado=:pago_cobrado AND pago_estado=:pago_estado';
         $listaPagos = Yii::$app->db->createCommand($sql)
             ->bindValue(':pago_cobrado', 0)
@@ -477,7 +479,7 @@ class PagosController extends Controller
                         ->bindValue(':pago_fecha', $pago_fecha_hora_cobro)
                         ->bindValue(':comprob', $nroTasa)
                         ->bindValue(':obs', $observacion)
-                        ->queryOne();*/
+                        ->execute();*/
                     if ($pagoTasa != null) {
                         $usua_id = Yii::$app->user->id;
                         $pago_fecha_hora_cobro = date('Y-m-d H:m:s');
@@ -490,7 +492,7 @@ class PagosController extends Controller
                             ->bindValue(':pago_fecha', $pago_fecha_hora_cobro)
                             ->bindValue(':comprob', $nroTasa)
                             ->bindValue(':obs', $observacion)
-                            ->queryOne();
+                            ->execute();
                         $pagoActualizado = Pagos::findOne($id);
                         if ($pagoActualizado !== null) {
                             MapWebSocketPublisher::publishGraderiaSilla('paid', $pagoActualizado->grad_id, $pagoActualizado->pago_id, [
@@ -500,9 +502,11 @@ class PagosController extends Controller
                     }
                 }
             }
-            $this->actionPreliquidaciones();
-        } else {
+            return $this->redirect(['preliquidaciones']);
         }
+
+        Yii::$app->session->setFlash('error', 'No se pudo iniciar sesion en RUAT.');
+        return $this->redirect(['preliquidaciones']);
     }
 
     public function actionCreate()

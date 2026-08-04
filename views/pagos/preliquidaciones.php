@@ -28,7 +28,7 @@ CrudAsset::register($this);
             'toolbar'=> [
                 ['content'=>  
                     ((Usuario::getRolCajero())?Html::a('<i class="glyphicon glyphicon-repeat"></i>Actualizar pagados', ['update-pagados'],
-                    ['data-pjax'=>1, 'class'=>'btn btn-default', 'title'=>'Recargar pagados']):null).         
+                    ['data-pjax'=>0, 'class'=>'btn btn-default', 'title'=>'Recargar pagados']):null).         
                     Html::a('<i class="glyphicon glyphicon-repeat"></i>', [''],
                     ['data-pjax'=>1, 'class'=>'btn btn-default', 'title'=>'Recargar datos']).
                     '{toggleData}'.

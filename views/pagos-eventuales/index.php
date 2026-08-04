@@ -40,7 +40,7 @@ CrudAsset::register($this);
                      Html::a('<i class="glyphicon glyphicon-zoom-in"></i> Alasitas', ['create-alasitas'],
                     ['role'=>'modal-remote','title'=> 'Preliquidacion alasitas','class'=>'btn btn-default']).*/
                     ((Usuario::getRolCajero())?Html::a('<i class="glyphicon glyphicon-repeat"></i>Actualizar pagados', ['update-pagados'],
-                    ['data-pjax'=>1, 'class'=>'btn btn-default', 'title'=>'Recargar pagados']):null).
+                    ['data-pjax'=>0, 'class'=>'btn btn-default', 'title'=>'Recargar pagados']):null).
                     Html::a('<i class="glyphicon glyphicon-repeat"></i>', [''],
                     ['data-pjax'=>1, 'class'=>'btn btn-default', 'title'=>'Recargar datos']).
                     '{toggleData}'.

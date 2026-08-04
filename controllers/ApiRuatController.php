@@ -1021,6 +1021,7 @@ class ApiRuatController extends Controller
         $pago = Pagos::findOne(['pago_tasa' => $numeroTasa]);
         if ($pago !== null) {
             $pago->pago_cobrado = 1;
+            $pago->pago_nro_comprobante = (int)$numeroTasa;
             if ($usuaId !== null) {
                 $pago->usua_id = $usuaId;
             }
@@ -1032,6 +1033,7 @@ class ApiRuatController extends Controller
         $pagoEventual = PagosEventuales::findOne(['eventual_tasa' => $numeroTasa]);
         if ($pagoEventual !== null) {
             $pagoEventual->eventual_cobrado = 1;
+            $pagoEventual->eventual_nro_comprobante = (int)$numeroTasa;
             if ($usuaId !== null) {
                 $pagoEventual->usua_id = $usuaId;
             }
