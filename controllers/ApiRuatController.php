@@ -52,11 +52,7 @@ class ApiRuatController extends Controller
     {
         return [
             'http://localhost:4200',
-            'http://localhost:5200',
-            'http://localhost:5173',
             'http://127.0.0.1:4200',
-            'http://127.0.0.1:5200',
-            'http://127.0.0.1:5173',
             'http://181.177.143.185:4205',
         ];
     }

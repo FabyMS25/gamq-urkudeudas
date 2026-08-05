@@ -85,11 +85,7 @@ class ApiMapsController extends Controller
     {
         return [
             'http://localhost:4200',
-            'http://localhost:5200',
-            'http://localhost:5173',
             'http://127.0.0.1:4200',
-            'http://127.0.0.1:5200',
-            'http://127.0.0.1:5173',
             'http://181.177.143.185:4205',
         ];
     }
@@ -411,12 +407,10 @@ class ApiMapsController extends Controller
             ->from('sitios_eventuales')
             ->where(['sitios_estado' => 1])
             ->orderBy(['sitios_codigo' => SORT_ASC, 'sitios_numero_sitio' => SORT_ASC]);
-
         $id = Yii::$app->request->get('id');
         if ($id !== null && $id !== '') {
             return $query->andWhere(['sitios_id' => $id])->one();
         }
-
         return $query->all();
     }
 
@@ -468,9 +462,7 @@ class ApiMapsController extends Controller
 public function actionPagos()
 {
     $query = $this->pagoQuery();
-
     $this->applyPagoFilters($query, 'p');
-
     return $this->paginatedList($query, [$this, 'pagoPayload']);
 }
 
@@ -480,11 +472,9 @@ public function actionPagoGraderiaSilla($grad_id = null)
     $row = $this->pagoQuery()
         ->andWhere(['p.grad_id' => $gradId])
         ->one();
-
     if ($row === false) {
         throw new NotFoundHttpException('No existe un pago activo para la graderia o silla indicada.');
     }
-
     return $this->pagoPayload($row);
 }
 
@@ -948,14 +938,12 @@ public function actionPagosInfracciones()
                 'codigo_clasificador' => $codigoClasificador,
                 'errores' => $detalle->getErrors(),
             ], __METHOD__);
-
             throw new BadRequestHttpException(
                 'RUAT creo la tasa ' . $numeroTasa .
                 ', pero no se pudo guardar la preliquidacion local: ' .
                 json_encode($detalle->getErrors())
             );
         }
-
         return [
             'success' => true,
             'mensaje' => 'Se creo la tasa y se registro la preliquidacion correctamente.',
@@ -978,7 +966,6 @@ public function actionPagosInfracciones()
     public function actionReciboSentaje($id_detalle = null)
     {
         $detalleId = $this->resolvePositiveInteger($id_detalle, 'id_detalle');
-
         return [
             'success' => true,
             'url' => Url::to(['api-maps/recibo-sentaje-pdf', 'id_detalle' => $detalleId], true),
@@ -989,7 +976,6 @@ public function actionPagosInfracciones()
     {
         $detalleId = $this->resolvePositiveInteger($id_detalle, 'id_detalle');
         $url = $this->generarReciboSentajePdf($detalleId);
-
         return $this->sendPdfFile($url, 'recibo_sentaje_' . $detalleId . '.pdf');
     }
 
@@ -1000,11 +986,9 @@ public function actionPagosInfracciones()
         $data = isset($body['sentaje']) && is_array($body['sentaje'])
             ? array_merge($body, $body['sentaje'])
             : $body;
-
         $token = $this->requiredStringFrom($data, ['token']);
         $codigoAlcaldia = $this->optionalStringFrom($data, ['codigoAlcaldia', 'codigo_alcaldia'], 'QUI');
         $numeroTasa = $this->requiredStringFrom($data, ['numeroTasa', 'numero_tasa', 'detalle_tasa']);
-
         return $this->consultaPagoSentajeResponse($token, $codigoAlcaldia, $numeroTasa);
     }
 
@@ -1015,11 +999,9 @@ public function actionPagosInfracciones()
         $data = isset($body['sentajes']) && is_array($body['sentajes'])
             ? array_merge($body, $body['sentajes'])
             : $body;
-
         $token = $this->requiredStringFrom($data, ['token']);
         $codigoAlcaldia = $this->optionalStringFrom($data, ['codigoAlcaldia', 'codigo_alcaldia'], 'QUI');
         $numerosTasa = $this->numeroTasasFromRequest($data);
-
         $resultados = [];
         foreach ($numerosTasa as $numeroTasa) {
             try {
@@ -1035,23 +1017,19 @@ public function actionPagosInfracciones()
                 ];
             }
         }
-
         $pagadas = 0;
         $sinPago = 0;
         $fallidas = 0;
-
         foreach ($resultados as $resultado) {
             if (!empty($resultado['pagado'])) {
                 $pagadas++;
             }
-
             if (empty($resultado['success'])) {
                 $fallidas++;
             } elseif (empty($resultado['pagado'])) {
                 $sinPago++;
             }
         }
-
         return [
             'success' => $fallidas === 0,
             'consultadas' => count($resultados),
@@ -1069,14 +1047,12 @@ public function actionPagosInfracciones()
         $data = isset($body['tasa']) && is_array($body['tasa'])
             ? array_merge($body, $body['tasa'])
             : $body;
-
         $token = $this->requiredStringFrom($data, ['token']);
         $codigoUsuario = $this->requiredStringFrom($data, ['codigoUsuario', 'codigo_usuario']);
         $codigoAlcaldia = $this->optionalStringFrom($data, ['codigoAlcaldia', 'codigo_alcaldia'], 'QUI');
         $numeroTasa = $this->requiredStringFrom($data, ['numeroTasa', 'numero_tasa', 'nroTasa']);
         $motivo = $this->requiredStringFrom($data, ['motivoTasa', 'motivo', 'anulado_motivo']);
         $observacion = $this->requiredStringFrom($data, ['observacion', 'anulado_observacion']);
-
         $response = Yii::$app->ruatServices->anularTasa(
             $token,
             $codigoUsuario,
@@ -1085,15 +1061,19 @@ public function actionPagosInfracciones()
             $observacion,
             $codigoAlcaldia
         );
-
         $detalle = null;
         $localErrors = null;
         if ($this->ruatContinuarFlujo($response)) {
-            $detalle = $this->sentajeDetalleFromTasa($numeroTasa);
+            $detalles = $this->sentajeDetallesFromTasa($numeroTasa);
+        $detalle = reset($detalles);
             if ($detalle->hasAttribute('detalle_estado_anulado')) {
                 $detalle->setAttribute('detalle_estado_anulado', 1);
             }
-            if ($detalle->hasAttribute('detalle_estado_pago')) {
+            $detalle = reset($detalles);
+        if ($detalle === false) {
+            return;
+        }
+        if ($detalle->hasAttribute('detalle_estado_pago')) {
                 $detalle->setAttribute('detalle_estado_pago', 0);
             }
             if ($detalle->hasAttribute('detalle_observacion')) {
@@ -1101,7 +1081,6 @@ public function actionPagosInfracciones()
             }
             $localErrors = $detalle->save(false) ? null : $detalle->getErrors();
         }
-
         return array_merge($this->ruatResponseArray($response), [
             'success' => $this->ruatContinuarFlujo($response),
             'mensaje' => $this->ruatMensaje($response, 'RUAT no pudo anular la tasa de sentaje.'),
@@ -1119,7 +1098,6 @@ public function actionPagosInfracciones()
         $data = isset($body['tasa']) && is_array($body['tasa'])
             ? array_merge($body, $body['tasa'])
             : $body;
-
         $tipo = strtolower($this->requiredStringFrom($data, ['tipo', 'paymentCategory', 'categoria']));
         $id = $this->requiredPositiveIntegerFrom($data, ['id', 'pago_id', 'eventual_id'], 'id');
         $token = $this->requiredStringFrom($data, ['token']);
@@ -1127,7 +1105,6 @@ public function actionPagosInfracciones()
         $codigoAlcaldia = $this->optionalStringFrom($data, ['codigoAlcaldia', 'codigo_alcaldia'], 'QUI');
         $motivo = $this->requiredStringFrom($data, ['motivoTasa', 'motivo', 'anulado_motivo']);
         $observacion = $this->requiredStringFrom($data, ['observacion', 'anulado_observacion']);
-
         if (in_array($tipo, ['regular', 'graderias_sillas', 'graderias', 'sillas'], true)) {
             $model = Pagos::findOne($id);
             if ($model === null || (int)$model->pago_estado !== 1) {
@@ -1139,12 +1116,10 @@ public function actionPagosInfracciones()
             if ((int)$model->pago_cobrado === 1) {
                 throw new BadRequestHttpException('No se puede anular un pago cobrado.');
             }
-
             $numeroTasa = trim((string)$model->pago_tasa);
             if ($numeroTasa === '') {
                 throw new BadRequestHttpException('El pago seleccionado no tiene numero de tasa.');
             }
-
             $response = Yii::$app->ruatServices->anularTasa(
                 $token,
                 $codigoUsuario,
@@ -1153,7 +1128,6 @@ public function actionPagosInfracciones()
                 $observacion,
                 $codigoAlcaldia
             );
-
             $localErrors = null;
             if ($this->ruatContinuarFlujo($response)) {
                 $model->pago_anulado = 1;
@@ -1161,7 +1135,6 @@ public function actionPagosInfracciones()
                 $model->pago_anulado_detalle = trim($motivo . '. ' . $observacion);
                 $localErrors = $model->save(false) ? null : $model->getErrors();
             }
-
             return array_merge($this->ruatResponseArray($response), [
                 'success' => $this->ruatContinuarFlujo($response),
                 'mensaje' => $this->ruatMensaje($response, 'RUAT no pudo anular la tasa del pago.'),
@@ -1172,7 +1145,6 @@ public function actionPagosInfracciones()
                 'ruat' => $response,
             ]);
         }
-
         if (in_array($tipo, ['eventual', 'alasita', 'alasitas'], true)) {
             $model = PagosEventuales::findOne($id);
             if ($model === null || (int)$model->eventual_estado !== 1) {
@@ -1184,12 +1156,10 @@ public function actionPagosInfracciones()
             if ((int)$model->eventual_cobrado === 1) {
                 throw new BadRequestHttpException('No se puede anular un pago eventual cobrado.');
             }
-
             $numeroTasa = trim((string)$model->eventual_tasa);
             if ($numeroTasa === '') {
                 throw new BadRequestHttpException('El pago eventual seleccionado no tiene numero de tasa.');
             }
-
             $response = Yii::$app->ruatServices->anularTasa(
                 $token,
                 $codigoUsuario,
@@ -1198,7 +1168,6 @@ public function actionPagosInfracciones()
                 $observacion,
                 $codigoAlcaldia
             );
-
             $localErrors = null;
             if ($this->ruatContinuarFlujo($response)) {
                 $model->eventual_anulado = 1;
@@ -1206,7 +1175,6 @@ public function actionPagosInfracciones()
                 $model->eventual_anulado_detalle = trim($motivo . '. ' . $observacion);
                 $localErrors = $model->save(false) ? null : $model->getErrors();
             }
-
             return array_merge($this->ruatResponseArray($response), [
                 'success' => $this->ruatContinuarFlujo($response),
                 'mensaje' => $this->ruatMensaje($response, 'RUAT no pudo anular la tasa del pago eventual.'),
@@ -1217,14 +1185,12 @@ public function actionPagosInfracciones()
                 'ruat' => $response,
             ]);
         }
-
         throw new BadRequestHttpException('Tipo de pago no valido para anulacion.');
     }
 
     public function actionComprobantePago($id = null)
     {
         $pagoId = $this->resolvePositiveInteger($id, 'id');
-
         return [
             'success' => true,
             'url' => Url::to(['api-maps/comprobante-pago-pdf', 'id' => $pagoId], true),
@@ -1235,14 +1201,12 @@ public function actionPagosInfracciones()
     {
         $pagoId = $this->resolvePositiveInteger($id, 'id');
         $url = $this->generarComprobanteGraderiaSillaPdf($pagoId);
-
         return $this->sendPdfFile($url, 'comprobante_pago_' . $pagoId . '.pdf');
     }
 
     public function actionReciboPreliquidacionPago($id = null)
     {
         $pagoId = $this->resolvePositiveInteger($id, 'id');
-
         return [
             'success' => true,
             'url' => Url::to(['api-maps/recibo-preliquidacion-pago-pdf', 'id' => $pagoId], true),
@@ -1253,14 +1217,12 @@ public function actionPagosInfracciones()
     {
         $pagoId = $this->resolvePositiveInteger($id, 'id');
         $url = $this->generarReciboPreliquidacionGraderiaSillaPdf($pagoId);
-
         return $this->sendPdfFile($url, 'recibo_preliquidacion_pago_' . $pagoId . '.pdf');
     }
 
     public function actionComprobantePagoEventual($id = null)
     {
         $eventualId = $this->resolvePositiveInteger($id, 'id');
-
         return [
             'success' => true,
             'url' => Url::to(['api-maps/comprobante-pago-eventual-pdf', 'id' => $eventualId], true),
@@ -1271,14 +1233,12 @@ public function actionPagosInfracciones()
     {
         $eventualId = $this->resolvePositiveInteger($id, 'id');
         $url = $this->generarComprobanteEventualPdf($eventualId);
-
         return $this->sendPdfFile($url, 'comprobante_pago_eventual_' . $eventualId . '.pdf');
     }
 
     public function actionComprobantePagoInfraccion($id = null)
     {
         $infraccionId = $this->resolvePositiveInteger($id, 'id');
-
         return [
             'success' => true,
             'url' => Url::to(['api-maps/comprobante-pago-infraccion-pdf', 'id' => $infraccionId], true),
@@ -1289,7 +1249,6 @@ public function actionPagosInfracciones()
     {
         $infraccionId = $this->resolvePositiveInteger($id, 'id');
         $url = $this->generarComprobanteInfraccionPdf($infraccionId);
-
         return $this->sendPdfFile($url, 'comprobante_pago_infraccion_' . $infraccionId . '.pdf');
     }
 
@@ -1298,22 +1257,17 @@ public function actionPagosInfracciones()
     {
         $gradId = $this->resolveGradId($id);
         $model = GraderiasSillas::findOne($gradId);
-
         if ($model === null || (int)$model->grad_estado !== 1) {
             throw new NotFoundHttpException('La graderia o silla no existe o no esta activa.');
         }
-
         if ((int)$reservado === 1 && (int)$model->grad_vendido === 1) {
             throw new ConflictHttpException('La graderia o silla ya fue vendida y no se puede reservar.');
         }
-
         if ((int)$model->grad_reservado !== (int)$reservado) {
             $model->grad_reservado = (int)$reservado;
-
             if (!$model->save(false, ['grad_reservado'])) {
                 throw new BadRequestHttpException('No se pudo actualizar la reserva de la graderia o silla.');
             }
-
             $changed = true;
             MapWebSocketPublisher::publishGraderiaSilla((int)$reservado === 1 ? 'reserved' : 'reservation_released', $model->grad_id);
         } else {
@@ -1393,30 +1347,24 @@ public function actionPagosInfracciones()
     {
         $params = Yii::$app->request->post();
         $rawBody = Yii::$app->request->getRawBody();
-
         if (!empty($rawBody)) {
             $json = json_decode($rawBody, true);
-
             if (is_array($json)) {
                 $params = array_merge($params, $json);
             }
         }
-
         return $params;
     }
 
     private function generarComprobanteGraderiaSillaPdf($id)
     {
         $model = Pagos::findOne($id);
-
         if ($model === null || (int)$model->pago_estado !== 1) {
             throw new NotFoundHttpException('El pago no existe o no esta activo.');
         }
-
         if ((int)$model->pago_preliquidacion === 1 && (int)$model->pago_cobrado === 0) {
             return $this->generarReciboPreliquidacionGraderiaSillaPdf($id);
         }
-
         return $this->generarReportePdf('reportes', 'comprobante_graderia_silla', [
             'id_pago' => $id,
             'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
@@ -1427,15 +1375,12 @@ public function actionPagosInfracciones()
     private function generarReciboPreliquidacionGraderiaSillaPdf($id)
     {
         $model = Pagos::findOne($id);
-
         if ($model === null || (int)$model->pago_estado !== 1) {
             throw new NotFoundHttpException('El pago no existe o no esta activo.');
         }
-
         if ((int)$model->pago_preliquidacion !== 1) {
             throw new NotFoundHttpException('El pago no corresponde a una preliquidacion.');
         }
-
         return $this->generarReportePdf('reportes', 'recibo_preliquidacion', [
             'id_pago' => $id,
             'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
@@ -1445,18 +1390,15 @@ public function actionPagosInfracciones()
     private function generarComprobanteEventualPdf($id)
     {
         $model = PagosEventuales::findOne($id);
-
         if ($model === null || (int)$model->eventual_estado !== 1) {
             throw new NotFoundHttpException('El pago eventual no existe o no esta activo.');
         }
-
         if ((int)$model->eventual_preliquidacion === 1 && (int)$model->eventual_cobrado === 0) {
             return $this->generarReportePdf('reportes', 'preliquidacion_actividades_economicas', [
                 'id_pago' => $id,
                 'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
             ]);
         }
-
         return $this->generarReportePdf('reportes', 'comprobante_eventuales2', [
             'id_pago' => $id,
             'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
@@ -1466,11 +1408,9 @@ public function actionPagosInfracciones()
     private function generarComprobanteInfraccionPdf($id)
     {
         $model = PagosInfracciones::findOne($id);
-
         if ($model === null) {
             throw new NotFoundHttpException('El pago de infraccion no existe.');
         }
-
         return $this->generarReportePdf('reportes', 'comprobante_infraccion', [
             'id_pago' => $id,
             'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
@@ -1480,11 +1420,9 @@ public function actionPagosInfracciones()
     private function generarReciboSentajePdf($detalleId)
     {
         $model = GeneradorDescargos::findOne($detalleId);
-
         if ($model === null || (int)$model->detalle_estado !== 1) {
             throw new NotFoundHttpException('El detalle de sentaje no existe o no esta activo.');
         }
-
         return $this->generarReportePdf('reportes', 'preliquidacion_sentaje', [
             'id_detalle' => $detalleId,
             'monto_literal' => '"' . $model->montoTotalLiteral() . '"',
@@ -1496,7 +1434,6 @@ public function actionPagosInfracciones()
         $jasper = Yii::$app->jasper;
         $directorioActual = getcwd();
         chdir(Yii::getAlias('@webroot'));
-
         try {
             $jasper->compile($carpeta . '/' . $archivo . '.jrxml')->execute();
             $jasper->process(
@@ -1508,7 +1445,6 @@ public function actionPagosInfracciones()
         } finally {
             chdir($directorioActual);
         }
-
         return $carpeta . '/' . $archivo . '.pdf';
     }
 
@@ -1517,7 +1453,6 @@ public function actionPagosInfracciones()
         if (!isset($row['contri_id']) || $row['contri_id'] === null) {
             return null;
         }
-
         return [
             'contri_id' => (int)$row['contri_id'],
             'ext_id' => $this->nullableInt($row, 'ext_id'),
@@ -1553,7 +1488,6 @@ public function actionPagosInfracciones()
         if (!isset($row[$idKey]) || $row[$idKey] === null) {
             return null;
         }
-
         return [
             'usua_id' => (int)$row[$idKey],
             'usua_nombres' => $this->value($row, 'usua_nombres'),
@@ -1572,20 +1506,16 @@ public function actionPagosInfracciones()
     private function usuarioByIdPayload($usuaId)
     {
         static $usuarios = [];
-
         if ($usuaId === null) {
             return null;
         }
-
         if (!array_key_exists($usuaId, $usuarios)) {
             $usuarios[$usuaId] = Usuario::findOne($usuaId);
         }
-
         $usuario = $usuarios[$usuaId];
         if ($usuario === null) {
             return null;
         }
-
         return $this->usuarioModelPayload($usuario);
     }
 
@@ -1610,11 +1540,9 @@ public function actionPagosInfracciones()
     {
         $cuenta = $this->requiredStringFrom($data, ['usua_cuenta', 'usuarioCuenta', 'cuentaUsuario']);
         $usuario = Usuario::findOne(['usua_cuenta' => $cuenta, 'usua_estado' => 1]);
-
         if ($usuario === null) {
             throw new BadRequestHttpException('La cuenta de usuario "' . $cuenta . '" no existe o no esta activa para ' . $contexto . '.');
         }
-
         return $usuario;
     }
     private function razonSocialPayload(array $row)
@@ -1623,13 +1551,11 @@ public function actionPagosInfracciones()
         $clasificadorConfigurado =
             $clasificadorKey !== null
             && trim((string)$clasificadorKey) !== '';
-
         if ($clasificadorConfigurado) {
             $clasificadorKey = $this->normalizeClasificadorKey($clasificadorKey);
         } else {
             $clasificadorKey = null;
         }
-
         return [
             'razon_id' => $this->nullableInt($row, 'razon_id'),
             'razon_nombre' => $this->value($row, 'razon_nombre'),
@@ -1645,13 +1571,10 @@ public function actionPagosInfracciones()
     {
         $key = $this->normalizeClasificadorKey($key);
         $catalogo = $this->clasificadoresCatalogo();
-
         if (!isset($catalogo[$key]) || !is_array($catalogo[$key])) {
             return null;
         }
-
         $config = $catalogo[$key];
-
         return [
             'key' => $key,
             'codigo' => isset($config['codigo'])
@@ -1676,7 +1599,6 @@ public function actionPagosInfracciones()
     private function sentajeClasificadorKeys()
     {
         $keys = [];
-
         foreach ($this->clasificadoresCatalogo() as $key => $config) {
             if (
                 is_array($config)
@@ -1686,7 +1608,6 @@ public function actionPagosInfracciones()
                 $keys[] = $this->normalizeClasificadorKey($key);
             }
         }
-
         return array_values(array_unique($keys));
     }
 
@@ -1695,7 +1616,6 @@ public function actionPagosInfracciones()
         if (!isset($row['grad_id']) || $row['grad_id'] === null) {
             return null;
         }
-
         return [
             'grad_id' => (int)$row['grad_id'],
             'zona_id' => $this->nullableInt($row, 'zona_id'),
@@ -1726,7 +1646,6 @@ public function actionPagosInfracciones()
         if (!isset($row['tip_arm_id']) || $row['tip_arm_id'] === null) {
             return null;
         }
-
         return [
             'tip_arm_id' => (int)$row['tip_arm_id'],
             'tip_arm_descricpion' => $this->value($row, 'tip_arm_descricpion'),
@@ -1742,7 +1661,6 @@ public function actionPagosInfracciones()
         if (!isset($row['sitios_id']) || $row['sitios_id'] === null) {
             return null;
         }
-
         return [
             'sitios_id' => (int)$row['sitios_id'],
             'sitios_codigo' => $this->value($row, 'sitios_codigo'),
@@ -1759,7 +1677,6 @@ public function actionPagosInfracciones()
         if (!isset($row['activi_id']) || $row['activi_id'] === null) {
             return null;
         }
-
         return [
             'activi_id' => (int)$row['activi_id'],
             'categ_id' => $this->nullableInt($row, 'categ_id'),
@@ -1796,9 +1713,7 @@ public function actionPagosInfracciones()
         $row['usuario_preliquidacion'] = $this->usuarioByIdPayload($this->nullableInt($row, 'pago_id_user_preliquidacion'));
         $row['graderia_silla'] = $this->graderiaSillaRowPayload($row);
         $row['tipo_armado'] = $this->tipoArmadoPayload($row);
-
         $this->unsetRelatedKeys($row);
-
         return $row;
     }
 
@@ -1809,9 +1724,7 @@ public function actionPagosInfracciones()
         $row['usuario_preliquidacion'] = $this->usuarioByIdPayload($this->nullableInt($row, 'eventual_user_id_preliquidacion'));
         $row['sitio_eventual'] = $this->sitioEventualPayload($row);
         $row['actividad_economica'] = $this->actividadEconomicaPayload($row);
-
         $this->unsetRelatedKeys($row);
-
         return $row;
     }
 
@@ -1819,9 +1732,7 @@ public function actionPagosInfracciones()
     {
         $row['contribuyente'] = $this->contribuyentePayload($row);
         $row['usuario'] = $this->usuarioPayload($row, 'usua_id');
-
         $this->unsetRelatedKeys($row);
-
         return $row;
     }
     private function descargoSentajeroPayload(array $row)
@@ -1830,7 +1741,6 @@ public function actionPagosInfracciones()
         $clasificadorConfigurado =
             $razonClasificadorKey !== null
             && trim((string)$razonClasificadorKey) !== '';
-
         if ($clasificadorConfigurado) {
             $razonClasificadorKey = $this->normalizeClasificadorKey(
                 $razonClasificadorKey
@@ -1838,9 +1748,7 @@ public function actionPagosInfracciones()
         } else {
             $razonClasificadorKey = null;
         }
-
         $defaultKey = $this->clasificadorSentajePorDefectoKey();
-
         return [
             'desc_id' => $this->nullableInt($row, 'desc_id'),
             'descargo' => [
@@ -1880,12 +1788,10 @@ public function actionPagosInfracciones()
     {
         $codigoClasificador = $this->value($row, 'codigo_clasificador');
         $clasificadorKey = $this->clasificadorKeyFromCodigo($codigoClasificador);
-
         $razonClasificadorKey = $this->value($row, 'razon_clasificador');
         $razonClasificadorConfigurado =
             $razonClasificadorKey !== null
             && trim((string)$razonClasificadorKey) !== '';
-
         if ($razonClasificadorConfigurado) {
             $razonClasificadorKey = $this->normalizeClasificadorKey(
                 $razonClasificadorKey
@@ -1893,11 +1799,9 @@ public function actionPagosInfracciones()
         } else {
             $razonClasificadorKey = null;
         }
-
         if ($clasificadorKey === null && $razonClasificadorKey !== null) {
             $clasificadorKey = $razonClasificadorKey;
         }
-
         return [
             'detalle_id' => $this->nullableInt($row, 'detalle_id'),
             'desc_id' => $this->nullableInt($row, 'desc_id'),
@@ -1969,12 +1873,10 @@ public function actionPagosInfracciones()
         $this->filterLike($query, 'u.usua_cuenta', 'usua_cuenta');
         $this->filterDateRange($query, 'dd.detalle_fecha_entrega', 'detalle_fecha_entrega_desde', 'detalle_fecha_entrega_hasta');
         $this->filterDateRange($query, 'd.desc_fecha_hora', 'desc_fecha_hora_desde', 'desc_fecha_hora_hasta');
-
         $search = $this->filterValue('search');
         if ($hasDetalleTasa) {
             $this->filterExact($query, 'dd.detalle_tasa', 'detalle_tasa');
         }
-
         if ($search !== null) {
             $conditions = [
                 'or',
@@ -1985,11 +1887,9 @@ public function actionPagosInfracciones()
                 ['ilike', 'u.usua_apellidos', $search],
                 ['ilike', 'u.usua_cuenta', $search],
             ];
-
             if ($hasDetalleTasa) {
                 $conditions[] = ['ilike', 'dd.detalle_tasa', $search];
             }
-
             $query->andWhere($conditions);
         }
     }
@@ -2035,7 +1935,6 @@ public function actionPagosInfracciones()
         $this->filterDateRange($query, $alias . '.fecha_infraccion', 'fecha_infraccion_desde', 'fecha_infraccion_hasta');
         $this->filterDateRange($query, $alias . '.fecha_pago', 'fecha_pago_desde', 'fecha_pago_hasta');
         $this->filterDateRange($query, $alias . '.anulado_fecha_hora', 'anulado_fecha_hora_desde', 'anulado_fecha_hora_hasta');
-
         $search = $this->filterValue('search');
         if ($search !== null) {
             $query->andWhere([
@@ -2059,57 +1958,57 @@ public function actionPagosInfracciones()
             ]);
         }
     }
-private function applyPagoFilters(&$query, $alias)
- {
-     $this->filterPositiveInteger($query, $alias . '.pago_id', 'pago_id');
-     $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
-     $this->filterPositiveInteger($query, $alias . '.usua_id', 'usua_id');
-     $this->filterPositiveInteger($query, $alias . '.grad_id', 'grad_id');
-     $this->filterPositiveInteger($query, $alias . '.tip_arm_id', 'tip_arm_id');
-     $this->filterExact($query, $alias . '.pago_nro_liquidacion', 'pago_nro_liquidacion');
-     $this->filterPositiveInteger($query, $alias . '.pago_nro_comprobante', 'pago_nro_comprobante');
-     $this->filterExact($query, $alias . '.pago_tasa', 'pago_tasa');
-     $this->filterBinary($query, $alias . '.pago_preliquidacion', 'pago_preliquidacion');
-     $this->filterBinary($query, $alias . '.pago_cobrado', 'pago_cobrado');
-     $this->filterBinary($query, $alias . '.pago_anulado', 'pago_anulado');
-     $this->filterBinary($query, $alias . '.pago_con_exencion', 'pago_con_exencion');
-     $this->filterLike($query, 'c.contri_ci', 'contri_ci');
-     $this->filterLike($query, 'c.contri_nombres', 'contri_nombres');
-     $this->filterLike($query, 'c.contri_paterno', 'contri_paterno');
-     $this->filterLike($query, 'c.contri_materno', 'contri_materno');
-     $this->filterLike($query, 'gs.grad_codigo', 'grad_codigo');
-     $this->filterLike($query, 'gs.grad_direccion', 'grad_direccion');
-     $this->filterLike($query, 'z.zona_nombre', 'zona_nombre');
-     $this->filterLike($query, 'ta.tip_arm_descricpion', 'tip_arm_descricpion');
-     $this->filterDateRange($query, $alias . '.pago_fecha_hora_preliquidacion', 'pago_fecha_hora_preliquidacion_desde', 'pago_fecha_hora_preliquidacion_hasta');
-     $this->filterDateRange($query, $alias . '.pago_fecha_hora_cobro', 'pago_fecha_hora_cobro_desde', 'pago_fecha_hora_cobro_hasta');
- }
-private function applyPagoEventualFilters(&$query, $alias)
-  {
-      $this->filterPositiveInteger($query, $alias . '.eventual_id', 'eventual_id');
-      $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
-      $this->filterPositiveInteger($query, $alias . '.usua_id', 'usua_id');
-      $this->filterPositiveInteger($query, $alias . '.sitios_id', 'sitios_id');
-      $this->filterPositiveInteger($query, $alias . '.activi_id', 'activi_id');
-      $this->filterExact($query, $alias . '.eventual_nro_liquidacion', 'eventual_nro_liquidacion');
-      $this->filterPositiveInteger($query, $alias . '.eventual_nro_comprobante', 'eventual_nro_comprobante');
-      $this->filterExact($query, $alias . '.eventual_tasa', 'eventual_tasa');
-      $this->filterBinary($query, $alias . '.eventual_preliquidacion', 'eventual_preliquidacion');
-      $this->filterBinary($query, $alias . '.eventual_cobrado', 'eventual_cobrado');
-      $this->filterBinary($query, $alias . '.eventual_anulado', 'eventual_anulado');
-      $this->filterLike($query, 'c.contri_ci', 'contri_ci');
-      $this->filterLike($query, 'c.contri_nombres', 'contri_nombres');
-      $this->filterLike($query, 'c.contri_paterno', 'contri_paterno');
-      $this->filterLike($query, 'c.contri_materno', 'contri_materno');
-      $this->filterLike($query, 's.sitios_codigo', 'sitios_codigo');
-      $this->filterLike($query, 's.sitios_descripcion', 'sitios_descripcion');
-      $this->filterLike($query, 'a.activi_descripcion', 'activi_descripcion');
-      $this->filterLike($query, 'cat.categ_nombre', 'categ_nombre');
-      $this->filterDateRange($query, $alias . '.eventual_fecha_hora_liquidacion', 'eventual_fecha_hora_liquidacion_desde', 'eventual_fecha_hora_liquidacion_hasta');
-      $this->filterDateRange($query, $alias . '.eventual_fecha_hora_pago', 'eventual_fecha_hora_pago_desde', 'eventual_fecha_hora_pago_hasta');
-      $this->filterDateRange($query, $alias . '.eventual_fecha_inicio', 'eventual_fecha_inicio_desde', 'eventual_fecha_inicio_hasta');
-      $this->filterDateRange($query, $alias . '.eventual_fecha_limite', 'eventual_fecha_limite_desde', 'eventual_fecha_limite_hasta');
-  }
+    private function applyPagoFilters(&$query, $alias)
+     {
+         $this->filterPositiveInteger($query, $alias . '.pago_id', 'pago_id');
+         $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
+         $this->filterPositiveInteger($query, $alias . '.usua_id', 'usua_id');
+         $this->filterPositiveInteger($query, $alias . '.grad_id', 'grad_id');
+         $this->filterPositiveInteger($query, $alias . '.tip_arm_id', 'tip_arm_id');
+         $this->filterExact($query, $alias . '.pago_nro_liquidacion', 'pago_nro_liquidacion');
+         $this->filterPositiveInteger($query, $alias . '.pago_nro_comprobante', 'pago_nro_comprobante');
+         $this->filterExact($query, $alias . '.pago_tasa', 'pago_tasa');
+         $this->filterBinary($query, $alias . '.pago_preliquidacion', 'pago_preliquidacion');
+         $this->filterBinary($query, $alias . '.pago_cobrado', 'pago_cobrado');
+         $this->filterBinary($query, $alias . '.pago_anulado', 'pago_anulado');
+         $this->filterBinary($query, $alias . '.pago_con_exencion', 'pago_con_exencion');
+         $this->filterLike($query, 'c.contri_ci', 'contri_ci');
+         $this->filterLike($query, 'c.contri_nombres', 'contri_nombres');
+         $this->filterLike($query, 'c.contri_paterno', 'contri_paterno');
+         $this->filterLike($query, 'c.contri_materno', 'contri_materno');
+         $this->filterLike($query, 'gs.grad_codigo', 'grad_codigo');
+         $this->filterLike($query, 'gs.grad_direccion', 'grad_direccion');
+         $this->filterLike($query, 'z.zona_nombre', 'zona_nombre');
+         $this->filterLike($query, 'ta.tip_arm_descricpion', 'tip_arm_descricpion');
+         $this->filterDateRange($query, $alias . '.pago_fecha_hora_preliquidacion', 'pago_fecha_hora_preliquidacion_desde', 'pago_fecha_hora_preliquidacion_hasta');
+         $this->filterDateRange($query, $alias . '.pago_fecha_hora_cobro', 'pago_fecha_hora_cobro_desde', 'pago_fecha_hora_cobro_hasta');
+     }
+        private function applyPagoEventualFilters(&$query, $alias)
+        {
+          $this->filterPositiveInteger($query, $alias . '.eventual_id', 'eventual_id');
+          $this->filterPositiveInteger($query, $alias . '.contri_id', 'contri_id');
+          $this->filterPositiveInteger($query, $alias . '.usua_id', 'usua_id');
+          $this->filterPositiveInteger($query, $alias . '.sitios_id', 'sitios_id');
+          $this->filterPositiveInteger($query, $alias . '.activi_id', 'activi_id');
+          $this->filterExact($query, $alias . '.eventual_nro_liquidacion', 'eventual_nro_liquidacion');
+          $this->filterPositiveInteger($query, $alias . '.eventual_nro_comprobante', 'eventual_nro_comprobante');
+          $this->filterExact($query, $alias . '.eventual_tasa', 'eventual_tasa');
+          $this->filterBinary($query, $alias . '.eventual_preliquidacion', 'eventual_preliquidacion');
+          $this->filterBinary($query, $alias . '.eventual_cobrado', 'eventual_cobrado');
+          $this->filterBinary($query, $alias . '.eventual_anulado', 'eventual_anulado');
+          $this->filterLike($query, 'c.contri_ci', 'contri_ci');
+          $this->filterLike($query, 'c.contri_nombres', 'contri_nombres');
+          $this->filterLike($query, 'c.contri_paterno', 'contri_paterno');
+          $this->filterLike($query, 'c.contri_materno', 'contri_materno');
+          $this->filterLike($query, 's.sitios_codigo', 'sitios_codigo');
+          $this->filterLike($query, 's.sitios_descripcion', 'sitios_descripcion');
+          $this->filterLike($query, 'a.activi_descripcion', 'activi_descripcion');
+          $this->filterLike($query, 'cat.categ_nombre', 'categ_nombre');
+          $this->filterDateRange($query, $alias . '.eventual_fecha_hora_liquidacion', 'eventual_fecha_hora_liquidacion_desde', 'eventual_fecha_hora_liquidacion_hasta');
+          $this->filterDateRange($query, $alias . '.eventual_fecha_hora_pago', 'eventual_fecha_hora_pago_desde', 'eventual_fecha_hora_pago_hasta');
+          $this->filterDateRange($query, $alias . '.eventual_fecha_inicio', 'eventual_fecha_inicio_desde', 'eventual_fecha_inicio_hasta');
+          $this->filterDateRange($query, $alias . '.eventual_fecha_limite', 'eventual_fecha_limite_desde', 'eventual_fecha_limite_hasta');
+      }
     private function resolvePositiveInteger($value, $paramName)
     {
         if ($value === null || $value === '') {
@@ -2359,9 +2258,7 @@ private function unsetRelatedKeys(array &$row)
         if ($codigo === null || trim((string)$codigo) === '') {
             return null;
         }
-
         $codigo = trim((string)$codigo);
-
         foreach ($this->clasificadoresCatalogo() as $key => $config) {
             if (
                 is_array($config)
@@ -2371,7 +2268,6 @@ private function unsetRelatedKeys(array &$row)
                 return $this->normalizeClasificadorKey($key);
             }
         }
-
         return null;
     }
 
@@ -2388,13 +2284,11 @@ private function unsetRelatedKeys(array &$row)
             ],
             null
         );
-
         if ($keySeleccionada !== null) {
             $keySeleccionada = $this->normalizeClasificadorKey($keySeleccionada);
             $this->assertClasificadorSentaje($keySeleccionada);
             return $keySeleccionada;
         }
-
         if ($razon->hasAttribute('razon_clasificador')) {
             $value = $razon->getAttribute('razon_clasificador');
             if ($value !== null && trim((string)$value) !== '') {
@@ -2403,14 +2297,12 @@ private function unsetRelatedKeys(array &$row)
                 return $keyRazon;
             }
         }
-
         $defaultKey = $this->clasificadorSentajePorDefectoKey();
         if ($defaultKey === null) {
             throw new BadRequestHttpException(
                 'No se pudo determinar un clasificador inicial de sentaje desde la configuracion.'
             );
         }
-
         $this->assertClasificadorSentaje($defaultKey);
         return $defaultKey;
     }
@@ -2422,7 +2314,6 @@ private function unsetRelatedKeys(array &$row)
     {
         $key = $this->normalizeClasificadorKey($key);
         $catalogo = $this->clasificadoresCatalogo();
-
         if (
             !isset($catalogo[$key])
             || !is_array($catalogo[$key])
@@ -2433,38 +2324,31 @@ private function unsetRelatedKeys(array &$row)
                 'No existe codigo clasificador configurado para "' . $key . '".'
             );
         }
-
         return trim((string)$catalogo[$key]['codigo']);
     }
     private function sentajeObservacion($clasificadorKey, $actividad)
     {
         $payload = $this->clasificadorPayload($clasificadorKey);
-
         if ($payload === null) {
             throw new BadRequestHttpException(
                 'No existe configuracion para el clasificador seleccionado.'
             );
         }
-
         $base = isset($payload['observacion'])
             ? trim((string)$payload['observacion'])
             : '';
         $actividad = trim((string)$actividad);
-
         $observacion = $base;
         if ($actividad !== '') {
             $observacion = $observacion === ''
                 ? $actividad
                 : $observacion . ' - ' . $actividad;
         }
-
         $observacion = mb_substr($observacion, 0, 250, 'UTF-8');
         $textoLimpio = iconv('UTF-8', 'ASCII//TRANSLIT', $observacion);
-
         if ($textoLimpio === false) {
             $textoLimpio = $observacion;
         }
-
         return preg_replace('/[^a-zA-Z0-9\s.\-,.:]/u', '', $textoLimpio);
     }
 
@@ -2473,17 +2357,14 @@ private function unsetRelatedKeys(array &$row)
         if (!$response) {
             return $default;
         }
-
         foreach (['mensaje', 'message', 'descripcion', 'error'] as $key) {
             if (isset($response->$key) && trim((string)$response->$key) !== '') {
                 return (string)$response->$key;
             }
         }
-
         if (isset($response->mensajes) && is_array($response->mensajes) && count($response->mensajes) > 0) {
             return implode(' ', array_map('strval', $response->mensajes));
         }
-
         return $default;
     }
 
@@ -2492,20 +2373,16 @@ private function unsetRelatedKeys(array &$row)
         if ($response === null) {
             return false;
         }
-
         if (!isset($response->continuarFlujo)) {
             return true;
         }
-
         $value = $response->continuarFlujo;
         if (is_bool($value)) {
             return $value;
         }
-
         if (is_string($value)) {
             return in_array(strtoupper(trim($value)), ['TRUE', '1', 'SI', 'SÍ'], true);
         }
-
         return (bool)$value;
     }
 
@@ -2514,29 +2391,33 @@ private function unsetRelatedKeys(array &$row)
         if ($response === null) {
             return [];
         }
-
         $data = (array)$response;
         unset($data['__ruatHttpOk'], $data['__ruatHttpStatus'], $data['__ruatTechnicalError']);
-
         return $data;
     }
 
     private function consultaPagoSentajeResponse($token, $codigoAlcaldia, $numeroTasa)
     {
-        $detalle = $this->sentajeDetalleFromTasa($numeroTasa);
+        $detalles = $this->sentajeDetallesFromTasa($numeroTasa);
+        $detalle = reset($detalles);
         $response = Yii::$app->ruatServices->consultaPagoTasa($token, $numeroTasa, $codigoAlcaldia);
         $consultaExitosa = $response !== null && empty($response->__ruatTechnicalError);
         $pagado = $consultaExitosa && $this->ruatContinuarFlujo($response) && isset($response->pagoTasa);
-
         if ($pagado) {
-            $this->actualizarSentajePagado($detalle, $numeroTasa, $response->pagoTasa);
+            $this->actualizarSentajesPagados($detalles, $numeroTasa, $response->pagoTasa);
         } elseif ($this->ruatMensajeIndicaAnulacion($response)) {
-            if ($detalle->hasAttribute('detalle_estado_anulado')) {
-                $detalle->setAttribute('detalle_estado_anulado', 1);
-            }
-            $detalle->save(false);
-        }
 
+            GeneradorDescargos::updateAll(
+                ['detalle_estado_anulado' => 1],
+                ['detalle_tasa' => $numeroTasa]
+            );
+
+            foreach ($detalles as $item) {
+                if ($item->hasAttribute('detalle_estado_anulado')) {
+                    $item->detalle_estado_anulado = 1;
+                }
+            }
+        }
         return array_merge($this->ruatResponseArray($response), [
             'success' => $consultaExitosa,
             'consultaExitosa' => $consultaExitosa,
@@ -2546,42 +2427,69 @@ private function unsetRelatedKeys(array &$row)
             'detalle' => $detalle->attributes,
             'registrosLocales' => [
                 'sentaje' => $detalle->attributes,
+                'sentajes' => array_map(function ($item) {
+                    return $item->attributes;
+                }, $detalles),
             ],
             'registroLocalTipos' => ['sentaje'],
             'ruat' => $response,
         ]);
     }
 
-    private function actualizarSentajePagado(GeneradorDescargos $detalle, $numeroTasa, $pagoTasa)
+    private function actualizarSentajesPagados(array $detalles, $numeroTasa, $pagoTasa)
     {
+        if (empty($detalles)) {
+            return;
+        }
+
+        $attributes = [];
+        $detalle = reset($detalles);
+
         if ($detalle->hasAttribute('detalle_estado_pago')) {
-            $detalle->setAttribute('detalle_estado_pago', 1);
+            $attributes['detalle_estado_pago'] = 1;
+        }
+
+        if ($detalle->hasAttribute('detalle_estado_anulado')) {
+            $attributes['detalle_estado_anulado'] = 0;
         }
 
         if ($detalle->hasAttribute('nro_comprobante')) {
-            $detalle->setAttribute('nro_comprobante', $numeroTasa);
+            $attributes['nro_comprobante'] = $numeroTasa;
         }
 
         if ($detalle->hasAttribute('detalle_observacion')) {
-            $detalle->setAttribute('detalle_observacion', $this->observacionPagoRuat($pagoTasa));
+            $attributes['detalle_observacion'] = $this->observacionPagoRuat($pagoTasa);
         }
 
-        $detalle->save(false);
-    }
+        if (!empty($attributes)) {
 
-    private function sentajeDetalleFromTasa($numeroTasa)
+            // UPDATE EVERY DETAIL OF THIS TASA
+            GeneradorDescargos::updateAll(
+                $attributes,
+                ['detalle_tasa' => $numeroTasa]
+            );
+
+            // keep returned objects synchronized
+            foreach ($detalles as $detalle) {
+                foreach ($attributes as $attribute => $value) {
+                    $detalle->setAttribute($attribute, $value);
+                }
+            }
+        }
+    }
+    private function sentajeDetallesFromTasa($numeroTasa)
     {
-        $detalle = GeneradorDescargos::find()
+        $detalles = GeneradorDescargos::find()
             ->where(['detalle_tasa' => $numeroTasa])
             ->andWhere(['detalle_estado' => [0, 1]])
             ->orderBy(['detalle_id' => SORT_DESC])
-            ->one();
+            ->all();
 
-        if ($detalle === null) {
+        if (empty($detalles)) {
             throw new NotFoundHttpException('No existe una preliquidacion de sentaje para la tasa enviada.');
         }
 
-        return $detalle;
+        return $detalles;
     }
 
     private function numeroTasasFromRequest(array $data)
@@ -2629,11 +2537,9 @@ private function unsetRelatedKeys(array &$row)
         if (!$response || !isset($response->mensaje)) {
             return false;
         }
-
         $mensaje = is_scalar($response->mensaje)
             ? strtolower((string)$response->mensaje)
             : strtolower((string)json_encode($response->mensaje));
-
         return strpos($mensaje, 'anulada') !== false || strpos($mensaje, 'anulado') !== false;
     }
 
@@ -2644,7 +2550,6 @@ private function unsetRelatedKeys(array &$row)
                 return $data[$key];
             }
         }
-
         return null;
     }
 
@@ -2654,12 +2559,10 @@ private function unsetRelatedKeys(array &$row)
         if (!is_scalar($value)) {
             throw new BadRequestHttpException('Debe enviar ' . implode(' o ', $keys) . '.');
         }
-
         $value = trim((string)$value);
         if ($value === '') {
             throw new BadRequestHttpException('Debe enviar ' . implode(' o ', $keys) . '.');
         }
-
         return $value;
     }
 
@@ -2669,11 +2572,9 @@ private function unsetRelatedKeys(array &$row)
         if ($value === null) {
             return $default;
         }
-
         if (!is_scalar($value)) {
             throw new BadRequestHttpException(implode(' o ', $keys) . ' debe ser un valor simple.');
         }
-
         $value = trim((string)$value);
         return $value === '' ? $default : $value;
     }
@@ -2684,7 +2585,6 @@ private function unsetRelatedKeys(array &$row)
         if ($value === null || $value === '' || !ctype_digit((string)$value) || (int)$value <= 0) {
             throw new BadRequestHttpException('Debe enviar ' . $label . ' como entero positivo.');
         }
-
         return (int)$value;
     }
 
@@ -2694,11 +2594,9 @@ private function unsetRelatedKeys(array &$row)
         if ($value === null || $value === '') {
             return $default;
         }
-
         if (!ctype_digit((string)$value) || (int)$value <= 0) {
             throw new BadRequestHttpException(implode(' o ', $keys) . ' debe ser un entero positivo.');
         }
-
         return (int)$value;
     }
 
@@ -2708,11 +2606,9 @@ private function unsetRelatedKeys(array &$row)
         if ($value === null || $value === '') {
             return $default;
         }
-
         if (!ctype_digit((string)$value) || (int)$value < 0) {
             throw new BadRequestHttpException(implode(' o ', $keys) . ' debe ser un entero mayor o igual a cero.');
         }
-
         return (int)$value;
     }
 
@@ -2722,7 +2618,6 @@ private function unsetRelatedKeys(array &$row)
         if ($value === null || $value === '' || !is_numeric($value) || (float)$value <= 0) {
             throw new BadRequestHttpException('Debe enviar ' . $label . ' como numero mayor a cero.');
         }
-
         return (float)$value;
     }
 
