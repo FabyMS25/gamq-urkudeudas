@@ -80,12 +80,13 @@ $listaContribuyentes = ArrayHelper::map($listaModelContri, 'desc_id', 'desc_resp
     function getActividad(id) {
 
         if (id > 0) {
-            $.post("index.php?r=razon-sociales/ajax-razon&id=" + id,
-                function(data) {
-
-                    $("#txt_actividad").text(data);
+            $.get('index.php?r=api-maps/descargos-sentajeros&id=' + id, function (data) {
+                if (!data) return;
+                var razon = data.razon_social || data.razon || null;
+                if (razon && razon.razon_nombre) {
+                    $("#txt_actividad").text(razon.razon_nombre);
                 }
-            );
+            }, 'json');
 
         }
     }

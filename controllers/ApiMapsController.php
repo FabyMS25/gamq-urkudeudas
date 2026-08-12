@@ -822,6 +822,11 @@ public function actionPagosInfracciones()
             $clasificadorKey,
             $detalleFeria
         );
+        $detalleItems = $this->sentajeDetalleItemsFromRequest($data, $detalleFeria);
+        $importe = 0.0;
+        foreach ($detalleItems as $detalleItem) {
+            $importe += (float)$detalleItem['detalle_importe_bs'];
+        }
 
         $token = Yii::$app->ruatServices->loginConfigured();
         if (!$token) {
@@ -892,57 +897,62 @@ public function actionPagosInfracciones()
             ];
         }
 
-        $detalle = new GeneradorDescargos();
-        $detalle->desc_id = $descId;
-        $detalle->detalle_precio = $precio;
-        $detalle->detalle_nro_inicio = $nroInicio;
-        $detalle->detalle_nro_limite = $nroLimite;
-        $detalle->detalle_cantidad = $cantidadFinal;
-        $detalle->detalle_cantidad_anulado = $cantidadAnulado;
-        $detalle->detalle_fecha_entrega = date('Y-m-d H:i:s');
-        $detalle->detalle_importe_bs = $importe;
-        $detalle->detalle_estado = 1;
-        $detalle->detalle_estado_pago = 0;
+        $detallesGuardados = [];
+        $ultimoDetalle = null;
+        foreach ($detalleItems as $detalleItem) {
+            $detalle = new GeneradorDescargos();
+            $detalle->desc_id = $descId;
+            $detalle->detalle_precio = $detalleItem['detalle_precio'];
+            $detalle->detalle_nro_inicio = $detalleItem['detalle_nro_inicio'];
+            $detalle->detalle_nro_limite = $detalleItem['detalle_nro_limite'];
+            $detalle->detalle_cantidad = $detalleItem['detalle_cantidad'];
+            $detalle->detalle_cantidad_anulado = $detalleItem['detalle_cantidad_anulado'];
+            $detalle->detalle_fecha_entrega = date('Y-m-d H:i:s');
+            $detalle->detalle_importe_bs = $detalleItem['detalle_importe_bs'];
+            $detalle->detalle_estado = 1;
+            $detalle->detalle_estado_pago = 0;
 
-        if ($detalle->hasAttribute('detalle_estado_anulado')) {
-            $detalle->setAttribute('detalle_estado_anulado', 0);
-        }
-        if ($detalle->hasAttribute('usua_id')) {
-            $detalle->setAttribute('usua_id', (int)$usuarioOperador->usua_id);
-        }
-        if ($detalle->hasAttribute('detalle_tasa')) {
-            $detalle->setAttribute('detalle_tasa', $numeroTasa);
-        }
-        if ($detalle->hasAttribute('nro_comprobante')) {
-            $detalle->setAttribute('nro_comprobante', null);
-        }
-        if ($detalle->hasAttribute('detalle_observacion')) {
-            $detalle->setAttribute('detalle_observacion', $observacion);
-        }
-        if ($detalle->hasAttribute('detalle_feria')) {
-            $detalle->setAttribute('detalle_feria', $detalleFeria);
-        }
-        if ($detalle->hasAttribute('codigo_clasificador')) {
-            $detalle->setAttribute(
-                'codigo_clasificador',
-                $codigoClasificador
-            );
-        }
+            if ($detalle->hasAttribute('detalle_estado_anulado')) {
+                $detalle->setAttribute('detalle_estado_anulado', 0);
+            }
+            if ($detalle->hasAttribute('usua_id')) {
+                $detalle->setAttribute('usua_id', (int)$usuarioOperador->usua_id);
+            }
+            if ($detalle->hasAttribute('detalle_tasa')) {
+                $detalle->setAttribute('detalle_tasa', $numeroTasa);
+            }
+            if ($detalle->hasAttribute('nro_comprobante')) {
+                $detalle->setAttribute('nro_comprobante', null);
+            }
+            if ($detalle->hasAttribute('detalle_observacion')) {
+                $detalle->setAttribute('detalle_observacion', $observacion);
+            }
+            if ($detalle->hasAttribute('detalle_feria')) {
+                $detalle->setAttribute('detalle_feria', $detalleItem['detalle_feria']);
+            }
+            if ($detalle->hasAttribute('codigo_clasificador')) {
+                $detalle->setAttribute('codigo_clasificador', $codigoClasificador);
+            }
 
-        if (!$detalle->save()) {
-            Yii::error([
-                'mensaje' => 'RUAT creo la tasa, pero no se pudo guardar localmente.',
-                'numero_tasa' => $numeroTasa,
-                'desc_id' => $descId,
-                'clasificador_key' => $clasificadorKey,
-                'codigo_clasificador' => $codigoClasificador,
-                'errores' => $detalle->getErrors(),
-            ], __METHOD__);
-            throw new BadRequestHttpException(
-                'RUAT creo la tasa ' . $numeroTasa .
-                ', pero no se pudo guardar la preliquidacion local: ' .
-                json_encode($detalle->getErrors())
-            );
+            if (!$detalle->save()) {
+                Yii::error([
+                    'mensaje' => 'RUAT creo la tasa, pero no se pudo guardar localmente.',
+                    'numero_tasa' => $numeroTasa,
+                    'desc_id' => $descId,
+                    'clasificador_key' => $clasificadorKey,
+                    'codigo_clasificador' => $codigoClasificador,
+                    'errores' => $detalle->getErrors(),
+                    'detalle_item' => $detalleItem,
+                ], __METHOD__);
+                throw new BadRequestHttpException(
+                    'RUAT creo la tasa ' . $numeroTasa .
+                    ', pero no se pudo guardar la preliquidacion local: ' .
+                    json_encode($detalle->getErrors())
+                );
+            }
+
+            $detallesGuardados[] = $detalle->attributes;
+            $ultimoDetalle = $detalle;
         }
         return [
             'success' => true,
@@ -953,11 +963,12 @@ public function actionPagosInfracciones()
             'codigoUsuario' => $codigoUsuario,
             'codigoContribuyente' => $codigoContribuyente,
             'descargo' => $descargo->attributes,
-            'detalle' => $detalle->attributes,
+            'detalle' => $ultimoDetalle ? $ultimoDetalle->attributes : null,
+            'detalles' => $detallesGuardados,
             'usuario' => $this->usuarioModelPayload($usuarioOperador),
             'reciboUrl' => Url::to([
                 'api-maps/recibo-sentaje-pdf',
-                'id_detalle' => $detalle->detalle_id,
+                'id_detalle' => $ultimoDetalle ? $ultimoDetalle->detalle_id : null,
             ], true),
             'ruat' => $response,
         ];
@@ -2490,6 +2501,57 @@ private function unsetRelatedKeys(array &$row)
         }
 
         return $detalles;
+    }
+
+    private function sentajeDetalleItemsFromRequest(array $data, $detalleFeria)
+    {
+        $items = $data['detalles'] ?? null;
+        if (!is_array($items) || empty($items)) {
+            $items = [$data];
+        }
+
+        $detalleItems = [];
+        foreach ($items as $index => $item) {
+            if (!is_array($item)) {
+                throw new BadRequestHttpException('Cada detalle debe enviarse como un objeto valido.');
+            }
+
+            $precio = $this->requiredNumberFrom($item, ['detalle_precio', 'precio'], 'precio');
+            $nroInicio = $this->requiredPositiveIntegerFrom($item, ['detalle_nro_inicio', 'nro_inicio'], 'nro_inicio');
+            $nroLimite = $this->requiredPositiveIntegerFrom($item, ['detalle_nro_limite', 'nro_limite'], 'nro_limite');
+            $cantidadAnulado = $this->optionalNonNegativeInteger($item, ['detalle_cantidad_anulado', 'cantidad_anulado'], 0);
+
+            if ($nroLimite < $nroInicio) {
+                throw new BadRequestHttpException('El nro limite no puede ser menor al nro inicio en el detalle ' . $index . '.');
+            }
+
+            $cantidad = ($nroLimite - $nroInicio) + 1;
+            if ($cantidadAnulado > $cantidad) {
+                throw new BadRequestHttpException('La cantidad de anulados no puede ser mayor a la cantidad en el detalle ' . $index . '.');
+            }
+
+            $cantidadFinal = $cantidad - $cantidadAnulado;
+            $importe = round($precio * $cantidadFinal, 2);
+            if ($importe <= 0) {
+                throw new BadRequestHttpException('El importe de la preliquidacion debe ser mayor a cero.');
+            }
+
+            $detalleItems[] = [
+                'detalle_precio' => $precio,
+                'detalle_nro_inicio' => $nroInicio,
+                'detalle_nro_limite' => $nroLimite,
+                'detalle_cantidad' => $cantidadFinal,
+                'detalle_cantidad_anulado' => $cantidadAnulado,
+                'detalle_importe_bs' => $importe,
+                'detalle_feria' => $this->optionalStringFrom($item, ['detalle_feria', 'feria', 'actividad'], $detalleFeria),
+            ];
+        }
+
+        if (empty($detalleItems)) {
+            throw new BadRequestHttpException('Debe enviar al menos un detalle de preliquidacion.');
+        }
+
+        return $detalleItems;
     }
 
     private function numeroTasasFromRequest(array $data)
