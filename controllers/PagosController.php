@@ -69,7 +69,7 @@ class PagosController extends Controller
         $searchModel = new SearchPagos();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         // Show active (not deleted) preliquidaciones that haven't been paid
-        $dataProvider->query->andWhere(['pago_estado' => 1, 'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
+        $dataProvider->query->andWhere(['pago_estado' => 1, 'pago_anulado' => 0, 'pago_preliquidacion' => 1, 'pago_cobrado' => 0]);
         if (Usuario::getRolPreli()) {
             $dataProvider->query->andWhere(['pago_id_user_preliquidacion' => \Yii::$app->user->id]);
         }
@@ -649,8 +649,7 @@ class PagosController extends Controller
         $model = $this->findModel($id);
         $pago_longitud_modificada = $model->pago_longitud_modificada;
         $nro_preliquidacion = $model->pago_nro_liquidacion;
-        $model->pago_anulado = 1; // mark as anulated (do NOT change pago_estado)
-        // modelo graderias y sillas
+        $model->pago_anulado = 1;
         $modelGraderia = \app\models\GraderiasSillas::findOne($model->grad_id);
         $modelGraderia->grad_vendido = 0;
         $modelGraderia->grad_longitud = $modelGraderia->grad_longitud + $pago_longitud_modificada;
