@@ -2157,15 +2157,15 @@ private function unsetRelatedKeys(array &$row)
             );
         }
 
-        $grupo = isset($catalogo[$key]['grupo'])
-            ? trim((string)$catalogo[$key]['grupo'])
-            : '';
-
-        if ($grupo !== 'sentajes') {
-            throw new BadRequestHttpException(
-                'El clasificador "' . $key . '" no esta permitido para sentajes.'
-            );
-        }
+//         $grupo = isset($catalogo[$key]['grupo'])
+//             ? trim((string)$catalogo[$key]['grupo'])
+//             : '';
+//
+//         if ($grupo !== 'sentajes') {
+//             throw new BadRequestHttpException(
+//                 'El clasificador "' . $key . '" no esta permitido para sentajes.'
+//             );
+//         }
     }
 
     private function clasificadorSentajePorDefectoKey()

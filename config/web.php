@@ -35,8 +35,8 @@ $config = [
             'locale' => 'es_ES', //optional
             'db' => [
 //                 'dsn' => 'pgsql:host=localhost;port=5433;dbname=db_urku2026?sslmode=disable',
-                'dsn' => 'pgsql:host=localhost;port=5434;dbname=db_urku2026?sslmode=disable',
-//                 'dsn' => 'pgsql:host=181.177.143.187;port=5434;dbname=db_urku2026?sslmode=disable',
+//                 'dsn' => 'pgsql:host=localhost;port=5434;dbname=db_urku2026?sslmode=disable',
+                'dsn' => 'pgsql:host=181.177.143.187;port=5434;dbname=db_urku2026?sslmode=disable',
                 'username' => 'postgres',
 //                 'password' => 'ADMIN',
                 'password' => 'Admin*PG18',
